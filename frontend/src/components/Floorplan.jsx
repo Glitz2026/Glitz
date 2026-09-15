@@ -161,80 +161,115 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                             </linearGradient>
                         </defs>
 
-                        {/* ================= PRIVÉ PERIMETERS ================= */}
-
-                        {/* Privé Back the Stage — TOP cluster */}
+                        {/* ================= BACK THE STAGE (linee ufficiali) ================= */}
+                        {/* Perimetro esterno: tetto inclinato in alto, notch scale a destra, D-cutout palco al centro-basso */}
                         <path
-                            d="M 160 200 L 420 200 L 420 460 L 160 460 Z"
+                            d="
+                                M 120 220
+                                L 540 165
+                                L 545 245
+                                L 560 245
+                                L 560 285
+                                L 545 285
+                                L 545 360
+                                L 560 360
+                                L 560 400
+                                L 545 400
+                                L 545 445
+                                L 560 445
+                                L 560 480
+                                L 545 480
+                                L 545 545
+                                L 505 545
+                                L 505 755
+                                L 130 755
+                                Z
+                            "
                             fill="rgba(255,51,0,0.04)"
                             stroke="#FFFFFF"
                             strokeWidth="1.8"
                             strokeLinejoin="round"
-                            opacity="0.85"
+                            opacity="0.9"
                         />
-                        {/* Privé Back the Stage — BOTTOM cluster (irregular) */}
+                        {/* Palco / DJ booth (D-cutout ufficiale) */}
                         <path
-                            d="M 130 580 L 360 580 L 400 620 L 490 660 L 490 745 L 130 745 Z"
-                            fill="rgba(255,51,0,0.04)"
-                            stroke="#FFFFFF"
-                            strokeWidth="1.8"
-                            strokeLinejoin="round"
-                            opacity="0.85"
+                            d="M 250 555 Q 250 470 340 460 Q 430 470 430 555 Z"
+                            fill="rgba(255,51,0,0.08)"
+                            stroke="#FF3300"
+                            strokeWidth="2"
+                            opacity="0.9"
                         />
+                        <rect x="315" y="490" width="60" height="34" fill="rgba(255,51,0,0.15)" stroke="#FF3300" strokeWidth="1.5" rx="2" />
+                        <text x="345" y="512" textAnchor="middle" fill="#FF3300" fontSize="11" fontWeight="800" letterSpacing="3">DJ</text>
 
-                        {/* Privé Riva Deck — 4x4 grid perimeter */}
+                        {/* ================= GLITZ BAR (linee ufficiali - forma a L) ================= */}
+                        {/* Piccola stanza superiore + corridoio + area tavoli inferiore */}
                         <path
-                            d="M 620 235 L 1180 235 Q 1200 235 1200 260 L 1200 520 L 620 520 Z"
-                            fill="rgba(0,191,255,0.04)"
-                            stroke="#FFFFFF"
-                            strokeWidth="1.8"
-                            strokeLinejoin="round"
-                            opacity="0.85"
-                        />
-                        {/* Riva vertical divider hints (4 columns) */}
-                        <line x1="740" y1="245" x2="740" y2="510" stroke="#FFFFFF" strokeWidth="0.6" strokeDasharray="4 6" opacity="0.35" />
-                        <line x1="875" y1="245" x2="875" y2="510" stroke="#FFFFFF" strokeWidth="0.6" strokeDasharray="4 6" opacity="0.35" />
-                        <line x1="1015" y1="245" x2="1015" y2="510" stroke="#FFFFFF" strokeWidth="0.6" strokeDasharray="4 6" opacity="0.35" />
-
-                        {/* Privé Glitz Bar — bottom-left */}
-                        <path
-                            d="M 170 720 L 460 720 L 460 1010 L 170 1010 Z"
+                            d="
+                                M 65 780
+                                L 130 780
+                                L 130 720
+                                L 210 720
+                                L 210 780
+                                L 505 780
+                                L 505 1015
+                                L 175 1015
+                                L 175 990
+                                L 105 990
+                                L 105 890
+                                L 65 890
+                                Z
+                            "
                             fill="rgba(255,165,0,0.04)"
                             stroke="#FFFFFF"
                             strokeWidth="1.8"
                             strokeLinejoin="round"
-                            opacity="0.85"
+                            opacity="0.9"
                         />
-                        {/* Bar counter (curved line) */}
+                        {/* Bancone/mobile bar */}
+                        <rect x="130" y="740" width="80" height="35" fill="none" stroke="#FFA500" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.7" />
+
+                        {/* ================= RIVA DECK (linee ufficiali) ================= */}
+                        {/* Trapezio con lato SX inclinato (prua), angolo DX arrotondato, bancone RIVA in alto con divisioni */}
                         <path
-                            d="M 190 770 Q 300 745 430 780"
-                            stroke="#FFA500"
-                            strokeWidth="2.5"
-                            fill="none"
-                            opacity="0.7"
-                            strokeLinecap="round"
+                            d="
+                                M 615 220
+                                L 1215 220
+                                L 1215 465
+                                Q 1215 528 1152 528
+                                L 745 528
+                                L 728 550
+                                L 610 550
+                                L 610 240
+                                Z
+                            "
+                            fill="rgba(0,191,255,0.04)"
+                            stroke="#FFFFFF"
+                            strokeWidth="1.8"
+                            strokeLinejoin="round"
+                            opacity="0.9"
                         />
+                        {/* Bancone RIVA (linea superiore) con 6 divisioni rettangolari */}
+                        <line x1="625" y1="255" x2="1185" y2="255" stroke="#00BFFF" strokeWidth="1.2" opacity="0.65" />
+                        <line x1="625" y1="285" x2="1185" y2="285" stroke="#00BFFF" strokeWidth="1.2" opacity="0.65" />
+                        {[720, 815, 910, 1005, 1100].map((x, i) => (
+                            <line key={i} x1={x} y1="255" x2={x} y2="285" stroke="#00BFFF" strokeWidth="1" opacity="0.5" />
+                        ))}
+                        {/* Notch scala in alto-destra */}
+                        <path d="M 1185 220 L 1185 260 L 1215 260" fill="none" stroke="#FFFFFF" strokeWidth="1.5" opacity="0.65" />
 
                         {/* ================= ARCO ICONICO GLITZ ================= */}
-                        {/* Central above stage area */}
                         <path
-                            d="M 500 190 Q 720 90 940 190"
+                            d="M 100 155 Q 340 60 555 130"
                             stroke="url(#archGrad)"
                             strokeWidth="4"
                             fill="none"
                             strokeLinecap="round"
                             opacity="0.95"
                         />
-                        <path
-                            d="M 520 195 Q 720 108 920 195"
-                            stroke="#FF6633"
-                            strokeWidth="1.5"
-                            fill="none"
-                            opacity="0.6"
-                        />
                         <text
-                            x="720"
-                            y="160"
+                            x="330"
+                            y="120"
                             textAnchor="middle"
                             fill="#FFFFFF"
                             fontSize="18"
@@ -245,40 +280,14 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                             GLITZ
                         </text>
 
-                        {/* ================= DJ BOOTH ================= */}
-                        <rect
-                            x="670"
-                            y="185"
-                            width="100"
-                            height="34"
-                            fill="rgba(255,51,0,0.1)"
-                            stroke="#FF3300"
-                            strokeWidth="2"
-                            rx="3"
-                        />
-                        <text
-                            x="720"
-                            y="207"
-                            textAnchor="middle"
-                            fill="#FF3300"
-                            fontSize="12"
-                            fontWeight="800"
-                            letterSpacing="4"
-                        >
-                            DJ BOOTH
-                        </text>
-
                         {/* ================= ZONE LABELS ================= */}
-                        <text x="290" y="185" textAnchor="middle" fill="#FF3300" fontSize="14" fontWeight="900" letterSpacing="3" opacity="0.9">
+                        <text x="260" y="200" textAnchor="middle" fill="#FF3300" fontSize="16" fontWeight="900" letterSpacing="4" opacity="0.9">
                             BACK THE STAGE
                         </text>
-                        <text x="290" y="570" textAnchor="middle" fill="#FF3300" fontSize="12" fontWeight="900" letterSpacing="2" opacity="0.75">
-                            BACK THE STAGE · PRIVÉ 2
-                        </text>
-                        <text x="910" y="225" textAnchor="middle" fill="#00BFFF" fontSize="14" fontWeight="900" letterSpacing="3" opacity="0.9">
+                        <text x="905" y="405" textAnchor="middle" fill="#00BFFF" fontSize="18" fontWeight="900" letterSpacing="5" opacity="0.85">
                             RIVA DECK
                         </text>
-                        <text x="315" y="710" textAnchor="middle" fill="#FFA500" fontSize="14" fontWeight="900" letterSpacing="3" opacity="0.9">
+                        <text x="315" y="905" textAnchor="middle" fill="#FFA500" fontSize="16" fontWeight="900" letterSpacing="4" opacity="0.9">
                             GLITZ BAR
                         </text>
 
