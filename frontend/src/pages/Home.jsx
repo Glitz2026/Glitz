@@ -111,12 +111,11 @@ export default function Home() {
                     className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center flex flex-col items-center gap-6 py-24"
                 >
                     <span className="overline-tag">
-                        <Sparkles className="w-3.5 h-3.5" /> Glitz Club • {ADDRESS_SHORT}
+                        Glitz Club • {ADDRESS_SHORT}
                     </span>
-                    <h1 data-testid="hero-title" className="text-5xl sm:text-7xl lg:text-8xl font-black uppercase tracking-tight leading-[0.9] text-white text-glow-lava">
-                        Il Tempio<br />
-                        <span className="bg-gradient-to-r from-lava via-sunset-pink to-sunset-purple bg-clip-text text-transparent">delle Notti</span><br />
-                        Calabresi
+                    <h1 data-testid="hero-title" className="text-5xl sm:text-7xl lg:text-8xl font-black uppercase tracking-tight leading-[0.9]">
+                        <span className="block text-stroke-outline">Ogni Notte</span>
+                        <span className="block text-shimmer">Un Rito</span>
                     </h1>
                     <p className="max-w-2xl text-base sm:text-lg text-white/70 leading-relaxed">
                         Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino.
@@ -125,8 +124,9 @@ export default function Home() {
 
                     {upcoming && (
                         <div data-testid="hero-upcoming" className="mt-4 flex flex-col items-center gap-4">
-                            <div className="text-xs uppercase tracking-[0.3em] text-white/60">Prossimo evento</div>
-                            <div className="text-xl sm:text-2xl font-bold text-white">{upcoming.title}</div>
+                            <div className="text-2xl sm:text-3xl font-black uppercase tracking-widest text-white text-center">
+                                {(upcoming.title || "").split("—")[0].trim()}
+                            </div>
                             <Countdown targetIso={upcoming.date} testIdPrefix="hero-countdown" />
                         </div>
                     )}
@@ -160,8 +160,8 @@ export default function Home() {
             <section data-testid="upcoming-events-section" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
                 <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
                     <div className="space-y-3">
-                        <span className="overline-tag">Stagione 2026</span>
-                        <h2 className="section-title">Prossime Serate</h2>
+                        <span className="overline-tag">Stagione 2027</span>
+                        <h2 className="section-title">Prossimi Eventi</h2>
                     </div>
                     <Link to="/eventi" data-testid="see-all-events-link" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
                         Tutti gli eventi <ArrowRight className="w-4 h-4" />

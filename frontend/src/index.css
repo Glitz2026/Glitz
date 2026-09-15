@@ -165,3 +165,35 @@ body {
     break-inside: avoid;
     margin-bottom: 1rem;
 }
+
+/* Hero title effects — outline stroke + animated shimmer gradient */
+@keyframes text-shimmer-shift {
+    0% { background-position: 200% 50%; }
+    100% { background-position: -200% 50%; }
+}
+.text-shimmer {
+    background: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        #FF3300 20%,
+        #E0115F 40%,
+        #8A2BE2 60%,
+        #FF3300 80%,
+        #ffffff 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: text-shimmer-shift 6s linear infinite;
+    text-shadow: 0 0 40px rgba(255, 51, 0, 0.3);
+    filter: drop-shadow(0 0 20px rgba(224, 17, 95, 0.25));
+}
+.text-stroke-outline {
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.9);
+    color: transparent;
+}
+@media (max-width: 640px) {
+    .text-stroke-outline { -webkit-text-stroke-width: 1.5px; }
+}
