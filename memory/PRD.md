@@ -36,6 +36,17 @@ Sito vetrina premium per Glitz, club all'aperto da 2000 posti a San Nicola Arcel
 - ✅ i18n: solo italiano
 - ✅ Testing: 100% backend, ~98% frontend
 
+## Implemented (Fase 4 — 15 Feb 2026)
+- ✅ Loghi Glitz ufficiali (bianco su trasparente, PDF → PNG rifilato) attivi in header (h-24 sm:h-32, tripla dimensione) e footer
+- ✅ Planimetria ufficiale del club (PDF scala 1:200 → PNG) come background della piantina tavoli
+- ✅ Piantina interattiva completamente rifatta: 28 hotspot cliccabili sovrapposti alla planimetria reale, divisi in 5 zone (Privé Stage / Centrale / Garden + Main Bar + Gin XP-Pool) con codice colore
+- ✅ Sistema Booking completo: POST /api/bookings salva in DB (collection `bookings`), invia email di conferma via Resend se fornita, GET /api/admin/bookings per staff, PATCH /admin/bookings/{id}?status=... per conferma/rifiuto
+- ✅ Componente BookingModal con form nome/telefono/email/ospiti/note; alla submit salva su DB + apre WhatsApp precompilato
+- ✅ Modal Booking attivo su: hero Home "Prenota Tavolo", EventDetail "Prenota Tavolo", e su ogni tavolo cliccato in piantina (con # e zona precompilati)
+- ✅ Tab Admin "Prenotazioni" con lista completa + azioni conferma/rifiuta + tab "Config" con planimetria_url settabile
+- ✅ Hero video: supporto Vimeo automatico (iframe `background=1&autoplay=1&muted=1&loop=1`) — impostato al video utente
+- ✅ Foto aggiuntive del cliente integrate
+
 ## Implemented (Fase 2 — 15 Feb 2026 — pt.1)
 - ✅ Video Hero: campo `hero_video_url` in settings; se impostato, la home mostra `<video autoplay muted loop playsInline>` come background al posto dell'immagine
 - ✅ Piantina Tavoli: componente `Floorplan.jsx` con SVG (19 tavoli su 3 zone: VIP Stage/Premium/Sea View), arco stage e dance floor, tavoli cliccabili → modal → deep link WhatsApp con numero tavolo, zona e posti pre-compilato. Mostrato solo se evento ha `floorplan_enabled=true` (toggle admin già presente)
