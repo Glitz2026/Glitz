@@ -22,6 +22,23 @@ const AMBIENT = {
 // Prodotti ufficiali Glitz Club
 export const PRODUCTS = [
     {
+        id: "gift-card",
+        name: "Gift Card Glitz",
+        subtitle: "Buono regalo digitale €50",
+        price: 50,
+        image: AMBIENT.hero,
+        gallery: [
+            AMBIENT.hero,
+            AMBIENT.arch,
+            AMBIENT.seaview,
+            AMBIENT.terrace,
+        ],
+        description: "Il regalo perfetto per chi ama il Glitz. Buono digitale del valore di €50 utilizzabile su tutto lo shop e i tavoli durante le serate. Consegnato via email in PDF con codice univoco entro 5 minuti.",
+        details: ["Valore €50", "Consegna via email in 5 min", "Codice univoco a PDF", "Valido 12 mesi", "Utilizzabile online e in club"],
+        color: "Digitale",
+        badge: "Ideale come regalo",
+    },
+    {
         id: "beach-towel",
         name: "Beach Towel Glitz",
         subtitle: "Telo mare nero oversize",
@@ -106,23 +123,6 @@ export const PRODUCTS = [
         details: ["Canvas naturale 340g/m²", "Manici in cotone rinforzati", "Logo ricamato", "Formato 48×36×14 cm", "Interno con tasca zip"],
         color: "Ecru / Nero",
         badge: null,
-    },
-    {
-        id: "gift-card",
-        name: "Gift Card Glitz",
-        subtitle: "Buono regalo digitale €50",
-        price: 50,
-        image: AMBIENT.hero,
-        gallery: [
-            AMBIENT.hero,
-            AMBIENT.arch,
-            AMBIENT.seaview,
-            AMBIENT.terrace,
-        ],
-        description: "Il regalo perfetto per chi ama il Glitz. Buono digitale del valore di €50 utilizzabile su tutto lo shop e i tavoli durante le serate. Consegnato via email in PDF con codice univoco entro 5 minuti.",
-        details: ["Valore €50", "Consegna via email in 5 min", "Codice univoco a PDF", "Valido 12 mesi", "Utilizzabile online e in club"],
-        color: "Digitale",
-        badge: "Ideale come regalo",
     },
 ];
 
