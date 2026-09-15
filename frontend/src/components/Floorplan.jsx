@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin, Box, Square } from "lucide-react";
-import { api } from "../lib/api";
 import BookingModal from "./BookingModal";
 
 /**
- * Piantina Glitz Club — versione definitiva.
- * Sfondo: PNG ufficiale della planimetria (linee reali del club).
- * Overlay: 40 hotspot cliccabili (B0-B15, R1-R16, G1-G8) posizionati
- * sui tavoli del PDF ufficiale. Wrapper 3D isometrico con reveal cinematografico.
+ * Piantina Glitz Club — versione SVG pulita.
+ * Nessun PNG di sfondo. Solo linee ufficiali dei perimetri dei privé
+ * (Back the Stage, Riva Deck, Glitz Bar) + arco iconico Glitz + DJ booth.
+ * 40 hotspot cliccabili (B0-B15, R1-R16, G1-G8) nelle posizioni reali del PDF ufficiale.
+ * Wrapper 3D isometrico con reveal cinematografico al primo scroll.
  */
 
 const ZONE = {
@@ -16,8 +16,7 @@ const ZONE = {
     BAR: { label: "Glitz Bar", color: "#FFA500" },
 };
 
-// Positions in the same coord system as the planimetria PNG (native ~1568x1101, using viewBox 1568x1101)
-// Coords derived from the annotated PDF.
+// Posizioni originali del PDF ufficiale (viewBox 1300x1050) — invariate
 const TABLES = [
     // BACK THE STAGE (top-left cluster)
     { id: "B0", x: 218, y: 244, zone: "STAGE" },
@@ -69,23 +68,12 @@ const TABLES = [
 
 const CELL = 38;
 
-function resolvePlan(url) {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    return `${process.env.REACT_APP_BACKEND_URL}${url}`;
-}
-
 export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) {
-    const [planUrl, setPlanUrl] = useState("");
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [is3D, setIs3D] = useState(false);
     const [revealed, setRevealed] = useState(false);
     const wrapRef = useRef(null);
-
-    useEffect(() => {
-        api.get("/settings").then((r) => setPlanUrl(resolvePlan(r.data?.planimetria_url))).catch(() => {});
-    }, []);
 
     useEffect(() => {
         if (revealed || !wrapRef.current) return;
@@ -123,7 +111,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                     <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight">Scegli il tuo tavolo</h2>
                     <p className="text-white/60 max-w-2xl flex items-start gap-2">
                         <MapPin className="w-4 h-4 mt-1 flex-shrink-0 text-lava" />
-                        Planimetria in scala del Glitz. Tocca un tavolo libero per prenotare. I tavoli grigi sono già assegnati.
+                        Perimetri ufficiali dei privé del Glitz. Tocca un tavolo libero per prenotare. I tavoli grigi sono già assegnati.
                     </p>
                 </div>
                 <button
@@ -163,38 +151,138 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                         preserveAspectRatio="xMidYMid meet"
                     >
                         <defs>
-                            <filter id="planTint">
-                                <feColorMatrix type="matrix" values="
-                                    -1 0 0 0 1
-                                    0 -1 0 0 1
-                                    0 0 -1 0 1
-                                    0 0 0 0.85 0" />
-                            </filter>
                             <filter id="tableShadow3">
                                 <feDropShadow dx="0" dy="3" stdDeviation="2" floodOpacity="0.5" />
                             </filter>
+                            <linearGradient id="archGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#FF3300" stopOpacity="0.9" />
+                                <stop offset="50%" stopColor="#FF6633" stopOpacity="1" />
+                                <stop offset="100%" stopColor="#FF3300" stopOpacity="0.9" />
+                            </linearGradient>
                         </defs>
 
-                        {/* Official planimetria PNG — inverted colors for dark theme */}
-                        {planUrl && (
-                            <image
-                                href={planUrl}
-                                x="0"
-                                y="0"
-                                width="1300"
-                                height="1050"
-                                preserveAspectRatio="xMidYMid meet"
-                                filter="url(#planTint)"
-                                opacity="0.9"
-                            />
-                        )}
+                        {/* ================= PRIVÉ PERIMETERS ================= */}
 
-                        {/* Zone labels overlay */}
-                        <text x="215" y="150" textAnchor="middle" fill="#FF3300" fontSize="16" fontWeight="900" letterSpacing="3" opacity="0.85">BACK THE STAGE</text>
-                        <text x="890" y="150" textAnchor="middle" fill="#00BFFF" fontSize="16" fontWeight="900" letterSpacing="3" opacity="0.85">RIVA DECK</text>
-                        <text x="290" y="1030" textAnchor="middle" fill="#FFA500" fontSize="16" fontWeight="900" letterSpacing="3" opacity="0.85">GLITZ BAR</text>
+                        {/* Privé Back the Stage — TOP cluster */}
+                        <path
+                            d="M 160 200 L 420 200 L 420 460 L 160 460 Z"
+                            fill="rgba(255,51,0,0.04)"
+                            stroke="#FFFFFF"
+                            strokeWidth="1.8"
+                            strokeLinejoin="round"
+                            opacity="0.85"
+                        />
+                        {/* Privé Back the Stage — BOTTOM cluster (irregular) */}
+                        <path
+                            d="M 130 580 L 360 580 L 400 620 L 490 660 L 490 745 L 130 745 Z"
+                            fill="rgba(255,51,0,0.04)"
+                            stroke="#FFFFFF"
+                            strokeWidth="1.8"
+                            strokeLinejoin="round"
+                            opacity="0.85"
+                        />
 
-                        {/* Tables */}
+                        {/* Privé Riva Deck — 4x4 grid perimeter */}
+                        <path
+                            d="M 620 235 L 1180 235 Q 1200 235 1200 260 L 1200 520 L 620 520 Z"
+                            fill="rgba(0,191,255,0.04)"
+                            stroke="#FFFFFF"
+                            strokeWidth="1.8"
+                            strokeLinejoin="round"
+                            opacity="0.85"
+                        />
+                        {/* Riva vertical divider hints (4 columns) */}
+                        <line x1="740" y1="245" x2="740" y2="510" stroke="#FFFFFF" strokeWidth="0.6" strokeDasharray="4 6" opacity="0.35" />
+                        <line x1="875" y1="245" x2="875" y2="510" stroke="#FFFFFF" strokeWidth="0.6" strokeDasharray="4 6" opacity="0.35" />
+                        <line x1="1015" y1="245" x2="1015" y2="510" stroke="#FFFFFF" strokeWidth="0.6" strokeDasharray="4 6" opacity="0.35" />
+
+                        {/* Privé Glitz Bar — bottom-left */}
+                        <path
+                            d="M 170 720 L 460 720 L 460 1010 L 170 1010 Z"
+                            fill="rgba(255,165,0,0.04)"
+                            stroke="#FFFFFF"
+                            strokeWidth="1.8"
+                            strokeLinejoin="round"
+                            opacity="0.85"
+                        />
+                        {/* Bar counter (curved line) */}
+                        <path
+                            d="M 190 770 Q 300 745 430 780"
+                            stroke="#FFA500"
+                            strokeWidth="2.5"
+                            fill="none"
+                            opacity="0.7"
+                            strokeLinecap="round"
+                        />
+
+                        {/* ================= ARCO ICONICO GLITZ ================= */}
+                        {/* Central above stage area */}
+                        <path
+                            d="M 500 190 Q 720 90 940 190"
+                            stroke="url(#archGrad)"
+                            strokeWidth="4"
+                            fill="none"
+                            strokeLinecap="round"
+                            opacity="0.95"
+                        />
+                        <path
+                            d="M 520 195 Q 720 108 920 195"
+                            stroke="#FF6633"
+                            strokeWidth="1.5"
+                            fill="none"
+                            opacity="0.6"
+                        />
+                        <text
+                            x="720"
+                            y="160"
+                            textAnchor="middle"
+                            fill="#FFFFFF"
+                            fontSize="18"
+                            fontWeight="900"
+                            letterSpacing="10"
+                            opacity="0.95"
+                        >
+                            GLITZ
+                        </text>
+
+                        {/* ================= DJ BOOTH ================= */}
+                        <rect
+                            x="670"
+                            y="185"
+                            width="100"
+                            height="34"
+                            fill="rgba(255,51,0,0.1)"
+                            stroke="#FF3300"
+                            strokeWidth="2"
+                            rx="3"
+                        />
+                        <text
+                            x="720"
+                            y="207"
+                            textAnchor="middle"
+                            fill="#FF3300"
+                            fontSize="12"
+                            fontWeight="800"
+                            letterSpacing="4"
+                        >
+                            DJ BOOTH
+                        </text>
+
+                        {/* ================= ZONE LABELS ================= */}
+                        <text x="290" y="185" textAnchor="middle" fill="#FF3300" fontSize="14" fontWeight="900" letterSpacing="3" opacity="0.9">
+                            BACK THE STAGE
+                        </text>
+                        <text x="290" y="570" textAnchor="middle" fill="#FF3300" fontSize="12" fontWeight="900" letterSpacing="2" opacity="0.75">
+                            BACK THE STAGE · PRIVÉ 2
+                        </text>
+                        <text x="910" y="225" textAnchor="middle" fill="#00BFFF" fontSize="14" fontWeight="900" letterSpacing="3" opacity="0.9">
+                            RIVA DECK
+                        </text>
+                        <text x="315" y="710" textAnchor="middle" fill="#FFA500" fontSize="14" fontWeight="900" letterSpacing="3" opacity="0.9">
+                            GLITZ BAR
+                        </text>
+
+                        {/* ================= TABLES ================= */}
                         {TABLES.map((t) => {
                             const status = reservedTables[t.id];
                             const isReserved = status === "reserved" || status === "booked";
@@ -240,7 +328,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
             </div>
 
             <p className="mt-4 text-[11px] text-white/40 italic">
-                Planimetria ufficiale in scala 1:200. Le posizioni dei tavoli possono variare per singolo evento.
+                Perimetri ufficiali dei privé del Glitz. Le posizioni dei tavoli possono variare per singolo evento.
             </p>
 
             <BookingModal
