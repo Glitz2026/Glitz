@@ -15,9 +15,14 @@ export default function Events() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
             <Seo title="Eventi" description="Line-up completa della stagione al Glitz Club San Nicola Arcella. Serate, DJ ospiti, biglietti online." />
-            <div className="mb-12 space-y-3">
-                <span className="overline-tag">Line-up 2026</span>
-                <h1 className="section-title">Eventi & Serate</h1>
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+                <div className="space-y-3">
+                    <span className="overline-tag">Line-up 2027</span>
+                    <h1 className="section-title">Eventi & Serate</h1>
+                </div>
+                <Link to="/eventi/passati" data-testid="past-events-link" className="btn-ghost !text-xs">
+                    Eventi Passati
+                </Link>
             </div>
             {events.length === 0 && (
                 <p className="text-white/60">Nessun evento in calendario al momento. Torna presto.</p>

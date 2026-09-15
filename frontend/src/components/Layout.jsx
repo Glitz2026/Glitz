@@ -9,7 +9,7 @@ const NAV = [
     { to: "/", label: "Home" },
     { to: "/eventi", label: "Eventi" },
     { to: "/il-club", label: "Il Club" },
-    { to: "/gallery", label: "Gallery" },
+    { to: "/eventi/passati", label: "Archivio" },
     { to: "/news", label: "News" },
     { to: "/contatti", label: "Contatti" },
 ];

@@ -36,7 +36,7 @@ Sito vetrina premium per Glitz, club all'aperto da 2000 posti a San Nicola Arcel
 - ✅ i18n: solo italiano
 - ✅ Testing: 100% backend, ~98% frontend
 
-## Implemented (Fase 2 — 15 Feb 2026)
+## Implemented (Fase 2 — 15 Feb 2026 — pt.1)
 - ✅ Video Hero: campo `hero_video_url` in settings; se impostato, la home mostra `<video autoplay muted loop playsInline>` come background al posto dell'immagine
 - ✅ Piantina Tavoli: componente `Floorplan.jsx` con SVG (19 tavoli su 3 zone: VIP Stage/Premium/Sea View), arco stage e dance floor, tavoli cliccabili → modal → deep link WhatsApp con numero tavolo, zona e posti pre-compilato. Mostrato solo se evento ha `floorplan_enabled=true` (toggle admin già presente)
 - ✅ Sitemap Dinamica: `GET /api/sitemap.xml` genera XML con home + tutte le pagine statiche + tutti gli eventi + tutti i post pubblicati. `GET /api/robots.txt` restituisce robots policy con Sitemap

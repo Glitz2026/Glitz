@@ -95,7 +95,7 @@ export default function Home() {
                     </h1>
                     <p className="max-w-2xl text-base sm:text-lg text-white/70 leading-relaxed">
                         Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino.
-                        La stagione 2026 sta per iniziare.
+                        La stagione 2027 sta per iniziare.
                     </p>
 
                     {upcoming && (

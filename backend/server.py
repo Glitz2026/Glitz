@@ -317,25 +317,48 @@ async def root():
 DEFAULT_SETTINGS = {
     "id": "main",
     "hero_video_url": "",
-    "hero_image_url": "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000",
-    "logo_url": "",
+    "hero_image_url": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg",
+    "logo_url": "https://d2fa23zcjd5klo.cloudfront.net/logo/venue/f451dc94-c58d-450f-938f-3ec98a0c1e73.jpg",
     "logo_dark_url": "",
     "instagram_url": "https://instagram.com/glitzclubofficial",
     "instagram_posts": [
-        {"image": "https://images.unsplash.com/photo-1602167098991-7cdbfeb0f8d9?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
-        {"image": "https://images.unsplash.com/photo-1563841930606-67e2bce48b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
-        {"image": "https://images.unsplash.com/photo-1619229725920-ac8b63b0631a?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
-        {"image": "https://images.unsplash.com/photo-1619286627925-634cddbafcbf?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
-        {"image": "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
-        {"image": "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/6lina1we_PHOTO-2025-09-16-12-45-39.jpg", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/ppzjzi3q_PHOTO-2025-09-16-12-45-39%202.jpg", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/97nlxf8c_PHOTO-2025-09-16-12-45-38%203.jpg", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://d9x0j4yxg9m18.cloudfront.net/venue/5388ae92-425d-4037-8928-728162e874bf.jpg", "url": "https://instagram.com/glitzclubofficial"},
     ],
 }
+
+
+# Past events (from ticketsms.it/it/location/glitz-club)
+PAST_EVENT_SEED = [
+    {"title": "Ludwig", "date": "2026-08-08", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/84f2f095-7e2f-4adf-9f95-1b3f38d86ed6.jpg", "url": "https://www.ticketsms.it/event/Ludwig-San-Nicola-Arcella-Glitz-Club-08-08-2026"},
+    {"title": "Mamacita", "date": "2026-08-01", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/57cacddc-406d-4602-8427-f946907a1e08.jpg", "url": "https://www.ticketsms.it/event/Mamacita-San-Nicola-Arcella-Glitz-Club-01-08-2026"},
+    {"title": "Thalab", "date": "2026-07-25", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/6c514d8e-b3ee-4636-afc7-226de8cf873c.jpg", "url": "https://www.ticketsms.it/event/Thalab-San-Nicola-Arcella-Glitz-Club-25-07-2026"},
+    {"title": "Ladies Night", "date": "2026-07-18", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/0282df7f-b0e9-4452-82dd-d5d00d9d58b2.jpg", "url": "https://www.ticketsms.it/event/Ladies-Night-San-Nicola-Arcella-Glitz-Club-18-07-2026"},
+    {"title": "James Carter", "date": "2026-07-11", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/621efd94-7b73-4305-a45b-537004ae8b61.jpg", "url": "https://www.ticketsms.it/event/James-Carter-San-Nicola-Arcella-Glitz-Club-11-07-2026"},
+    {"title": "Black Party with Wonik", "date": "2026-07-04", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/71bc6a43-379d-4531-a338-423f8ab8ad7d.jpg", "url": "https://www.ticketsms.it/event/Black-Party-With-Wonik-San-Nicola-Arcella-Glitz-Club-04-07-2026"},
+    {"title": "Cristian Marchi — Opening Party", "date": "2026-06-27", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/1d0446c1-d438-4fc9-b0de-32c4826229a0.jpg", "url": "https://www.ticketsms.it/event/Cristian-Marchi-Opening-Party-San-Nicola-Arcella-Glitz-Club-27-06-2026"},
+    {"title": "Ludovica Pagani", "date": "2025-08-23", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/eec8f70a-143e-4ccf-9860-066f9b5b842a.jpg", "url": "https://www.ticketsms.it/event/Ludovica-Pagani-San-Nicola-Arcella-Glitz-Club-23-08-2025"},
+    {"title": "Timeless with Wonik", "date": "2025-08-16", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/2b854da4-9857-46f3-abe0-65ae5aee4941.jpg", "url": "https://www.ticketsms.it/event/Timeless-With-Wonik-San-Nicola-Arcella-Glitz-Club-16-08-2025"},
+    {"title": "Damante", "date": "2025-08-11", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/a56e8657-249c-420d-88fa-fc5d92cf3b39.jpg", "url": "https://www.ticketsms.it/event/Damante-San-Nicola-Arcella-Glitz-Club-11-08-2025"},
+    {"title": "Goodboys", "date": "2025-08-02", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/b873b391-57e7-493f-8d5c-3870299d13ee.jpg", "url": "https://www.ticketsms.it/event/Cristian-Marchi-San-Nicola-Arcella-Glitz-Club-02-08-2025"},
+    {"title": "Georgia Mos", "date": "2025-07-26", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/12cdebfa-7c10-485b-8ff0-1bae8d47bcf6.jpg", "url": "https://www.ticketsms.it/event/HYQYxdKl"},
+    {"title": "Asia Nardi", "date": "2025-07-12", "poster": "https://d2fa23zcjd5klo.cloudfront.net/square/event/9d004cee-5b07-46d2-ae2a-b7220e6f00af.jpg", "url": "https://www.ticketsms.it/event/Asia-Nardi-San-Nicola-Arcella-Glitz-Club-12-07-2025"},
+]
 
 
 @api.get("/settings")
 async def get_settings():
     s = await db.settings.find_one({"id": "main"}, {"_id": 0})
     return s or DEFAULT_SETTINGS
+
+
+@api.get("/past-events")
+async def list_past_events():
+    return await db.past_events.find({}, {"_id": 0}).sort("date", -1).to_list(1000)
 
 
 @api.put("/admin/settings")
@@ -743,7 +766,7 @@ async def startup():
                 "description": e["description"],
                 "poster_url": e["poster"],
                 "gallery": [],
-                "ticket_url": "https://www.ticketsms.it/",
+                "ticket_url": "https://www.ticketsms.it/it/location/glitz-club",
                 "location": "Contrada Dino, San Nicola Arcella (CS)",
                 "published": True,
                 "floorplan_enabled": e.get("floorplan_enabled", False),
@@ -751,10 +774,42 @@ async def startup():
             })
         logging.info("Seeded events (2027)")
 
-    # Seed Settings
-    if not await db.settings.find_one({"id": "main"}):
+    # Seed Settings (or refresh if defaults missing)
+    existing = await db.settings.find_one({"id": "main"})
+    if not existing:
         await db.settings.insert_one(DEFAULT_SETTINGS.copy())
         logging.info("Seeded settings")
+    else:
+        # Backfill logo + hero image if empty (real Glitz assets)
+        patch = {}
+        if not existing.get("logo_url"):
+            patch["logo_url"] = DEFAULT_SETTINGS["logo_url"]
+        if not existing.get("hero_image_url") or "unsplash" in (existing.get("hero_image_url") or ""):
+            patch["hero_image_url"] = DEFAULT_SETTINGS["hero_image_url"]
+        if not existing.get("instagram_posts") or any("unsplash" in (p.get("image","")) for p in existing.get("instagram_posts", [])):
+            patch["instagram_posts"] = DEFAULT_SETTINGS["instagram_posts"]
+        if patch:
+            await db.settings.update_one({"id": "main"}, {"$set": patch})
+            logging.info(f"Patched settings: {list(patch.keys())}")
+
+    # Seed Past Events
+    if await db.past_events.count_documents({}) == 0:
+        for pe in PAST_EVENT_SEED:
+            await db.past_events.insert_one({
+                "id": str(uuid.uuid4()),
+                "title": pe["title"],
+                "date": pe["date"],
+                "poster_url": pe["poster"],
+                "ticket_url": pe["url"],
+                "location": "Glitz Club, San Nicola Arcella (CS)",
+            })
+        logging.info("Seeded past events")
+
+    # Refresh ticket_url for seeded 2027 events to Glitz TicketSMS venue page
+    await db.events.update_many(
+        {"ticket_url": {"$in": ["https://www.ticketsms.it/", ""]}},
+        {"$set": {"ticket_url": "https://www.ticketsms.it/it/location/glitz-club"}}
+    )
 
     # Seed Posts
     if await db.posts.count_documents({}) == 0:

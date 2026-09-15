@@ -12,6 +12,7 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
+import PastEvents from "@/pages/PastEvents";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Layout><Home /></Layout>} />
                     <Route path="/eventi" element={<Layout><Events /></Layout>} />
+                    <Route path="/eventi/passati" element={<Layout><PastEvents /></Layout>} />
                     <Route path="/eventi/:id" element={<Layout><EventDetail /></Layout>} />
                     <Route path="/news" element={<Layout><Blog /></Layout>} />
                     <Route path="/news/:slug" element={<Layout><BlogDetail /></Layout>} />
