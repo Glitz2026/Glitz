@@ -147,41 +147,13 @@ export default function Home() {
                     </div>
                 </motion.div>
                 <button
-                    onClick={() => document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" })}
+                    onClick={() => document.querySelector("[data-testid=upcoming-events-section]")?.scrollIntoView({ behavior: "smooth" })}
                     className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce text-white/60 hover:text-white transition"
                     aria-label="Scorri"
                     data-testid="hero-scroll-down"
                 >
                     <ChevronDown className="w-8 h-8" />
                 </button>
-            </section>
-
-            {/* FAQ - top of site for GEO/AEO */}
-            <section id="faq" data-testid="faq-section" className="py-24 px-4 sm:px-6 max-w-5xl mx-auto">
-                <div className="mb-12 flex flex-col gap-3">
-                    <span className="overline-tag">Domande Frequenti</span>
-                    <h2 className="section-title">Info Rapide<br />sul Glitz</h2>
-                    <p className="text-white/60 max-w-2xl">
-                        Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli.
-                    </p>
-                </div>
-                <Accordion type="single" collapsible className="space-y-4">
-                    {faqs.map((f, i) => (
-                        <AccordionItem
-                            key={f.id}
-                            value={f.id}
-                            data-testid={`faq-item-${i}`}
-                            className="border border-white/10 rounded-xl bg-surface overflow-hidden hover:border-white/20 transition data-[state=open]:border-lava/40"
-                        >
-                            <AccordionTrigger className="px-6 py-5 text-left text-base sm:text-lg font-bold text-white hover:text-lava hover:no-underline">
-                                {f.question}
-                            </AccordionTrigger>
-                            <AccordionContent className="px-6 pb-6 text-white/70 text-sm sm:text-base leading-relaxed">
-                                {f.answer}
-                            </AccordionContent>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
             </section>
 
             {/* Next Events */}
@@ -287,6 +259,34 @@ export default function Home() {
 
             {/* Instagram feed */}
             <InstagramFeed posts={instaPosts} profileUrl={settings?.instagram_url} />
+
+            {/* FAQ - just before footer (GEO/AEO optimized with schema.org) */}
+            <section id="faq" data-testid="faq-section" className="py-24 px-4 sm:px-6 max-w-5xl mx-auto">
+                <div className="mb-12 flex flex-col gap-3">
+                    <span className="overline-tag">Domande Frequenti</span>
+                    <h2 className="section-title">Info Rapide<br />sul Glitz</h2>
+                    <p className="text-white/60 max-w-2xl">
+                        Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli.
+                    </p>
+                </div>
+                <Accordion type="single" collapsible className="space-y-4">
+                    {faqs.map((f, i) => (
+                        <AccordionItem
+                            key={f.id}
+                            value={f.id}
+                            data-testid={`faq-item-${i}`}
+                            className="border border-white/10 rounded-xl bg-surface overflow-hidden hover:border-white/20 transition data-[state=open]:border-lava/40"
+                        >
+                            <AccordionTrigger className="px-6 py-5 text-left text-base sm:text-lg font-bold text-white hover:text-lava hover:no-underline">
+                                {f.question}
+                            </AccordionTrigger>
+                            <AccordionContent className="px-6 pb-6 text-white/70 text-sm sm:text-base leading-relaxed">
+                                {f.answer}
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+            </section>
 
             <BookingModal
                 open={bookingOpen}
