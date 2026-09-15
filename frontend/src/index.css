@@ -233,7 +233,7 @@ body {
     transform: rotateX(52deg) rotateZ(0deg);
     transform-style: preserve-3d;
     transform-origin: center center;
-    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
 }
 .plan-3d-wrap.flat .plan-3d-inner {
@@ -242,6 +242,30 @@ body {
 .plan-3d-wrap:hover .plan-3d-inner:not(.no-hover) {
     transform: rotateX(45deg);
 }
+
+/* Cinematic reveal: fade + scale on first scroll into view */
+.plan-reveal .plan-3d-inner {
+    opacity: 0.4;
+    filter: blur(2px);
+    transform: rotateX(0deg) scale(0.94);
+}
+.plan-reveal.revealed .plan-3d-inner {
+    opacity: 1;
+    filter: blur(0);
+    transform: rotateX(52deg) scale(1);
+    transition:
+        transform 1.6s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.9s ease-out 0.15s,
+        filter 0.9s ease-out 0.15s;
+}
+.plan-reveal.revealed.flat .plan-3d-inner {
+    transform: rotateX(0deg) scale(1);
+}
+
 @media (max-width: 640px) {
-    .plan-3d-inner { transform: rotateX(45deg); }
+    .plan-reveal.revealed .plan-3d-inner { transform: rotateX(45deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .plan-3d-inner { transition: none !important; }
+    .plan-reveal.revealed .plan-3d-inner { transform: rotateX(52deg); opacity: 1; filter: none; }
 }

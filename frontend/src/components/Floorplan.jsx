@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapPin, Box, Square } from "lucide-react";
 import BookingModal from "./BookingModal";
 
@@ -77,7 +77,31 @@ const CELL = 30;
 export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) {
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [is3D, setIs3D] = useState(true);
+    const [is3D, setIs3D] = useState(false);   // start flat, animate to 3D on reveal
+    const [revealed, setRevealed] = useState(false);
+    const wrapRef = useRef(null);
+
+    useEffect(() => {
+        if (revealed || !wrapRef.current) return;
+        const el = wrapRef.current;
+        const obs = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        // Delay to give scroll a moment, then animate to 3D
+                        setTimeout(() => {
+                            setIs3D(true);
+                            setRevealed(true);
+                        }, 250);
+                        obs.disconnect();
+                    }
+                });
+            },
+            { threshold: 0.35 }
+        );
+        obs.observe(el);
+        return () => obs.disconnect();
+    }, [revealed]);
 
     const openBooking = (t) => {
         const status = reservedTables[t.id];
@@ -120,7 +144,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                 </div>
             </div>
 
-            <div className={`plan-3d-wrap rounded-2xl overflow-visible border border-white/10 bg-obsidian p-8 sm:p-16 ${is3D ? "" : "flat"}`}>
+            <div ref={wrapRef} className={`plan-3d-wrap plan-reveal ${revealed ? "revealed" : ""} rounded-2xl overflow-visible border border-white/10 bg-obsidian p-8 sm:p-16 ${is3D ? "" : "flat"}`}>
                 <div className="plan-3d-inner">
                     <svg
                         viewBox="0 0 1080 1050"
