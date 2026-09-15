@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Ticket, MessageCircle, MapPin, Calendar, ArrowLeft, Users } from "lucide-react";
 import { api } from "../lib/api";
-import { whatsappTableLink, formatItalianDateTime } from "../lib/constants";
+import { formatItalianDateTime } from "../lib/constants";
 import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
 import Floorplan from "../components/Floorplan";
+import BookingModal from "../components/BookingModal";
 
 export default function EventDetail() {
     const { id } = useParams();
     const [ev, setEv] = useState(null);
     const [error, setError] = useState(false);
+    const [bookingOpen, setBookingOpen] = useState(false);
 
     useEffect(() => {
         api.get(`/events/${id}`).then((r) => setEv(r.data)).catch(() => setError(true));
@@ -62,9 +64,9 @@ export default function EventDetail() {
                                     <Ticket className="w-4 h-4" /> Acquista Biglietto
                                 </a>
                             )}
-                            <a href={whatsappTableLink(ev.title)} target="_blank" rel="noreferrer" data-testid="event-table-btn" className="btn-ghost">
+                            <button onClick={() => setBookingOpen(true)} data-testid="event-table-btn" className="btn-ghost">
                                 <MessageCircle className="w-4 h-4" /> Prenota Tavolo
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -94,6 +96,13 @@ export default function EventDetail() {
                     <Floorplan eventTitle={ev.title} eventId={ev.id} />
                 </div>
             )}
+
+            <BookingModal
+                open={bookingOpen}
+                onClose={() => setBookingOpen(false)}
+                eventTitle={ev.title}
+                eventId={ev.id}
+            />
         </div>
     );
 }

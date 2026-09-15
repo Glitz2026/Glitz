@@ -4,13 +4,21 @@ import { motion } from "framer-motion";
 import { Ticket, MessageCircle, ChevronDown, MapPin, Calendar, ArrowRight, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
 import { api } from "../lib/api";
-import { whatsappTableLink, formatItalianDateTime, ADDRESS_SHORT } from "../lib/constants";
+import { formatItalianDateTime, ADDRESS_SHORT } from "../lib/constants";
 import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
 import InstagramFeed from "../components/InstagramFeed";
+import BookingModal from "../components/BookingModal";
 
 const HERO_IMG_FALLBACK = "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
 const DRONE_IMG = "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
+
+function vimeoEmbedUrl(url) {
+    if (!url) return null;
+    const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (!m) return null;
+    return `https://player.vimeo.com/video/${m[1]}?background=1&autoplay=1&muted=1&loop=1&byline=0&title=0&controls=0`;
+}
 
 export default function Home() {
     const [upcoming, setUpcoming] = useState(null);
@@ -18,6 +26,7 @@ export default function Home() {
     const [posts, setPosts] = useState([]);
     const [events, setEvents] = useState([]);
     const [settings, setSettings] = useState(null);
+    const [bookingOpen, setBookingOpen] = useState(false);
 
     useEffect(() => {
         api.get("/events/upcoming").then((r) => setUpcoming(r.data)).catch(() => {});
@@ -28,8 +37,11 @@ export default function Home() {
     }, []);
 
     const heroVideoUrl = settings?.hero_video_url;
-    const heroImage = settings?.hero_image_url || HERO_IMG_FALLBACK;
+    const rawHero = settings?.hero_image_url || HERO_IMG_FALLBACK;
+    const heroImage = rawHero.startsWith("http") ? rawHero : `${process.env.REACT_APP_BACKEND_URL}${rawHero}`;
     const instaPosts = settings?.instagram_posts || [];
+    const vimeoUrl = vimeoEmbedUrl(heroVideoUrl);
+    const directVideo = heroVideoUrl && !vimeoUrl ? heroVideoUrl : null;
 
     const faqSchema = {
         "@context": "https://schema.org",
@@ -62,16 +74,29 @@ export default function Home() {
             {/* HERO */}
             <section data-testid="hero-section" className="relative min-h-[95vh] w-full overflow-hidden flex items-center justify-center grain-overlay bg-cinema">
                 <div className="absolute inset-0 z-0">
-                    {heroVideoUrl ? (
+                    {vimeoUrl ? (
+                        <div className="absolute inset-0 w-full h-full">
+                            <iframe
+                                data-testid="hero-vimeo"
+                                src={vimeoUrl}
+                                title="Glitz aftermovie"
+                                className="absolute top-1/2 left-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                                frameBorder="0"
+                                allow="autoplay; fullscreen; picture-in-picture"
+                                allowFullScreen
+                            />
+                            <div className="absolute inset-0 bg-obsidian/40" />
+                        </div>
+                    ) : directVideo ? (
                         <video
                             data-testid="hero-video"
-                            src={heroVideoUrl}
+                            src={directVideo}
                             autoPlay
                             muted
                             loop
                             playsInline
                             poster={heroImage}
-                            className="w-full h-full object-cover opacity-60"
+                            className="w-full h-full object-cover opacity-70"
                         />
                     ) : (
                         <img src={heroImage} alt="Glitz Club arco LED laser" className="w-full h-full object-cover opacity-60" />
@@ -116,9 +141,9 @@ export default function Home() {
                                 <Ticket className="w-4 h-4" /> Vedi Eventi
                             </Link>
                         )}
-                        <a href={whatsappTableLink(upcoming?.title)} target="_blank" rel="noreferrer" data-testid="hero-table-btn" className="btn-ghost">
+                    <button onClick={() => setBookingOpen(true)} data-testid="hero-table-btn" className="btn-ghost">
                             <MessageCircle className="w-4 h-4" /> Prenota Tavolo
-                        </a>
+                        </button>
                     </div>
                 </motion.div>
                 <button
@@ -262,6 +287,13 @@ export default function Home() {
 
             {/* Instagram feed */}
             <InstagramFeed posts={instaPosts} profileUrl={settings?.instagram_url} />
+
+            <BookingModal
+                open={bookingOpen}
+                onClose={() => setBookingOpen(false)}
+                eventTitle={upcoming?.title || ""}
+                eventId={upcoming?.id || ""}
+            />
         </div>
     );
 }

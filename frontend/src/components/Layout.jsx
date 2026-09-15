@@ -5,6 +5,12 @@ import { WHATSAPP_DISPLAY, EMAIL, INSTAGRAM, TIKTOK, ADDRESS, whatsappInfoLink }
 import { api } from "../lib/api";
 import Newsletter from "./Newsletter";
 
+function resolveUrl(url) {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    return `${process.env.REACT_APP_BACKEND_URL}${url}`;
+}
+
 const NAV = [
     { to: "/", label: "Home" },
     { to: "/eventi", label: "Eventi" },
@@ -23,7 +29,7 @@ export default function Layout({ children }) {
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", onScroll);
-        api.get("/settings").then((r) => setLogoUrl(r.data?.logo_url || "")).catch(() => {});
+        api.get("/settings").then((r) => setLogoUrl(resolveUrl(r.data?.logo_url || ""))).catch(() => {});
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
@@ -38,7 +44,7 @@ export default function Layout({ children }) {
                 <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
                     <Link to="/" data-testid="site-logo-link" className="flex items-center gap-2 group">
                         {logoUrl ? (
-                            <img src={logoUrl} alt="Glitz Club" className="h-10 sm:h-12 w-auto" />
+                            <img src={logoUrl} alt="Glitz Club" className="h-9 sm:h-11 w-auto object-contain" />
                         ) : (
                             <>
                                 <span className="text-2xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent group-hover:text-glow-lava transition">
@@ -108,7 +114,7 @@ export default function Layout({ children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-12 md:grid-cols-4">
                     <div className="md:col-span-2 space-y-4">
                         {logoUrl ? (
-                            <img src={logoUrl} alt="Glitz Club" className="h-14 w-auto" />
+                            <img src={logoUrl} alt="Glitz Club" className="h-12 w-auto object-contain" />
                         ) : (
                             <div className="text-3xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent">
                                 GLITZ

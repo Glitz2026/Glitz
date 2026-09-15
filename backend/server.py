@@ -291,8 +291,21 @@ class SettingsIn(BaseModel):
     hero_image_url: str = ""
     logo_url: str = ""
     logo_dark_url: str = ""
+    planimetria_url: str = ""
     instagram_url: str = "https://instagram.com/glitzclubofficial"
     instagram_posts: List[dict] = []
+
+
+class BookingIn(BaseModel):
+    name: str
+    phone: str
+    email: Optional[EmailStr] = None
+    guests: int = 2
+    event_id: Optional[str] = None
+    event_title: Optional[str] = None
+    table_number: Optional[str] = None
+    zone: Optional[str] = None
+    note: str = ""
 
 
 class TableRequestIn(BaseModel):
@@ -316,10 +329,11 @@ async def root():
 # --- Settings ---
 DEFAULT_SETTINGS = {
     "id": "main",
-    "hero_video_url": "",
+    "hero_video_url": "https://vimeo.com/1226986309",
     "hero_image_url": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg",
-    "logo_url": "https://d2fa23zcjd5klo.cloudfront.net/logo/venue/f451dc94-c58d-450f-938f-3ec98a0c1e73.jpg",
-    "logo_dark_url": "",
+    "logo_url": "/api/files/glitzclub/media/8a518ef8-8f55-4a6f-81dc-13b0aa194cb8.png",
+    "logo_dark_url": "/api/files/glitzclub/media/8afacd8d-3864-4424-a1cb-b16e285e0c15.png",
+    "planimetria_url": "/api/files/glitzclub/media/f645c928-2e46-4771-a6e7-819818a6377d.png",
     "instagram_url": "https://instagram.com/glitzclubofficial",
     "instagram_posts": [
         {"image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/6lina1we_PHOTO-2025-09-16-12-45-39.jpg", "url": "https://instagram.com/glitzclubofficial"},
@@ -370,6 +384,50 @@ async def update_settings(data: SettingsIn, admin=Depends(get_admin)):
 
 
 # --- Table reservations (floorplan) ---
+@api.post("/bookings")
+async def create_booking(data: BookingIn):
+    doc = data.model_dump()
+    doc["id"] = str(uuid.uuid4())
+    doc["status"] = "pending"
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.bookings.insert_one(doc)
+    doc.pop("_id", None)
+
+    # Send confirmation email if provided
+    if data.email:
+        table_line = f"<strong>Tavolo:</strong> {escape(data.table_number)} ({escape(data.zone or '')})<br>" if data.table_number else ""
+        event_line = f"<strong>Serata:</strong> {escape(data.event_title or '')}<br>" if data.event_title else ""
+        html = (
+            '<table role="presentation" width="100%" style="background:#070609;color:#ffffff">'
+            '<tr><td style="padding:32px;font-family:Arial,sans-serif;max-width:600px">'
+            '<h1 style="color:#FF3300;font-size:28px;margin:0 0 16px 0;letter-spacing:1px">GLITZ CLUB</h1>'
+            f'<p style="font-size:16px;line-height:1.6">Ciao {escape(data.name)}, abbiamo ricevuto la tua richiesta di prenotazione.</p>'
+            '<div style="background:rgba(255,51,0,0.08);border-left:3px solid #FF3300;padding:16px;margin:24px 0;font-size:14px;line-height:1.8">'
+            f'{event_line}{table_line}'
+            f'<strong>Ospiti:</strong> {data.guests}<br>'
+            f'<strong>Telefono:</strong> {escape(data.phone)}'
+            '</div>'
+            '<p style="font-size:14px;line-height:1.6">Il nostro staff ti ricontatterà a breve su WhatsApp per confermare disponibilità, posizione e minimo di spesa.</p>'
+            '<p style="font-size:12px;color:#888;margin-top:32px">Glitz Club — Contrada Dino, San Nicola Arcella (CS)</p>'
+            '</td></tr></table>'
+        )
+        await send_email(to=data.email, subject="Richiesta prenotazione ricevuta — Glitz Club", html=html)
+
+    return doc
+
+
+@api.get("/admin/bookings")
+async def list_bookings(admin=Depends(get_admin)):
+    return await db.bookings.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+
+
+@api.patch("/admin/bookings/{booking_id}")
+async def update_booking_status(booking_id: str, status: str = Query(...), admin=Depends(get_admin)):
+    r = await db.bookings.update_one({"id": booking_id}, {"$set": {"status": status}})
+    return {"updated": r.modified_count}
+
+
+# --- Legacy table reservations (floorplan) ---
 @api.post("/table-requests")
 async def create_table_request(data: TableRequestIn):
     ev = await db.events.find_one({"id": data.event_id, "floorplan_enabled": True})
@@ -780,12 +838,15 @@ async def startup():
         await db.settings.insert_one(DEFAULT_SETTINGS.copy())
         logging.info("Seeded settings")
     else:
-        # Backfill logo + hero image if empty (real Glitz assets)
+        # Backfill / upgrade fields to newest defaults where safe
         patch = {}
-        if not existing.get("logo_url"):
-            patch["logo_url"] = DEFAULT_SETTINGS["logo_url"]
-        if not existing.get("hero_image_url") or "unsplash" in (existing.get("hero_image_url") or ""):
-            patch["hero_image_url"] = DEFAULT_SETTINGS["hero_image_url"]
+        for key in ("logo_url", "logo_dark_url", "planimetria_url", "hero_video_url", "hero_image_url"):
+            current = existing.get(key)
+            default = DEFAULT_SETTINGS.get(key)
+            # Replace if empty OR still pointing at unsplash/ticketsms cloudfront (old placeholders)
+            if not current or "unsplash" in (current or "") or "cloudfront" in (current or ""):
+                if default:
+                    patch[key] = default
         if not existing.get("instagram_posts") or any("unsplash" in (p.get("image","")) for p in existing.get("instagram_posts", [])):
             patch["instagram_posts"] = DEFAULT_SETTINGS["instagram_posts"]
         if patch:

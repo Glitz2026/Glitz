@@ -1,178 +1,147 @@
-import { useState } from "react";
-import { X, MapPin, MessageCircle, Users } from "lucide-react";
-import { WHATSAPP_NUMBER } from "../lib/constants";
+import { useEffect, useState, useRef } from "react";
+import { MapPin } from "lucide-react";
+import { api } from "../lib/api";
+import BookingModal from "./BookingModal";
 
-// Table layout: id, cx, cy (SVG coords), r (radius), zone, seats
+// Table hotspots positioned as % relative to the planimetria image (viewBox 1568x1101 approx)
+// Zones mapped to the real Glitz plan:
+// - Privé 3 (upper-left inside): tables around dance floor area
+// - Privé 3 (center): main private booth cluster
+// - Privé 3 (lower-left outdoor): garden booths
+// - Main Bar area & Gin xp / pool: chill lounge
 const TABLES = [
-    // Front stage (VIP / Premium)
-    { id: 1, cx: 250, cy: 200, r: 22, zone: "VIP Stage", seats: 8 },
-    { id: 2, cx: 350, cy: 200, r: 22, zone: "VIP Stage", seats: 8 },
-    { id: 3, cx: 450, cy: 200, r: 22, zone: "VIP Stage", seats: 8 },
-    { id: 4, cx: 550, cy: 200, r: 22, zone: "VIP Stage", seats: 8 },
-    { id: 5, cx: 650, cy: 200, r: 22, zone: "VIP Stage", seats: 8 },
-    // Ring 2
-    { id: 6, cx: 180, cy: 290, r: 20, zone: "Premium", seats: 6 },
-    { id: 7, cx: 720, cy: 290, r: 20, zone: "Premium", seats: 6 },
-    { id: 8, cx: 250, cy: 340, r: 20, zone: "Premium", seats: 6 },
-    { id: 9, cx: 350, cy: 340, r: 20, zone: "Premium", seats: 6 },
-    { id: 10, cx: 450, cy: 340, r: 20, zone: "Premium", seats: 6 },
-    { id: 11, cx: 550, cy: 340, r: 20, zone: "Premium", seats: 6 },
-    { id: 12, cx: 650, cy: 340, r: 20, zone: "Premium", seats: 6 },
-    // Sea view
-    { id: 13, cx: 150, cy: 440, r: 18, zone: "Sea View", seats: 4 },
-    { id: 14, cx: 250, cy: 470, r: 18, zone: "Sea View", seats: 4 },
-    { id: 15, cx: 350, cy: 485, r: 18, zone: "Sea View", seats: 4 },
-    { id: 16, cx: 450, cy: 490, r: 18, zone: "Sea View", seats: 4 },
-    { id: 17, cx: 550, cy: 485, r: 18, zone: "Sea View", seats: 4 },
-    { id: 18, cx: 650, cy: 470, r: 18, zone: "Sea View", seats: 4 },
-    { id: 19, cx: 750, cy: 440, r: 18, zone: "Sea View", seats: 4 },
+    // Upper-left Privé (near stage arch)
+    { id: "A1", x: 14, y: 22, zone: "Privé Stage" },
+    { id: "A2", x: 20, y: 22, zone: "Privé Stage" },
+    { id: "A3", x: 14, y: 30, zone: "Privé Stage" },
+    { id: "A4", x: 20, y: 30, zone: "Privé Stage" },
+    { id: "A5", x: 14, y: 38, zone: "Privé Stage" },
+    { id: "A6", x: 20, y: 38, zone: "Privé Stage" },
+    // Central Privé (large area right of dance floor)
+    { id: "B1", x: 36, y: 20, zone: "Privé Centrale" },
+    { id: "B2", x: 42, y: 20, zone: "Privé Centrale" },
+    { id: "B3", x: 48, y: 20, zone: "Privé Centrale" },
+    { id: "B4", x: 36, y: 27, zone: "Privé Centrale" },
+    { id: "B5", x: 42, y: 27, zone: "Privé Centrale" },
+    { id: "B6", x: 48, y: 27, zone: "Privé Centrale" },
+    { id: "B7", x: 36, y: 34, zone: "Privé Centrale" },
+    { id: "B8", x: 42, y: 34, zone: "Privé Centrale" },
+    { id: "B9", x: 48, y: 34, zone: "Privé Centrale" },
+    { id: "B10", x: 36, y: 41, zone: "Privé Centrale" },
+    { id: "B11", x: 42, y: 41, zone: "Privé Centrale" },
+    { id: "B12", x: 48, y: 41, zone: "Privé Centrale" },
+    // Lower-left Privé outdoor (garden)
+    { id: "C1", x: 22, y: 56, zone: "Privé Garden" },
+    { id: "C2", x: 28, y: 56, zone: "Privé Garden" },
+    { id: "C3", x: 22, y: 62, zone: "Privé Garden" },
+    { id: "C4", x: 28, y: 62, zone: "Privé Garden" },
+    // Main Bar hi-tops
+    { id: "D1", x: 60, y: 48, zone: "Main Bar" },
+    { id: "D2", x: 60, y: 54, zone: "Main Bar" },
+    // Gin XP / pool lounge (right, outdoor)
+    { id: "E1", x: 76, y: 40, zone: "Gin XP • Pool" },
+    { id: "E2", x: 82, y: 40, zone: "Gin XP • Pool" },
+    { id: "E3", x: 76, y: 48, zone: "Gin XP • Pool" },
+    { id: "E4", x: 82, y: 48, zone: "Gin XP • Pool" },
 ];
 
-const ZONE_STYLES = {
-    "VIP Stage": { fill: "#FF3300", stroke: "#FFD1C4", label: "VIP" },
-    "Premium": { fill: "#8A2BE2", stroke: "#E7CFFF", label: "PRM" },
-    "Sea View": { fill: "#E0115F", stroke: "#FFC8DE", label: "SEA" },
+const ZONE_COLORS = {
+    "Privé Stage": "#FF3300",
+    "Privé Centrale": "#8A2BE2",
+    "Privé Garden": "#E0115F",
+    "Main Bar": "#FFA500",
+    "Gin XP • Pool": "#00BFFF",
 };
 
-export default function Floorplan({ eventTitle, eventId }) {
-    const [selected, setSelected] = useState(null);
+function resolvePlan(url) {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    return `${process.env.REACT_APP_BACKEND_URL}${url}`;
+}
 
-    const openWhatsApp = (table) => {
-        const msg = encodeURIComponent(
-            `Ciao Glitz! Vorrei prenotare il Tavolo #${table.id} (${table.zone}, ${table.seats} posti) per la serata "${eventTitle}". Nome: `
-        );
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+export default function Floorplan({ eventTitle, eventId }) {
+    const [planUrl, setPlanUrl] = useState("");
+    const [selected, setSelected] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+
+    useEffect(() => {
+        api.get("/settings").then((r) => setPlanUrl(resolvePlan(r.data?.planimetria_url))).catch(() => {});
+    }, []);
+
+    const openBooking = (t) => {
+        setSelected(t);
+        setModalOpen(true);
     };
 
     return (
         <section data-testid="floorplan-section" className="my-16">
             <div className="mb-8 space-y-3">
-                <span className="overline-tag">Piantina Tavoli</span>
+                <span className="overline-tag">Piantina Ufficiale</span>
                 <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight">Scegli il tuo tavolo</h2>
-                <p className="text-white/60 max-w-2xl">
-                    Tocca un tavolo per richiederlo su WhatsApp. Ti confermiamo disponibilità e minimo di spesa in tempo reale.
+                <p className="text-white/60 max-w-2xl flex items-start gap-2">
+                    <MapPin className="w-4 h-4 mt-1 flex-shrink-0 text-lava" />
+                    Planimetria reale del Glitz Club. Tocca un tavolo per aprire il form di prenotazione — inviamo direttamente su WhatsApp.
                 </p>
             </div>
 
             {/* Legend */}
             <div data-testid="floorplan-legend" className="flex flex-wrap gap-4 mb-6">
-                {Object.entries(ZONE_STYLES).map(([name, s]) => (
+                {Object.entries(ZONE_COLORS).map(([name, color]) => (
                     <div key={name} className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70">
-                        <span className="w-3 h-3 rounded-full inline-block" style={{ background: s.fill }} />
+                        <span className="w-3 h-3 rounded-full inline-block" style={{ background: color }} />
                         {name}
                     </div>
                 ))}
             </div>
 
-            <div className="glass-card rounded-2xl p-4 sm:p-6 overflow-hidden">
-                <svg
-                    viewBox="0 0 900 600"
-                    className="w-full h-auto"
-                    role="img"
-                    aria-label="Piantina Glitz Club"
-                >
-                    <defs>
-                        <radialGradient id="stageGlow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stopColor="#FF3300" stopOpacity="0.6" />
-                            <stop offset="100%" stopColor="#FF3300" stopOpacity="0" />
-                        </radialGradient>
-                        <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#0F0D15" />
-                            <stop offset="100%" stopColor="#1a0e2e" />
-                        </linearGradient>
-                    </defs>
-
-                    {/* Background */}
-                    <rect width="900" height="600" fill="url(#seaGrad)" rx="12" />
-
-                    {/* Sea */}
-                    <text x="450" y="560" textAnchor="middle" fill="#4a3b5c" fontSize="12" letterSpacing="8" fontWeight="600">
-                        MARE TIRRENO • ISOLA DI DINO
-                    </text>
-
-                    {/* Stage arc (iconic LED arch) */}
-                    <ellipse cx="450" cy="140" rx="240" ry="30" fill="url(#stageGlow)" />
-                    <path d="M 210 140 A 240 100 0 0 1 690 140" stroke="#FF3300" strokeWidth="4" fill="none" strokeLinecap="round" />
-                    <path d="M 220 140 A 230 90 0 0 1 680 140" stroke="#FF5522" strokeWidth="2" fill="none" opacity="0.5" />
-                    <text x="450" y="115" textAnchor="middle" fill="#FFFFFF" fontSize="14" letterSpacing="6" fontWeight="700">
-                        MAIN STAGE
-                    </text>
-
-                    {/* Dance floor */}
-                    <rect x="260" y="240" width="380" height="30" rx="4" fill="rgba(255,51,0,0.08)" stroke="rgba(255,51,0,0.3)" strokeDasharray="4 4" />
-                    <text x="450" y="260" textAnchor="middle" fill="#FF3300" fontSize="10" letterSpacing="4" fontWeight="700">
-                        DANCE FLOOR
-                    </text>
-
-                    {/* Tables */}
-                    {TABLES.map((t) => {
-                        const s = ZONE_STYLES[t.zone];
-                        return (
-                            <g
-                                key={t.id}
-                                onClick={() => setSelected(t)}
-                                data-testid={`floorplan-table-${t.id}`}
-                                className="cursor-pointer transition-all"
-                                style={{ transformOrigin: `${t.cx}px ${t.cy}px` }}
-                            >
-                                <circle cx={t.cx} cy={t.cy} r={t.r + 6} fill={s.fill} opacity="0.15" className="hover:opacity-30 transition-opacity" />
-                                <circle
-                                    cx={t.cx}
-                                    cy={t.cy}
-                                    r={t.r}
-                                    fill={s.fill}
-                                    stroke={s.stroke}
-                                    strokeWidth="2"
-                                    className="hover:brightness-125"
-                                />
-                                <text x={t.cx} y={t.cy + 5} textAnchor="middle" fill="#FFFFFF" fontSize="14" fontWeight="900" pointerEvents="none">
-                                    {t.id}
-                                </text>
-                            </g>
-                        );
-                    })}
-                </svg>
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-white">
+                {planUrl && (
+                    <img
+                        src={planUrl}
+                        alt="Planimetria Glitz Club"
+                        className="w-full h-auto block select-none"
+                        draggable="false"
+                    />
+                )}
+                {!planUrl && (
+                    <div className="w-full aspect-[3/2] bg-surface flex items-center justify-center text-white/40">
+                        Caricamento planimetria...
+                    </div>
+                )}
+                {planUrl && TABLES.map((t) => (
+                    <button
+                        key={t.id}
+                        data-testid={`floorplan-table-${t.id}`}
+                        onClick={() => openBooking(t)}
+                        className="absolute rounded-full flex items-center justify-center text-white font-black text-[9px] sm:text-[11px] shadow-lg hover:scale-110 active:scale-95 transition-transform ring-2 ring-white/90"
+                        style={{
+                            left: `${t.x}%`,
+                            top: `${t.y}%`,
+                            transform: "translate(-50%, -50%)",
+                            background: ZONE_COLORS[t.zone],
+                            width: "clamp(24px, 2.6vw, 38px)",
+                            height: "clamp(24px, 2.6vw, 38px)",
+                            boxShadow: `0 0 0 4px ${ZONE_COLORS[t.zone]}22, 0 4px 14px rgba(0,0,0,0.35)`,
+                        }}
+                        aria-label={`Tavolo ${t.id} in ${t.zone}`}
+                    >
+                        {t.id}
+                    </button>
+                ))}
             </div>
 
-            {selected && (
-                <div
-                    data-testid="floorplan-modal"
-                    className="fixed inset-0 z-[70] bg-obsidian/90 backdrop-blur-md flex items-center justify-center p-4"
-                    onClick={() => setSelected(null)}
-                >
-                    <div
-                        className="glass-card rounded-2xl p-8 max-w-md w-full relative"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            onClick={() => setSelected(null)}
-                            data-testid="floorplan-modal-close"
-                            className="absolute top-4 right-4 text-white/60 hover:text-white"
-                            aria-label="Chiudi"
-                        >
-                            <X className="w-6 h-6" />
-                        </button>
-                        <div className="space-y-4">
-                            <div className="text-xs uppercase tracking-widest text-lava font-bold">{selected.zone}</div>
-                            <h3 className="text-3xl font-black">Tavolo #{selected.id}</h3>
-                            <div className="flex items-center gap-4 text-white/70 text-sm">
-                                <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {selected.seats} posti</span>
-                                <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {selected.zone}</span>
-                            </div>
-                            <p className="text-white/60 text-sm">
-                                Al click ti apriamo WhatsApp con il messaggio pronto: conferma nome, numero di ospiti e riceverai minimo di spesa e conferma.
-                            </p>
-                            <button
-                                data-testid="floorplan-request-whatsapp"
-                                onClick={() => openWhatsApp(selected)}
-                                className="btn-lava w-full"
-                            >
-                                <MessageCircle className="w-4 h-4" /> Richiedi su WhatsApp
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <p className="mt-4 text-[11px] text-white/40 italic">
+                Layout tavoli indicativo, disponibilità confermata dallo staff. Piantina di sicurezza ufficiale del locale, scala 1:200.
+            </p>
+
+            <BookingModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                eventTitle={eventTitle}
+                eventId={eventId}
+                tableNumber={selected?.id}
+                zone={selected?.zone}
+            />
         </section>
     );
 }

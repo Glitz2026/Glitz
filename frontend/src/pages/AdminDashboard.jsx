@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, API } from "../lib/api";
 import { toast } from "sonner";
-import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video } from "lucide-react";
+import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 
 function resolveMediaUrl(m) {
@@ -28,22 +28,32 @@ export default function AdminDashboard() {
     const [editFaq, setEditFaq] = useState(null);
     const [settings, setSettings] = useState(null);
     const [savingSettings, setSavingSettings] = useState(false);
+    const [bookings, setBookings] = useState([]);
 
     const email = localStorage.getItem("glitz_admin_email");
 
     const load = async () => {
         try {
-            const [e, p, f, m, s] = await Promise.all([
+            const [e, p, f, m, s, b] = await Promise.all([
                 api.get("/events", { params: { published_only: false } }),
                 api.get("/posts", { params: { published_only: false } }),
                 api.get("/faqs"),
                 api.get("/media"),
                 api.get("/settings"),
+                api.get("/admin/bookings"),
             ]);
-            setEvents(e.data); setPosts(p.data); setFaqs(f.data); setMedia(m.data); setSettings(s.data);
+            setEvents(e.data); setPosts(p.data); setFaqs(f.data); setMedia(m.data); setSettings(s.data); setBookings(b.data);
         } catch (err) {
             if (err?.response?.status === 401) { logout(); }
         }
+    };
+
+    const setBookingStatus = async (id, status) => {
+        try {
+            await api.patch(`/admin/bookings/${id}`, null, { params: { status } });
+            toast.success("Aggiornato");
+            load();
+        } catch { toast.error("Errore"); }
     };
 
     useEffect(() => {
@@ -163,12 +173,13 @@ export default function AdminDashboard() {
             </div>
 
             <Tabs value={tab} onValueChange={setTab}>
-                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-5 h-auto p-1">
+                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-6 h-auto p-1">
                     <TabsTrigger value="events" data-testid="tab-events" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><CalIcon className="w-4 h-4" /> Eventi</TabsTrigger>
                     <TabsTrigger value="posts" data-testid="tab-posts" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><FileText className="w-4 h-4" /> Blog</TabsTrigger>
                     <TabsTrigger value="faqs" data-testid="tab-faqs" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><HelpCircle className="w-4 h-4" /> FAQ</TabsTrigger>
                     <TabsTrigger value="media" data-testid="tab-media" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><ImgIcon className="w-4 h-4" /> Media</TabsTrigger>
-                    <TabsTrigger value="settings" data-testid="tab-settings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><SettingsIcon className="w-4 h-4" /> Impostazioni</TabsTrigger>
+                    <TabsTrigger value="bookings" data-testid="tab-bookings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><Users className="w-4 h-4" /> Prenotazioni</TabsTrigger>
+                    <TabsTrigger value="settings" data-testid="tab-settings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><SettingsIcon className="w-4 h-4" /> Config</TabsTrigger>
                 </TabsList>
 
                 {/* EVENTS */}
@@ -307,11 +318,11 @@ export default function AdminDashboard() {
                             {/* Hero video */}
                             <section className="glass-card rounded-2xl p-6 space-y-4">
                                 <h3 className="font-bold text-lg flex items-center gap-2"><Video className="w-5 h-5 text-lava" /> Hero Video</h3>
-                                <p className="text-sm text-white/60">Carica l'aftermovie (mp4/webm) o incolla un URL diretto. Verrà mostrato in loop, autoplay muted sulla home.</p>
+                                <p className="text-sm text-white/60">Vimeo, YouTube (URL diretto MP4) o file uploadato. Se usi Vimeo assicurati che sia pubblico o "Anyone with the link" e con embed abilitato.</p>
                                 <input
                                     data-testid="settings-hero-video-url"
                                     className={input}
-                                    placeholder="URL video (es. https://.../aftermovie.mp4)"
+                                    placeholder="URL video (Vimeo o .mp4 diretto)"
                                     value={settings.hero_video_url || ""}
                                     onChange={(e) => setSettings({ ...settings, hero_video_url: e.target.value })}
                                 />
@@ -319,8 +330,24 @@ export default function AdminDashboard() {
                                     <Upload className="w-4 h-4" /> Carica video
                                     <input type="file" accept="video/*" className="hidden" onChange={(e) => e.target.files[0] && uploadFor(e.target.files[0], "hero_video_url")} />
                                 </label>
-                                {settings.hero_video_url && (
-                                    <video src={settings.hero_video_url} className="w-full max-w-md rounded-lg" controls muted />
+                            </section>
+
+                            {/* Planimetria */}
+                            <section className="glass-card rounded-2xl p-6 space-y-4">
+                                <h3 className="font-bold text-lg">Planimetria Ufficiale</h3>
+                                <p className="text-sm text-white/60">Immagine PNG della piantina usata per la selezione tavoli.</p>
+                                <input
+                                    className={input}
+                                    placeholder="URL planimetria"
+                                    value={settings.planimetria_url || ""}
+                                    onChange={(e) => setSettings({ ...settings, planimetria_url: e.target.value })}
+                                />
+                                <label className="btn-ghost !text-xs !px-4 !py-2 cursor-pointer inline-flex">
+                                    <Upload className="w-4 h-4" /> Carica planimetria
+                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files[0] && uploadFor(e.target.files[0], "planimetria_url")} />
+                                </label>
+                                {settings.planimetria_url && (
+                                    <img src={settings.planimetria_url.startsWith('http')?settings.planimetria_url:`${process.env.REACT_APP_BACKEND_URL}${settings.planimetria_url}`} alt="planimetria" className="w-full max-w-2xl rounded-lg border border-white/10 bg-white" />
                                 )}
                             </section>
 
@@ -338,18 +365,15 @@ export default function AdminDashboard() {
                                     <Upload className="w-4 h-4" /> Carica immagine
                                     <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files[0] && uploadFor(e.target.files[0], "hero_image_url")} />
                                 </label>
-                                {settings.hero_image_url && (
-                                    <img src={settings.hero_image_url} alt="hero" className="w-full max-w-md rounded-lg" />
-                                )}
                             </section>
 
                             {/* Logo */}
                             <section className="glass-card rounded-2xl p-6 space-y-4">
-                                <h3 className="font-bold text-lg">Logo Glitz</h3>
+                                <h3 className="font-bold text-lg">Logo Glitz (bianco su trasparente)</h3>
                                 <input
                                     data-testid="settings-logo-url"
                                     className={input}
-                                    placeholder="URL logo (bianco su nero, preferibile PNG con trasparenza)"
+                                    placeholder="URL logo"
                                     value={settings.logo_url || ""}
                                     onChange={(e) => setSettings({ ...settings, logo_url: e.target.value })}
                                 />
@@ -359,7 +383,7 @@ export default function AdminDashboard() {
                                 </label>
                                 {settings.logo_url && (
                                     <div className="bg-obsidian p-6 rounded-lg inline-block">
-                                        <img src={settings.logo_url} alt="logo" className="h-16" />
+                                        <img src={settings.logo_url.startsWith('http')?settings.logo_url:`${process.env.REACT_APP_BACKEND_URL}${settings.logo_url}`} alt="logo" className="h-16" />
                                     </div>
                                 )}
                             </section>
@@ -394,6 +418,46 @@ export default function AdminDashboard() {
                             </button>
                         </div>
                     )}
+                </TabsContent>
+
+                {/* BOOKINGS */}
+                <TabsContent value="bookings" className="mt-6 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-lg">Richieste Tavoli</h3>
+                        <span className="text-sm text-white/60">{bookings.length} totali</span>
+                    </div>
+                    {bookings.length === 0 && <p className="text-white/50">Ancora nessuna richiesta.</p>}
+                    <div className="grid gap-3">
+                        {bookings.map((b) => (
+                            <div key={b.id} data-testid={`booking-row-${b.id}`} className="glass-card rounded-xl p-4">
+                                <div className="flex flex-wrap items-start gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="font-bold text-white">{b.name}</span>
+                                            <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full ${b.status === "confirmed" ? "bg-green-500/20 text-green-400" : b.status === "cancelled" ? "bg-red-500/20 text-red-400" : "bg-yellow-500/20 text-yellow-400"}`}>
+                                                {b.status || "pending"}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-white/50 mt-1 flex flex-wrap gap-3">
+                                            <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {b.phone}</span>
+                                            {b.email && <span className="flex items-center gap-1"><MailIcon className="w-3 h-3" /> {b.email}</span>}
+                                            <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {b.guests}</span>
+                                        </div>
+                                        <div className="text-xs text-white/70 mt-2">
+                                            {b.event_title && <><span className="text-white/40">Serata:</span> {b.event_title}<br/></>}
+                                            {b.table_number && <><span className="text-white/40">Tavolo:</span> #{b.table_number} ({b.zone})<br/></>}
+                                            {b.note && <><span className="text-white/40">Note:</span> {b.note}</>}
+                                        </div>
+                                        <div className="text-[10px] text-white/40 mt-1">{new Date(b.created_at).toLocaleString("it-IT")}</div>
+                                    </div>
+                                    <div className="flex gap-1.5">
+                                        <button onClick={() => setBookingStatus(b.id, "confirmed")} data-testid={`booking-confirm-${b.id}`} className="p-2 text-green-400 hover:bg-green-500/20 rounded" title="Conferma"><Check className="w-4 h-4" /></button>
+                                        <button onClick={() => setBookingStatus(b.id, "cancelled")} className="p-2 text-red-400 hover:bg-red-500/20 rounded" title="Rifiuta"><Trash2 className="w-4 h-4" /></button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>
