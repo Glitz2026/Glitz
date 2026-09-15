@@ -485,6 +485,93 @@ async def robots():
     return "User-agent: *\nAllow: /\n\nSitemap: https://glitzclub.it/api/sitemap.xml\n"
 
 
+# --- Cron: reminder emails 3h before event ---
+WEBHOOK_CRON_SECRET = os.environ.get("WEBHOOK_CRON_SECRET", "")
+
+
+async def _process_reminders():
+    """Find bookings whose event starts in ~3h and send reminder emails."""
+    now = datetime.now(timezone.utc)
+    window_start = now + timedelta(hours=2, minutes=45)
+    window_end = now + timedelta(hours=3, minutes=15)
+
+    # Find events in the 3h window
+    events = await db.events.find({
+        "date": {"$gte": window_start.isoformat(), "$lte": window_end.isoformat()},
+        "published": True,
+    }, {"_id": 0}).to_list(50)
+
+    if not events:
+        return {"sent": 0, "events_in_window": 0}
+
+    sent = 0
+    for ev in events:
+        # Bookings for this event that haven't been reminded and have email
+        bookings = await db.bookings.find({
+            "event_id": ev["id"],
+            "email": {"$ne": None, "$exists": True, "$not": {"$eq": ""}},
+            "reminded_at": {"$exists": False},
+            "status": {"$ne": "cancelled"},
+        }).to_list(500)
+
+        for b in bookings:
+            table_line = f"<strong>Tavolo:</strong> {escape(str(b.get('table_number','')))} ({escape(b.get('zone','') or '')})<br>" if b.get("table_number") else ""
+            html = (
+                '<table role="presentation" width="100%" style="background:#070609;color:#ffffff">'
+                '<tr><td style="padding:32px;font-family:Arial,sans-serif;max-width:600px">'
+                '<h1 style="color:#FF3300;font-size:28px;margin:0 0 8px 0;letter-spacing:1px">GLITZ CLUB</h1>'
+                '<p style="font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#FF3300;margin:0 0 24px 0">Reminder — Tra 3 ore la serata</p>'
+                f'<p style="font-size:16px;line-height:1.6">Ciao {escape(b.get("name",""))}, ci vediamo stanotte al Glitz.</p>'
+                '<div style="background:rgba(255,51,0,0.08);border-left:3px solid #FF3300;padding:16px;margin:24px 0;font-size:14px;line-height:1.8">'
+                f'<strong>Serata:</strong> {escape(ev.get("title","") or "")}<br>'
+                f'{table_line}'
+                f'<strong>Ospiti:</strong> {b.get("guests",2)}<br>'
+                f'<strong>Location:</strong> Contrada Dino, San Nicola Arcella (CS)'
+                '</div>'
+                '<p style="font-size:14px;line-height:1.6"><strong>Info utili:</strong><br>'
+                '• Parcheggio gratuito in Contrada Dino, arrivo consigliato prima dell\'apertura<br>'
+                '• Dress code smart & elegante<br>'
+                '• Documento d\'identità obbligatorio all\'ingresso<br>'
+                '• Domande last minute? WhatsApp: 344 4289232</p>'
+                '<p style="font-size:12px;color:#888;margin-top:32px">Glitz Club — Contrada Dino, San Nicola Arcella (CS)</p>'
+                '</td></tr></table>'
+            )
+            eid = await send_email(
+                to=b["email"],
+                subject=f"⏰ Tra 3 ore al Glitz — {ev.get('title','')}",
+                html=html,
+            )
+            await db.bookings.update_one(
+                {"id": b["id"]},
+                {"$set": {"reminded_at": datetime.now(timezone.utc).isoformat(),
+                          "reminder_email_id": eid}}
+            )
+            sent += 1
+
+    return {"sent": sent, "events_in_window": len(events)}
+
+
+@api.post("/cron/reminders")
+async def cron_reminders(authorization: Optional[str] = Header(None)):
+    # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
+    import secrets as _s
+    if not WEBHOOK_CRON_SECRET:
+        raise HTTPException(status_code=500, detail="cron secret not set")
+    expected = f"Bearer {WEBHOOK_CRON_SECRET}"
+    if not authorization or not _s.compare_digest(authorization, expected):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    import asyncio
+    asyncio.create_task(_process_reminders())
+    return {"ok": True, "queued": True}
+
+
+@api.post("/admin/cron/reminders/run")
+async def admin_run_reminders(admin=Depends(get_admin)):
+    """Manual trigger for testing (admin only)."""
+    result = await _process_reminders()
+    return result
+
+
 # --- Auth ---
 @api.post("/auth/login")
 async def login(data: LoginIn):
