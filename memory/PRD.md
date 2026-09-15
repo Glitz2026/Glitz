@@ -3,36 +3,40 @@
 ## Problema
 Sito cinematografico per Glitz Club (glitzclub.it) — open-air 2000 posti a Praia a Mare.
 - Frontend React + Backend FastAPI + MongoDB
-- Hero Vimeo autoplay muted, countdown Opening 2027, FAQ AI-optimized, blog/magazine
-- Piantina interattiva con 40 tavoli (3 zone) + booking → WhatsApp + DB
-- Shop merchandise con checkout WhatsApp
-- Admin JWT (Eventi, Blog, Media, Bookings, Settings)
+- Piantina 40 tavoli (3 zone) + booking → WhatsApp + DB
+- Shop merchandise con Stripe checkout + WhatsApp fallback
+- Admin JWT
 - Reminder email 3h prima via Resend (cron Emergent)
 
 ## Lingua utente
-Italiano. Rispondi sempre in italiano.
+Italiano.
 
 ## Cosa è già stato implementato
 - MVP completo (hero, countdown, FAQ, eventi, blog, gallery, mappa, contatti)
 - Admin dashboard con JWT + CRUD eventi/blog/settings + upload media
-- Piantina 40 tavoli B0-B15 / R1-R16 / G1-G8 in 3 zone (Back the Stage, Riva Deck, Glitz Bar)
-- **[15 Set 2026] Piantina 2D schema pulito**: perimetri ricalcati sui PDF ufficiali + tavoli disposti simmetricamente (Back the Stage 4×4 sopra/sotto palco, Glitz Bar 2×4, Riva Deck 4×4)
+- Piantina 2D con perimetri PDF ufficiali + tavoli simmetrici (Back the Stage 4×4, Glitz Bar 2×4, Riva Deck 4×4)
 - Booking modal → salva DB + WhatsApp deep-link
-- Cron Emergent `/api/cron/reminders` ogni 15m → Resend email 3h prima
-- Hero Vimeo player con parametri background/autoplay/muted/loop
-- Pagina "Il Club" con 5 ambienti (Back the Stage, Arco Iconico, Terrazza Tavoli, Sea View, Pool & Chill)
-- **[15 Set 2026] Shop merchandise `/shop`**: 5 prodotti (Beach Towel €45, Ventaglio €15, Lip Balm €12, T-Shirt Vibes Only €55 con taglie XS-XXL, Beach Bag €65). Grid responsive, modal dettaglio con qty/taglia/spedizione o ritiro, checkout via WhatsApp precompilato. Link "Shop" in nav.
+- Cron Emergent `/api/cron/reminders` → Resend email 3h prima
+- Pagina "Il Club" con 5 ambienti
+- **[15 Set 2026] Shop merchandise `/shop` + `/shop/:id`**:
+  - 6 prodotti (Beach Towel €45, Ventaglio €15, Lip Balm €12, T-Shirt Vibes Only €55 taglie XS-XXL, Beach Bag €65, Gift Card €50)
+  - Pagine prodotto singole con gallery 4 foto ciascuna
+  - **Stripe checkout** con sandbox Emergent (`acct_1UFtZvEu0vFfkg7R`)
+  - Tax mode: "calc_only" (Stripe Tax attivo, calcolo automatico)
+  - Backend: `POST /api/payments/checkout`, `GET /api/payments/status/{id}`, webhook `/api/stripe/webhook`
+  - Pagine `/payment/success` con polling + `/payment/cancel`
+  - Fallback WhatsApp precompilato
 
 ## Backlog / Future
-- Mobile app Phase 2 (song request, live photo feed, cashless) — P2
+- Admin CRUD prodotti shop (ora hardcoded in Shop.jsx) — P1
+- Upload immagini prodotti da backoffice — P1
+- Mobile app Phase 2 — P2
 - Localizzazione EN (i18n) — P2
 - WhatsApp Business API centralizzata — P2
-- Ticketing interno con Stripe — P2
-- Shop admin CRUD + upload immagini prodotti — P2
-- Shop pagamento diretto (Stripe) invece di WhatsApp — P2
 
 ## Info critica
-- Cron via `.emergent/crons.yml` (mai APScheduler)
+- Cron via `.emergent/crons.yml`
 - Auth JWT — credenziali in `/app/memory/test_credentials.md`
-- Vimeo pubblico richiesto ("Anywhere" nelle privacy)
-- Prodotti shop: hardcoded in `/app/frontend/src/pages/Shop.jsx` per ora (no backend CRUD ancora)
+- Stripe sandbox: `acct_1UFtZvEu0vFfkg7R` (claim tramite Dashboard → onboarding link)
+- Setup catalogo: `python3 /app/backend/setup_stripe.py` (idempotente)
+- Test card: 4242 4242 4242 4242, qualsiasi CVC/scadenza futura
