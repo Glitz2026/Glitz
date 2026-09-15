@@ -3,9 +3,10 @@ import { MapPin } from "lucide-react";
 import BookingModal from "./BookingModal";
 
 /**
- * Piantina Glitz Club — schema 2D piatto identico al PDF ufficiale.
- * Solo linee bianche sottili sui perimetri dei privé (Back the Stage, Riva Deck, Glitz Bar).
- * 40 hotspot cliccabili (B0-B15, R1-R16, G1-G8) nelle posizioni ufficiali.
+ * Piantina Glitz Club — schema 2D piatto identico ai PDF ufficiali.
+ * Perimetri ricalcati dai PDF ufficiali (Back the Stage + Glitz Bar + Riva Deck).
+ * 40 tavoli distribuiti simmetricamente nelle 3 zone.
+ * viewBox: 1800 x 1100
  */
 
 const ZONE = {
@@ -14,56 +15,62 @@ const ZONE = {
     BAR: { label: "Glitz Bar", color: "#FFA500" },
 };
 
+// ============ TAVOLI SIMMETRICI ============
+// BACK THE STAGE: 16 tavoli, disposizione simmetrica attorno al palco
+//   Sopra il palco: 2 file × 4 tavoli (B0-B7)
+//   Sotto il palco: 2 file × 4 tavoli (B8-B15)
+// GLITZ BAR: 8 tavoli in griglia 2×4 simmetrica (G1-G8)
+// RIVA DECK: 16 tavoli in griglia 4×4 simmetrica (R1-R16)
 const TABLES = [
-    // BACK THE STAGE — top cluster
-    { id: "B0", x: 218, y: 244, zone: "STAGE" },
-    { id: "B2", x: 296, y: 244, zone: "STAGE" },
-    { id: "B4", x: 371, y: 244, zone: "STAGE" },
-    { id: "B1", x: 213, y: 306, zone: "STAGE" },
-    { id: "B3", x: 288, y: 306, zone: "STAGE" },
-    { id: "B5", x: 208, y: 370, zone: "STAGE" },
-    { id: "B6", x: 288, y: 370, zone: "STAGE" },
-    { id: "B7", x: 213, y: 414, zone: "STAGE" },
-    // BACK THE STAGE — bottom cluster
-    { id: "B8", x: 172, y: 620, zone: "STAGE" },
-    { id: "B9", x: 246, y: 620, zone: "STAGE" },
-    { id: "B10", x: 318, y: 620, zone: "STAGE" },
-    { id: "B11", x: 373, y: 658, zone: "STAGE" },
-    { id: "B12", x: 393, y: 693, zone: "STAGE" },
-    { id: "B13", x: 456, y: 693, zone: "STAGE" },
-    { id: "B14", x: 438, y: 717, zone: "STAGE" },
-    { id: "B15", x: 172, y: 687, zone: "STAGE" },
+    // BACK THE STAGE — sopra il palco (2×4)
+    { id: "B0", x: 200, y: 220, zone: "STAGE" },
+    { id: "B1", x: 320, y: 220, zone: "STAGE" },
+    { id: "B2", x: 440, y: 220, zone: "STAGE" },
+    { id: "B3", x: 560, y: 220, zone: "STAGE" },
+    { id: "B4", x: 200, y: 320, zone: "STAGE" },
+    { id: "B5", x: 320, y: 320, zone: "STAGE" },
+    { id: "B6", x: 440, y: 320, zone: "STAGE" },
+    { id: "B7", x: 560, y: 320, zone: "STAGE" },
+    // BACK THE STAGE — sotto il palco (2×4)
+    { id: "B8", x: 200, y: 640, zone: "STAGE" },
+    { id: "B9", x: 320, y: 640, zone: "STAGE" },
+    { id: "B10", x: 440, y: 640, zone: "STAGE" },
+    { id: "B11", x: 560, y: 640, zone: "STAGE" },
+    { id: "B12", x: 200, y: 740, zone: "STAGE" },
+    { id: "B13", x: 320, y: 740, zone: "STAGE" },
+    { id: "B14", x: 440, y: 740, zone: "STAGE" },
+    { id: "B15", x: 560, y: 740, zone: "STAGE" },
 
-    // RIVA DECK — 4×4 grid
-    { id: "R1", x: 664, y: 280, zone: "RIVA" },
-    { id: "R2", x: 700, y: 348, zone: "RIVA" },
-    { id: "R3", x: 700, y: 414, zone: "RIVA" },
-    { id: "R4", x: 700, y: 478, zone: "RIVA" },
-    { id: "R5", x: 796, y: 280, zone: "RIVA" },
-    { id: "R6", x: 800, y: 348, zone: "RIVA" },
-    { id: "R7", x: 800, y: 414, zone: "RIVA" },
-    { id: "R8", x: 810, y: 478, zone: "RIVA" },
-    { id: "R9", x: 930, y: 280, zone: "RIVA" },
-    { id: "R10", x: 942, y: 348, zone: "RIVA" },
-    { id: "R11", x: 950, y: 414, zone: "RIVA" },
-    { id: "R12", x: 960, y: 478, zone: "RIVA" },
-    { id: "R13", x: 1074, y: 280, zone: "RIVA" },
-    { id: "R14", x: 1094, y: 348, zone: "RIVA" },
-    { id: "R15", x: 1108, y: 414, zone: "RIVA" },
-    { id: "R16", x: 1130, y: 478, zone: "RIVA" },
+    // GLITZ BAR — 2×4 griglia simmetrica
+    { id: "G1", x: 200, y: 920, zone: "BAR" },
+    { id: "G2", x: 320, y: 920, zone: "BAR" },
+    { id: "G3", x: 440, y: 920, zone: "BAR" },
+    { id: "G4", x: 560, y: 920, zone: "BAR" },
+    { id: "G5", x: 200, y: 1020, zone: "BAR" },
+    { id: "G6", x: 320, y: 1020, zone: "BAR" },
+    { id: "G7", x: 440, y: 1020, zone: "BAR" },
+    { id: "G8", x: 560, y: 1020, zone: "BAR" },
 
-    // GLITZ BAR — bottom-left
-    { id: "G1", x: 218, y: 756, zone: "BAR" },
-    { id: "G2", x: 296, y: 782, zone: "BAR" },
-    { id: "G3", x: 218, y: 834, zone: "BAR" },
-    { id: "G8", x: 410, y: 862, zone: "BAR" },
-    { id: "G4", x: 296, y: 872, zone: "BAR" },
-    { id: "G5", x: 268, y: 944, zone: "BAR" },
-    { id: "G6", x: 348, y: 982, zone: "BAR" },
-    { id: "G7", x: 410, y: 944, zone: "BAR" },
+    // RIVA DECK — 4×4 griglia simmetrica
+    { id: "R1", x: 900, y: 300, zone: "RIVA" },
+    { id: "R2", x: 1050, y: 300, zone: "RIVA" },
+    { id: "R3", x: 1200, y: 300, zone: "RIVA" },
+    { id: "R4", x: 1350, y: 300, zone: "RIVA" },
+    { id: "R5", x: 900, y: 420, zone: "RIVA" },
+    { id: "R6", x: 1050, y: 420, zone: "RIVA" },
+    { id: "R7", x: 1200, y: 420, zone: "RIVA" },
+    { id: "R8", x: 1350, y: 420, zone: "RIVA" },
+    { id: "R9", x: 900, y: 540, zone: "RIVA" },
+    { id: "R10", x: 1050, y: 540, zone: "RIVA" },
+    { id: "R11", x: 1200, y: 540, zone: "RIVA" },
+    { id: "R12", x: 1350, y: 540, zone: "RIVA" },
+    { id: "R13", x: 900, y: 660, zone: "RIVA" },
+    { id: "R14", x: 1050, y: 660, zone: "RIVA" },
+    { id: "R15", x: 1200, y: 660, zone: "RIVA" },
+    { id: "R16", x: 1350, y: 660, zone: "RIVA" },
 ];
 
-const CELL = 38;
+const CELL = 46;
 
 export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) {
     const [selected, setSelected] = useState(null);
@@ -102,10 +109,10 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
 
             <div
                 data-testid="floorplan-wrap"
-                className="rounded-2xl overflow-hidden border border-white/10 bg-obsidian p-6 sm:p-10"
+                className="rounded-2xl overflow-hidden border border-white/10 bg-obsidian p-4 sm:p-8"
             >
                 <svg
-                    viewBox="0 0 1300 1050"
+                    viewBox="0 0 1800 1150"
                     className="w-full h-auto"
                     role="img"
                     aria-label="Piantina Glitz Club"
@@ -117,108 +124,106 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                         </filter>
                     </defs>
 
-                    {/* ================= BACK THE STAGE (linee ufficiali PDF) ================= */}
+                    {/* ================= BACK THE STAGE ================= */}
+                    {/* Perimetro ufficiale: tetto inclinato in alto, 3 notch scale sul lato destro, palco/DJ a D al centro */}
                     <path
                         d="
-                            M 120 220
-                            L 540 165
-                            L 545 245
-                            L 560 245
-                            L 560 285
-                            L 545 285
-                            L 545 360
-                            L 560 360
-                            L 560 400
-                            L 545 400
-                            L 545 445
-                            L 560 445
-                            L 560 480
-                            L 545 480
-                            L 545 545
-                            L 505 545
-                            L 505 755
-                            L 130 755
+                            M 120 180
+                            L 640 120
+                            L 645 200
+                            L 665 200
+                            L 665 240
+                            L 645 240
+                            L 645 340
+                            L 665 340
+                            L 665 380
+                            L 645 380
+                            L 645 460
+                            L 665 460
+                            L 665 500
+                            L 645 500
+                            L 645 820
+                            L 120 820
                             Z
                         "
                         fill="none"
                         stroke="#FFFFFF"
-                        strokeWidth="1.8"
+                        strokeWidth="2"
                         strokeLinejoin="round"
                         opacity="0.95"
                     />
-                    {/* Palco / DJ booth (curva a D ufficiale) */}
+                    {/* Palco / DJ booth — curva D ufficiale al centro */}
                     <path
-                        d="M 250 555 Q 250 470 340 460 Q 430 470 430 555 Z"
+                        d="M 260 570 
+                           Q 260 440 380 425 
+                           Q 500 440 500 570 Z"
                         fill="none"
                         stroke="#FFFFFF"
-                        strokeWidth="1.5"
+                        strokeWidth="1.6"
                         opacity="0.9"
                     />
-                    <rect x="315" y="490" width="60" height="34" fill="none" stroke="#FFFFFF" strokeWidth="1.2" opacity="0.85" />
-                    <text x="345" y="512" textAnchor="middle" fill="#FFFFFF" fontSize="10" fontWeight="700" letterSpacing="3" opacity="0.7">DJ</text>
+                    <rect x="345" y="465" width="70" height="42" fill="none" stroke="#FFFFFF" strokeWidth="1.3" opacity="0.85" />
+                    <text x="380" y="491" textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="700" letterSpacing="3" opacity="0.7">DJ</text>
 
-                    {/* ================= GLITZ BAR (linee ufficiali PDF - forma a L) ================= */}
+                    {/* ================= GLITZ BAR ================= */}
+                    {/* Forma a L con piccola stanza superiore + corridoio + area tavoli */}
                     <path
                         d="
-                            M 65 780
-                            L 130 780
-                            L 130 720
-                            L 210 720
-                            L 210 780
-                            L 505 780
-                            L 505 1015
-                            L 175 1015
-                            L 175 990
-                            L 105 990
-                            L 105 890
-                            L 65 890
+                            M 120 850
+                            L 645 850
+                            L 645 1100
+                            L 180 1100
+                            L 180 1075
+                            L 120 1075
                             Z
                         "
                         fill="none"
                         stroke="#FFFFFF"
-                        strokeWidth="1.8"
+                        strokeWidth="2"
                         strokeLinejoin="round"
                         opacity="0.95"
                     />
                     {/* Bancone bar */}
-                    <rect x="130" y="740" width="80" height="35" fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.7" />
+                    <rect x="140" y="865" width="90" height="30" fill="none" stroke="#FFFFFF" strokeWidth="1.2" opacity="0.7" />
+                    <text x="185" y="884" textAnchor="middle" fill="#FFFFFF" fontSize="10" fontWeight="700" letterSpacing="2" opacity="0.6">BAR</text>
 
-                    {/* ================= RIVA DECK (linee ufficiali PDF) ================= */}
+                    {/* ================= RIVA DECK ================= */}
+                    {/* Trapezio con lato SX inclinato, bancone in alto con 6 divisioni, angolo DX arrotondato */}
                     <path
                         d="
-                            M 610 240
-                            L 610 220
-                            L 1215 220
-                            L 1215 465
-                            Q 1215 528 1152 528
-                            L 745 528
-                            L 728 550
-                            L 610 550
+                            M 830 220
+                            L 830 205
+                            L 1590 205
+                            L 1590 600
+                            Q 1590 720 1470 720
+                            L 1050 720
+                            L 1015 750
+                            L 830 750
                             Z
                         "
                         fill="none"
                         stroke="#FFFFFF"
-                        strokeWidth="1.8"
+                        strokeWidth="2"
                         strokeLinejoin="round"
                         opacity="0.95"
                     />
-                    {/* Bancone RIVA in alto con 6 divisioni */}
-                    <line x1="625" y1="255" x2="1185" y2="255" stroke="#FFFFFF" strokeWidth="1" opacity="0.75" />
-                    <line x1="625" y1="285" x2="1185" y2="285" stroke="#FFFFFF" strokeWidth="1" opacity="0.75" />
-                    {[720, 815, 910, 1005, 1100].map((x, i) => (
-                        <line key={i} x1={x} y1="255" x2={x} y2="285" stroke="#FFFFFF" strokeWidth="0.8" opacity="0.6" />
+                    {/* Bancone RIVA in alto con 6 divisioni rettangolari */}
+                    <line x1="845" y1="230" x2="1575" y2="230" stroke="#FFFFFF" strokeWidth="1.2" opacity="0.85" />
+                    <line x1="845" y1="255" x2="1575" y2="255" stroke="#FFFFFF" strokeWidth="1.2" opacity="0.85" />
+                    {[970, 1090, 1210, 1330, 1450].map((x, i) => (
+                        <line key={i} x1={x} y1="230" x2={x} y2="255" stroke="#FFFFFF" strokeWidth="1" opacity="0.75" />
                     ))}
                     {/* Notch scala in alto-destra */}
-                    <path d="M 1185 220 L 1185 260 L 1215 260" fill="none" stroke="#FFFFFF" strokeWidth="1.4" opacity="0.85" />
+                    <path d="M 1575 205 L 1575 235 L 1590 235" fill="none" stroke="#FFFFFF" strokeWidth="1.5" opacity="0.9" />
 
                     {/* ================= ZONE LABELS ================= */}
-                    <text x="325" y="200" textAnchor="middle" fill="#FF3300" fontSize="15" fontWeight="900" letterSpacing="4" opacity="0.9">
+                    <text x="385" y="155" textAnchor="middle" fill="#FF3300" fontSize="17" fontWeight="900" letterSpacing="5" opacity="0.9">
                         BACK THE STAGE
                     </text>
-                    <text x="905" y="410" textAnchor="middle" fill="#00BFFF" fontSize="16" fontWeight="900" letterSpacing="5" opacity="0.85">
+                    <text x="1180" y="493" textAnchor="middle" fill="#00BFFF" fontSize="18" fontWeight="900" letterSpacing="6" opacity="0.5">
                         RIVA DECK
                     </text>
-                    <text x="315" y="905" textAnchor="middle" fill="#FFA500" fontSize="15" fontWeight="900" letterSpacing="4" opacity="0.9">
+                    <text x="500" y="1075" textAnchor="middle" fill="#FFA500" fontSize="16" fontWeight="900" letterSpacing="5" opacity="0.9">
                         GLITZ BAR
                     </text>
 
@@ -244,16 +249,16 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                                     fill={color}
                                     stroke={stroke}
                                     strokeWidth="1.5"
-                                    rx="4"
+                                    rx="5"
                                     filter="url(#tableShadow)"
                                     className={isReserved ? "" : "hover:brightness-125"}
                                 />
                                 <text
                                     x={t.x}
-                                    y={t.y + 5}
+                                    y={t.y + 6}
                                     textAnchor="middle"
                                     fill={isReserved ? "rgba(255,255,255,0.5)" : "#FFFFFF"}
-                                    fontSize="12"
+                                    fontSize="14"
                                     fontWeight="900"
                                     pointerEvents="none"
                                     style={{ userSelect: "none" }}
