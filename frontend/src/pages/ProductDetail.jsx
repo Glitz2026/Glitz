@@ -84,7 +84,7 @@ export default function ProductDetail() {
                                 data-testid="product-main-image"
                                 src={gallery[activeImg]}
                                 alt={product.name}
-                                className="w-full h-full object-cover transition-opacity duration-500"
+                                className={`w-full h-full transition-opacity duration-500 ${product.id === "gift-card" && activeImg === 0 ? "object-contain p-12 bg-black" : "object-cover"}`}
                             />
                         </div>
                         <div className="grid grid-cols-4 gap-3">
@@ -95,7 +95,7 @@ export default function ProductDetail() {
                                     onClick={() => setActiveImg(i)}
                                     className={`aspect-square rounded-xl overflow-hidden border transition ${activeImg === i ? "border-lava" : "border-white/10 hover:border-white/40"}`}
                                 >
-                                    <img src={g} alt={`${product.name} ${i + 1}`} className="w-full h-full object-cover" />
+                                    <img src={g} alt={`${product.name} ${i + 1}`} className={`w-full h-full ${product.id === "gift-card" && i === 0 ? "object-contain p-2 bg-black" : "object-cover"}`} />
                                 </button>
                             ))}
                         </div>

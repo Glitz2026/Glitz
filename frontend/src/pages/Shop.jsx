@@ -26,12 +26,12 @@ export const PRODUCTS = [
         name: "Gift Card Glitz",
         subtitle: "Buono regalo digitale €50",
         price: 50,
-        image: AMBIENT.hero,
+        image: "/glitz-logo-black.png",
         gallery: [
+            "/glitz-logo-black.png",
             AMBIENT.hero,
             AMBIENT.arch,
             AMBIENT.seaview,
-            AMBIENT.terrace,
         ],
         description: "Il regalo perfetto per chi ama il Glitz. Buono digitale del valore di €50 utilizzabile su tutto lo shop e i tavoli durante le serate. Consegnato via email in PDF con codice univoco entro 5 minuti.",
         details: ["Valore €50", "Consegna via email in 5 min", "Codice univoco a PDF", "Valido 12 mesi", "Utilizzabile online e in club"],
@@ -176,7 +176,7 @@ export default function Shop() {
                                         src={p.image}
                                         alt={p.name}
                                         loading="lazy"
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                        className={`w-full h-full group-hover:scale-105 transition-transform duration-700 ${p.id === "gift-card" ? "object-contain p-8 bg-black" : "object-cover"}`}
                                     />
                                 </div>
                                 <div className="p-5 space-y-2">
