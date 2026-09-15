@@ -13,6 +13,7 @@ import Contact from "@/pages/Contact";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import PastEvents from "@/pages/PastEvents";
+import Shop from "@/pages/Shop";
 
 function App() {
     return (
@@ -29,6 +30,7 @@ function App() {
                     <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
                     <Route path="/il-club" element={<Layout><About /></Layout>} />
                     <Route path="/contatti" element={<Layout><Contact /></Layout>} />
+                    <Route path="/shop" element={<Layout><Shop /></Layout>} />
                     <Route path="/admin/login" element={<Layout><AdminLogin /></Layout>} />
                     <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
                     <Route path="*" element={<Layout><div className="max-w-4xl mx-auto px-4 py-32 text-center"><h1 className="text-5xl font-black">404</h1><p className="text-white/60 mt-4">Pagina non trovata</p></div></Layout>} />

@@ -17,6 +17,7 @@ const NAV = [
     { to: "/il-club", label: "Il Club" },
     { to: "/eventi/passati", label: "Archivio" },
     { to: "/news", label: "News" },
+    { to: "/shop", label: "Shop" },
     { to: "/contatti", label: "Contatti" },
 ];
 
