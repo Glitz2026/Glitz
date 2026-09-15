@@ -113,9 +113,9 @@ export default function Home() {
                     <span className="overline-tag">
                         Glitz Club • {ADDRESS_SHORT}
                     </span>
-                    <h1 data-testid="hero-title" className="text-5xl sm:text-7xl lg:text-8xl font-black uppercase tracking-tight leading-[0.9]">
-                        <span className="block text-stroke-outline">Ogni Notte</span>
-                        <span className="block text-shimmer">Un Rito</span>
+                    <h1 data-testid="hero-title" className="font-editorial text-6xl sm:text-8xl lg:text-[9rem] tracking-tight leading-[0.95]">
+                        <span className="block hero-editorial font-light italic">Riviera</span>
+                        <span className="block hero-editorial-accent font-semibold italic -mt-4 sm:-mt-8">in battito.</span>
                     </h1>
                     <p className="max-w-2xl text-base sm:text-lg text-white/70 leading-relaxed">
                         Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino.

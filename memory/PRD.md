@@ -36,7 +36,11 @@ Sito vetrina premium per Glitz, club all'aperto da 2000 posti a San Nicola Arcel
 - ✅ i18n: solo italiano
 - ✅ Testing: 100% backend, ~98% frontend
 
-## Implemented (Fase 5 — 15 Feb 2026)
+## Implemented (Fase 6 — 15 Feb 2026)
+- ✅ Hero title editorial: font Fraunces variable serif italic ("Riviera" / "in battito.") con gradient bianco su prima riga e gradient shimmering rosso→pink→viola animato sulla seconda — molto più elegante e sofisticato
+- ✅ Piantina definitiva basata sul PDF ufficiale della planimetria: 40 tavoli con ID reali (B0-B15, R1-R16, G1-G8), forma del club con muri irregolari, curva Riva Deck, area Glitz Bar sotto — layout fedele al PDF
+- ✅ Vista 3D isometrica (perspective+rotateX 52°) con toggle 2D/3D, ispirata al sito Pacha. Hover inclina la piantina, tap toggle appiattisce
+- ✅ Vimeo 1226986308 salvato ma sostituito con foto tramonto come fallback (video ancora non embeddabile — embed permission ancora "Nowhere")
 - ✅ Piantina definitiva unificata: SVG pulito stile PDF ufficiali con contorno club, arco Glitz, DJ booth, Dance Floor semi-circolare, e 4 zone etichettate (Back the Stage / Tavoli a Consumo / Glitz Bar / Riva Deck) + label Mare Tirreno-Isola di Dino
 - ✅ 62 tavoli-quadrati cliccabili distribuiti sulle 4 zone (S1-S8 stage, T1-T28 consumo, B1-B12 bar, R1-R14 riva) — il proprietario può rimuovere quelli non utilizzati via editor
 - ✅ **Piantina Reattiva**: nuovo campo `reserved_tables: dict` in event model. Alla creazione di una booking con event_id + table_number, il tavolo passa a status "reserved" per quella serata. In piantina i tavoli prenotati appaiono grigi e non cliccabili
