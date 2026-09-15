@@ -92,8 +92,8 @@ export default function EventDetail() {
             </div>
 
             {ev.floorplan_enabled && (
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
-                    <Floorplan eventTitle={ev.title} eventId={ev.id} />
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+                    <Floorplan eventTitle={ev.title} eventId={ev.id} reservedTables={ev.reserved_tables || {}} />
                 </div>
             )}
 

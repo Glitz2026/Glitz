@@ -238,6 +238,7 @@ class EventIn(BaseModel):
     location: str = "Contrada Dino, San Nicola Arcella (CS)"
     published: bool = True
     floorplan_enabled: bool = False
+    reserved_tables: dict = {}
 
 
 class EventOut(EventIn):
@@ -392,6 +393,13 @@ async def create_booking(data: BookingIn):
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
     await db.bookings.insert_one(doc)
     doc.pop("_id", None)
+
+    # Mark table as reserved for that event
+    if data.event_id and data.table_number:
+        await db.events.update_one(
+            {"id": data.event_id},
+            {"$set": {f"reserved_tables.{data.table_number}": "reserved"}}
+        )
 
     # Send confirmation email if provided
     if data.email:
