@@ -2,6 +2,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Menu, X, Instagram, MessageCircle, Mail, MapPin } from "lucide-react";
 import { WHATSAPP_DISPLAY, EMAIL, INSTAGRAM, TIKTOK, ADDRESS, whatsappInfoLink } from "../lib/constants";
+import { api } from "../lib/api";
 import Newsletter from "./Newsletter";
 
 const NAV = [
@@ -16,11 +17,13 @@ const NAV = [
 export default function Layout({ children }) {
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [logoUrl, setLogoUrl] = useState("");
     const loc = useLocation();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", onScroll);
+        api.get("/settings").then((r) => setLogoUrl(r.data?.logo_url || "")).catch(() => {});
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
@@ -34,10 +37,16 @@ export default function Layout({ children }) {
             >
                 <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
                     <Link to="/" data-testid="site-logo-link" className="flex items-center gap-2 group">
-                        <span className="text-2xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent group-hover:text-glow-lava transition">
-                            GLITZ
-                        </span>
-                        <span className="text-[10px] uppercase tracking-widest text-white/50 hidden sm:inline">Club Calabria</span>
+                        {logoUrl ? (
+                            <img src={logoUrl} alt="Glitz Club" className="h-10 sm:h-12 w-auto" />
+                        ) : (
+                            <>
+                                <span className="text-2xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent group-hover:text-glow-lava transition">
+                                    GLITZ
+                                </span>
+                                <span className="text-[10px] uppercase tracking-widest text-white/50 hidden sm:inline">Club Calabria</span>
+                            </>
+                        )}
                     </Link>
                     <nav className="hidden lg:flex items-center gap-8">
                         {NAV.map((n) => (
@@ -98,9 +107,13 @@ export default function Layout({ children }) {
             <footer data-testid="site-footer" className="mt-24 border-t border-white/10 bg-surface/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-12 md:grid-cols-4">
                     <div className="md:col-span-2 space-y-4">
-                        <div className="text-3xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent">
-                            GLITZ
-                        </div>
+                        {logoUrl ? (
+                            <img src={logoUrl} alt="Glitz Club" className="h-14 w-auto" />
+                        ) : (
+                            <div className="text-3xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent">
+                                GLITZ
+                            </div>
+                        )}
                         <p className="text-white/60 max-w-md leading-relaxed">
                             Il club all'aperto sulla costa tirrenica calabrese. 2000 posti, vista mare, l'arco iconico e le notti più magiche del sud Italia.
                         </p>

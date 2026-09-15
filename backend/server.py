@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Header, Query, Response
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Header, Query
+from fastapi.responses import Response, PlainTextResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -285,6 +286,23 @@ class NewsletterIn(BaseModel):
     email: EmailStr
 
 
+class SettingsIn(BaseModel):
+    hero_video_url: str = ""
+    hero_image_url: str = ""
+    logo_url: str = ""
+    logo_dark_url: str = ""
+    instagram_url: str = "https://instagram.com/glitzclubofficial"
+    instagram_posts: List[dict] = []
+
+
+class TableRequestIn(BaseModel):
+    event_id: str
+    table_number: int
+    name: str
+    guests: int = 2
+    phone: str = ""
+
+
 # ---------- App ----------
 app = FastAPI()
 api = APIRouter(prefix="/api")
@@ -293,6 +311,89 @@ api = APIRouter(prefix="/api")
 @api.get("/")
 async def root():
     return {"status": "ok", "app": "Glitz Club API"}
+
+
+# --- Settings ---
+DEFAULT_SETTINGS = {
+    "id": "main",
+    "hero_video_url": "",
+    "hero_image_url": "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000",
+    "logo_url": "",
+    "logo_dark_url": "",
+    "instagram_url": "https://instagram.com/glitzclubofficial",
+    "instagram_posts": [
+        {"image": "https://images.unsplash.com/photo-1602167098991-7cdbfeb0f8d9?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://images.unsplash.com/photo-1563841930606-67e2bce48b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://images.unsplash.com/photo-1619229725920-ac8b63b0631a?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://images.unsplash.com/photo-1619286627925-634cddbafcbf?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
+        {"image": "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85&w=800", "url": "https://instagram.com/glitzclubofficial"},
+    ],
+}
+
+
+@api.get("/settings")
+async def get_settings():
+    s = await db.settings.find_one({"id": "main"}, {"_id": 0})
+    return s or DEFAULT_SETTINGS
+
+
+@api.put("/admin/settings")
+async def update_settings(data: SettingsIn, admin=Depends(get_admin)):
+    doc = data.model_dump()
+    doc["id"] = "main"
+    await db.settings.update_one({"id": "main"}, {"$set": doc}, upsert=True)
+    return doc
+
+
+# --- Table reservations (floorplan) ---
+@api.post("/table-requests")
+async def create_table_request(data: TableRequestIn):
+    ev = await db.events.find_one({"id": data.event_id, "floorplan_enabled": True})
+    if not ev:
+        raise HTTPException(status_code=400, detail="Piantina non attiva per questo evento")
+    doc = data.model_dump()
+    doc["id"] = str(uuid.uuid4())
+    doc["event_title"] = ev["title"]
+    doc["status"] = "pending"
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.table_requests.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/admin/table-requests")
+async def list_table_requests(admin=Depends(get_admin)):
+    return await db.table_requests.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+
+
+# --- SEO: sitemap + robots ---
+@api.get("/sitemap.xml", response_class=Response)
+async def sitemap():
+    base = "https://glitzclub.it"
+    events = await db.events.find({"published": True}, {"_id": 0, "id": 1}).to_list(1000)
+    posts = await db.posts.find({"published": True}, {"_id": 0, "slug": 1, "created_at": 1}).to_list(1000)
+    urls = [(f"{base}/", "daily", "1.0"),
+            (f"{base}/eventi", "daily", "0.9"),
+            (f"{base}/news", "weekly", "0.7"),
+            (f"{base}/gallery", "weekly", "0.6"),
+            (f"{base}/il-club", "monthly", "0.6"),
+            (f"{base}/contatti", "monthly", "0.5")]
+    for e in events:
+        urls.append((f"{base}/eventi/{e['id']}", "weekly", "0.8"))
+    for p in posts:
+        urls.append((f"{base}/news/{p['slug']}", "monthly", "0.7"))
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for loc, freq, prio in urls:
+        xml.append(f"  <url><loc>{loc}</loc><changefreq>{freq}</changefreq><priority>{prio}</priority></url>")
+    xml.append("</urlset>")
+    return Response(content="\n".join(xml), media_type="application/xml")
+
+
+@api.get("/robots.txt", response_class=PlainTextResponse)
+async def robots():
+    return "User-agent: *\nAllow: /\n\nSitemap: https://glitzclub.it/api/sitemap.xml\n"
 
 
 # --- Auth ---
@@ -541,25 +642,28 @@ FAQ_SEED = [
 
 EVENT_SEED = [
     {
-        "title": "Opening Season 2026 — Pyramid Night",
-        "days_ahead": 21,
+        "title": "Opening Season 2027 — Pyramid Night",
+        "date": "2027-06-19T21:00:00+00:00",
         "lineup": ["Solomun", "Marco Carola", "Anfisa Letyago"],
         "description": "L'attesa apertura di stagione al Glitz. Tre headliners di caratura internazionale sotto l'arco a LED, dal tramonto sul mare all'alba tirrenica. Line-up totalmente house & techno.",
         "poster": "https://images.unsplash.com/photo-1602167098991-7cdbfeb0f8d9?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+        "floorplan_enabled": True,
     },
     {
         "title": "Sunset Sessions — Deep House Edition",
-        "days_ahead": 42,
+        "date": "2027-07-17T20:00:00+00:00",
         "lineup": ["Black Coffee", "The Blessed Madonna", "Local Guest"],
         "description": "Il rito del tramonto sul mare della Calabria. Deep house, afro, melodic. Un long set che accompagna dal cielo arancione fino ai laser rossi della notte.",
         "poster": "https://images.unsplash.com/photo-1563841930606-67e2bce48b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+        "floorplan_enabled": False,
     },
     {
-        "title": "Glitz Anniversary — 5 Anni di Fuoco",
-        "days_ahead": 70,
+        "title": "Glitz Anniversary — 6 Anni di Fuoco",
+        "date": "2027-08-14T21:30:00+00:00",
         "lineup": ["Tale Of Us", "Adam Beyer", "Amelie Lens", "Special Guest TBA"],
-        "description": "Il compleanno più atteso della costa. Cinque anni di serate leggendarie celebrati con una line-up esplosiva, produzione visiva spettacolare e fuochi pirotecnici alla mezzanotte.",
+        "description": "Il compleanno più atteso della costa. Sei anni di serate leggendarie celebrati con una line-up esplosiva, produzione visiva spettacolare e fuochi pirotecnici alla mezzanotte.",
         "poster": "https://images.unsplash.com/photo-1619229725920-ac8b63b0631a?crop=entropy&cs=srgb&fm=jpg&q=85&w=1200",
+        "floorplan_enabled": True,
     },
 ]
 
@@ -626,15 +730,15 @@ async def startup():
             await db.faqs.insert_one({"id": str(uuid.uuid4()), "question": q, "answer": a, "order": i})
         logging.info("Seeded FAQs")
 
-    # Seed Events
+    # Reseed Events with fixed 2027 dates (wipe any previous seed)
+    await db.events.delete_many({"date": {"$lt": "2027-01-01"}})
     if await db.events.count_documents({}) == 0:
-        now = datetime.now(timezone.utc)
+        now_iso = datetime.now(timezone.utc).isoformat()
         for e in EVENT_SEED:
-            dt = (now + timedelta(days=e["days_ahead"])).replace(hour=23, minute=0, second=0, microsecond=0)
             await db.events.insert_one({
                 "id": str(uuid.uuid4()),
                 "title": e["title"],
-                "date": dt.isoformat(),
+                "date": e["date"],
                 "lineup": e["lineup"],
                 "description": e["description"],
                 "poster_url": e["poster"],
@@ -642,10 +746,15 @@ async def startup():
                 "ticket_url": "https://www.ticketsms.it/",
                 "location": "Contrada Dino, San Nicola Arcella (CS)",
                 "published": True,
-                "floorplan_enabled": False,
-                "created_at": now.isoformat(),
+                "floorplan_enabled": e.get("floorplan_enabled", False),
+                "created_at": now_iso,
             })
-        logging.info("Seeded events")
+        logging.info("Seeded events (2027)")
+
+    # Seed Settings
+    if not await db.settings.find_one({"id": "main"}):
+        await db.settings.insert_one(DEFAULT_SETTINGS.copy())
+        logging.info("Seeded settings")
 
     # Seed Posts
     if await db.posts.count_documents({}) == 0:

@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { whatsappTableLink, formatItalianDateTime } from "../lib/constants";
 import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
+import Floorplan from "../components/Floorplan";
 
 export default function EventDetail() {
     const { id } = useParams();
@@ -87,6 +88,12 @@ export default function EventDetail() {
                     </div>
                 </aside>
             </div>
+
+            {ev.floorplan_enabled && (
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
+                    <Floorplan eventTitle={ev.title} eventId={ev.id} />
+                </div>
+            )}
         </div>
     );
 }

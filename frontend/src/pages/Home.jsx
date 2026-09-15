@@ -7,8 +7,9 @@ import { api } from "../lib/api";
 import { whatsappTableLink, formatItalianDateTime, ADDRESS_SHORT } from "../lib/constants";
 import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
+import InstagramFeed from "../components/InstagramFeed";
 
-const HERO_IMG = "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
+const HERO_IMG_FALLBACK = "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
 const DRONE_IMG = "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
 
 export default function Home() {
@@ -16,13 +17,19 @@ export default function Home() {
     const [faqs, setFaqs] = useState([]);
     const [posts, setPosts] = useState([]);
     const [events, setEvents] = useState([]);
+    const [settings, setSettings] = useState(null);
 
     useEffect(() => {
         api.get("/events/upcoming").then((r) => setUpcoming(r.data)).catch(() => {});
         api.get("/faqs").then((r) => setFaqs(r.data)).catch(() => {});
         api.get("/posts").then((r) => setPosts(r.data.slice(0, 3))).catch(() => {});
         api.get("/events").then((r) => setEvents(r.data.slice(0, 3))).catch(() => {});
+        api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
     }, []);
+
+    const heroVideoUrl = settings?.hero_video_url;
+    const heroImage = settings?.hero_image_url || HERO_IMG_FALLBACK;
+    const instaPosts = settings?.instagram_posts || [];
 
     const faqSchema = {
         "@context": "https://schema.org",
@@ -38,7 +45,7 @@ export default function Home() {
         "@context": "https://schema.org",
         "@type": "NightClub",
         name: "Glitz Club",
-        image: HERO_IMG,
+        image: heroImage,
         address: { "@type": "PostalAddress", streetAddress: "Contrada Dino", addressLocality: "San Nicola Arcella", postalCode: "87020", addressRegion: "CS", addressCountry: "IT" },
         telephone: "+393444289232",
         url: "https://glitzclub.it",
@@ -55,7 +62,20 @@ export default function Home() {
             {/* HERO */}
             <section data-testid="hero-section" className="relative min-h-[95vh] w-full overflow-hidden flex items-center justify-center grain-overlay bg-cinema">
                 <div className="absolute inset-0 z-0">
-                    <img src={HERO_IMG} alt="Glitz Club arco LED laser" className="w-full h-full object-cover opacity-60" />
+                    {heroVideoUrl ? (
+                        <video
+                            data-testid="hero-video"
+                            src={heroVideoUrl}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            poster={heroImage}
+                            className="w-full h-full object-cover opacity-60"
+                        />
+                    ) : (
+                        <img src={heroImage} alt="Glitz Club arco LED laser" className="w-full h-full object-cover opacity-60" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/70 to-obsidian/40" />
                     <div className="laser-line" />
                 </div>
@@ -239,6 +259,9 @@ export default function Home() {
                     </div>
                 </section>
             )}
+
+            {/* Instagram feed */}
+            <InstagramFeed posts={instaPosts} profileUrl={settings?.instagram_url} />
         </div>
     );
 }

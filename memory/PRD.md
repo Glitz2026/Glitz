@@ -36,6 +36,16 @@ Sito vetrina premium per Glitz, club all'aperto da 2000 posti a San Nicola Arcel
 - ✅ i18n: solo italiano
 - ✅ Testing: 100% backend, ~98% frontend
 
+## Implemented (Fase 2 — 15 Feb 2026)
+- ✅ Video Hero: campo `hero_video_url` in settings; se impostato, la home mostra `<video autoplay muted loop playsInline>` come background al posto dell'immagine
+- ✅ Piantina Tavoli: componente `Floorplan.jsx` con SVG (19 tavoli su 3 zone: VIP Stage/Premium/Sea View), arco stage e dance floor, tavoli cliccabili → modal → deep link WhatsApp con numero tavolo, zona e posti pre-compilato. Mostrato solo se evento ha `floorplan_enabled=true` (toggle admin già presente)
+- ✅ Sitemap Dinamica: `GET /api/sitemap.xml` genera XML con home + tutte le pagine statiche + tutti gli eventi + tutti i post pubblicati. `GET /api/robots.txt` restituisce robots policy con Sitemap
+- ✅ Instagram Feed: sezione home con 6 post cliccabili (URL editabili in admin) + CTA "Segui su Instagram"
+- ✅ Date aggiornate al 2027: eventi seed rifatti con date 19/06/2027, 17/07/2027, 14/08/2027. Countdown funzionante
+- ✅ Nuovo tab "Impostazioni" in admin dashboard: gestione hero_video_url, hero_image_url, logo_url, Instagram profile URL + 6 post. Upload diretto video/immagine/logo su Object Storage con auto-fill URL
+- ✅ Nuova collection `table_requests` (endpoint pubblico + admin GET)
+- ✅ Header e footer usano `logo_url` da settings quando impostato (fallback al lettering testuale GLITZ)
+
 ## Test Credentials
 Vedi `/app/memory/test_credentials.md`
 
