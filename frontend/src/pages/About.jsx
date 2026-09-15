@@ -10,6 +10,15 @@ const ASSETS = "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nig
 // Zones with real Glitz Club photos (user-provided)
 const ZONES = [
     {
+        id: "backthestage",
+        icon: Users,
+        title: "Back the Stage",
+        subtitle: "I privé dietro la consolle",
+        image: `${ASSETS}/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg`,
+        description: "L'area più esclusiva del Glitz: i privé dietro la consolle, a filo pista. Vista diretta sul DJ booth, servizio bottiglia premium e accesso riservato. È qui che si vive la serata da dentro il cuore del party, con la musica che ti arriva addosso e la pista sotto gli occhi.",
+        highlights: ["Vista frontale sul DJ", "Accesso riservato", "Servizio bottiglia premium"],
+    },
+    {
         id: "arco",
         icon: Sparkles,
         title: "L'Arco Iconico",
@@ -94,7 +103,7 @@ export default function About() {
                 <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-24 flex flex-col justify-end min-h-[80vh]">
                     <span className="overline-tag">Il Club</span>
                     <h1 data-testid="about-title" className="section-title mt-4 max-w-4xl">
-                        Quattro Ambienti,<br />
+                        Cinque Ambienti,<br />
                         <span className="bg-gradient-to-r from-lava via-sunset-pink to-sunset-purple bg-clip-text text-transparent">Una Sola Notte</span>
                     </h1>
                     <p className="mt-6 max-w-2xl text-lg text-white/70 leading-relaxed">
@@ -110,7 +119,7 @@ export default function About() {
                     <div className="text-xs uppercase tracking-widest text-white/60 mt-2">Posti all'aperto</div>
                 </div>
                 <div className="glass-card rounded-xl p-6 text-center">
-                    <div className="text-5xl font-black text-lava">04</div>
+                    <div className="text-5xl font-black text-lava">05</div>
                     <div className="text-xs uppercase tracking-widest text-white/60 mt-2">Ambienti distinti</div>
                 </div>
                 <div className="glass-card rounded-xl p-6 text-center">
@@ -182,7 +191,6 @@ export default function About() {
                             className="masonry-item group relative block w-full overflow-hidden rounded-xl border border-white/5 hover:border-lava/40 transition"
                         >
                             <img src={url} alt="" loading="lazy" className="w-full h-auto group-hover:scale-105 transition-transform duration-500" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
                         </button>
                     ))}
                 </div>
