@@ -220,9 +220,6 @@ export default function Layout({ children }) {
                                 GLITZ
                             </div>
                         )}
-                        <p className="text-white/60 max-w-md leading-relaxed">
-                            Il club all'aperto sulla costa tirrenica calabrese. 2000 posti, vista mare, l'arco iconico e le notti più magiche del sud Italia.
-                        </p>
                         <Newsletter />
                     </div>
                     <div className="space-y-3 text-sm">

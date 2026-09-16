@@ -17,6 +17,7 @@ export default function About() {
     const [lightbox, setLightbox] = useState(null);
     const [galleryByCat, setGalleryByCat] = useState({});
     const [settings, setSettings] = useState(null);
+    const [activeTab, setActiveTab] = useState(null);
 
     useEffect(() => {
         api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
@@ -25,6 +26,7 @@ export default function About() {
     useEffect(() => {
         if (!settings) return;
         const groups = settings.about_gallery_groups || [];
+        if (!activeTab && groups.length) setActiveTab(groups[0].category);
         Promise.all(
             groups.map((g) => api.get("/media", { params: { category: g.category } }).then((r) => [g.category, r.data]).catch(() => [g.category, []]))
         ).then((pairs) => {
@@ -32,11 +34,12 @@ export default function About() {
             for (const [k, v] of pairs) obj[k] = v;
             setGalleryByCat(obj);
         });
-    }, [settings]);
+    }, [settings]); // eslint-disable-line
 
     const hero = resolveUrl(settings?.about_hero_image_url) || HERO_FALLBACK;
     const zones = (settings?.about_zones && settings.about_zones.length ? settings.about_zones : []);
     const groups = settings?.about_gallery_groups || [];
+    const activeItems = (galleryByCat[activeTab] || []).map((m) => resolveUrl(m.url)).filter(Boolean);
 
     return (
         <div>
@@ -126,41 +129,62 @@ export default function About() {
                 <p className="text-white/60 max-w-xl mx-auto">{settings?.about_location_body || "Un anfiteatro naturale, aperto sul Tirreno, incorniciato dall'Isola di Dino."}</p>
             </section>
 
-            {/* Final gallery grouped in 3 subsections */}
+            {/* Gallery with tabs (subsections) */}
             <section data-testid="zones-gallery" className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
-                <div className="mb-12 space-y-3">
+                <div className="mb-6 space-y-3">
                     <span className="overline-tag">{settings?.about_gallery_kicker || "Le Foto Più Belle"}</span>
                     <h2 className="section-title">{settings?.about_gallery_title || "Gallery"}</h2>
                 </div>
-                <div className="space-y-16">
-                    {groups.map((g, gi) => {
-                        const items = (galleryByCat[g.category] || []).map((m) => resolveUrl(m.url)).filter(Boolean);
-                        return (
-                            <div key={g.id || gi} data-testid={`gallery-group-${g.id || gi}`}>
-                                <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
-                                    <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">{g.title}</h3>
-                                    <span className="text-xs uppercase tracking-widest text-white/40">{items.length} foto</span>
-                                </div>
-                                {items.length === 0 ? (
-                                    <p className="text-white/40 text-sm italic">Nessuna foto in questa sezione ancora. Caricale dall'area admin (categoria: {g.category}).</p>
-                                ) : (
-                                    <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
-                                        {items.map((url, i) => (
-                                            <button
-                                                key={i}
-                                                onClick={() => setLightbox(url)}
-                                                data-testid={`gallery-${g.id || gi}-item-${i}`}
-                                                className="masonry-item group relative block w-full overflow-hidden rounded-xl border border-white/5 hover:border-lava/40 transition mb-4"
-                                            >
-                                                <img src={url} alt="" loading="lazy" className="w-full h-auto group-hover:scale-105 transition-transform duration-500" />
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+
+                {/* Tab pills row */}
+                {groups.length > 0 && (
+                    <div data-testid="gallery-tabs" className="flex flex-wrap gap-2 sm:gap-3 mb-8 border-b border-white/10 pb-4">
+                        {groups.map((g, gi) => {
+                            const count = (galleryByCat[g.category] || []).length;
+                            const active = activeTab === g.category;
+                            return (
+                                <button
+                                    key={g.id || gi}
+                                    data-testid={`gallery-tab-${g.id || gi}`}
+                                    onClick={() => setActiveTab(g.category)}
+                                    className={`px-4 py-2 rounded-full text-xs sm:text-sm uppercase tracking-widest font-semibold transition border ${
+                                        active
+                                            ? "bg-lava text-white border-lava shadow-[0_0_20px_rgba(225,6,0,0.35)]"
+                                            : "bg-transparent text-white/70 border-white/15 hover:border-white/40 hover:text-white"
+                                    }`}
+                                >
+                                    {g.title} <span className={`ml-2 text-[10px] font-normal ${active ? "text-white/80" : "text-white/40"}`}>{count}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Active tab content */}
+                <motion.div
+                    key={activeTab || "empty"}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35 }}
+                    data-testid="gallery-active-content"
+                >
+                    {activeItems.length === 0 ? (
+                        <p className="text-white/40 text-sm italic py-12 text-center">Nessuna foto in questa sezione. Le puoi caricare dall'area admin.</p>
+                    ) : (
+                        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+                            {activeItems.map((url, i) => (
+                                <button
+                                    key={`${activeTab}-${i}`}
+                                    onClick={() => setLightbox(url)}
+                                    data-testid={`gallery-item-${i}`}
+                                    className="masonry-item group relative block w-full overflow-hidden rounded-xl border border-white/5 hover:border-lava/40 transition mb-4"
+                                >
+                                    <img src={url} alt="" loading="lazy" className="w-full h-auto group-hover:scale-105 transition-transform duration-500" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </motion.div>
             </section>
 
             {lightbox && (
