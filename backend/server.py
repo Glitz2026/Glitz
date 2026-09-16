@@ -307,6 +307,23 @@ class SettingsIn(BaseModel):
     home_location_body: str = "Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi."
     home_faq_title: str = "Info Rapide\nsul Glitz"
     home_faq_intro: str = "Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli."
+    # --- Editable "Il Club" (About) page ---
+    about_kicker: str = "Il Club"
+    about_hero_line1: str = "Cinque Ambienti,"
+    about_hero_line2: str = "Una Sola Notte"
+    about_hero_image_url: str = ""
+    about_hero_subtitle: str = "Affacciato su uno degli scorci più suggestivi della Calabria, il Glitz Club è un luogo esclusivo pensato per offrire esperienze di intrattenimento e relax uniche. Musica, atmosfera e bellezza si incontrano per dare vita a serate irripetibili."
+    about_stat_1_value: str = "2000"
+    about_stat_1_label: str = "Posti all'aperto"
+    about_stat_2_value: str = "05"
+    about_stat_2_label: str = "Ambienti distinti"
+    about_stat_3_value: str = "180°"
+    about_stat_3_label: str = "Vista mare"
+    about_location_title: str = "Contrada Dino, 87020 San Nicola Arcella (CS)"
+    about_location_body: str = "Un anfiteatro naturale, aperto sul Tirreno, incorniciato dall'Isola di Dino."
+    about_gallery_kicker: str = "Le Foto Più Belle"
+    about_gallery_title: str = "Gallery"
+    about_zones: List[dict] = []
 
 
 class BookingIn(BaseModel):
@@ -368,6 +385,64 @@ DEFAULT_SETTINGS = {
     "home_location_body": "Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi.",
     "home_faq_title": "Info Rapide\nsul Glitz",
     "home_faq_intro": "Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli.",
+    # About / Il Club
+    "about_kicker": "Il Club",
+    "about_hero_line1": "Cinque Ambienti,",
+    "about_hero_line2": "Una Sola Notte",
+    "about_hero_image_url": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg",
+    "about_hero_subtitle": "Affacciato su uno degli scorci più suggestivi della Calabria, il Glitz Club è un luogo esclusivo pensato per offrire esperienze di intrattenimento e relax uniche. Musica, atmosfera e bellezza si incontrano per dare vita a serate irripetibili.",
+    "about_stat_1_value": "2000",
+    "about_stat_1_label": "Posti all'aperto",
+    "about_stat_2_value": "05",
+    "about_stat_2_label": "Ambienti distinti",
+    "about_stat_3_value": "180°",
+    "about_stat_3_label": "Vista mare",
+    "about_location_title": "Contrada Dino, 87020 San Nicola Arcella (CS)",
+    "about_location_body": "Un anfiteatro naturale, aperto sul Tirreno, incorniciato dall'Isola di Dino.",
+    "about_gallery_kicker": "Le Foto Più Belle",
+    "about_gallery_title": "Gallery",
+    "about_zones": [
+        {
+            "id": "arco",
+            "title": "L'Arco Iconico",
+            "subtitle": "Il simbolo del Glitz",
+            "image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg",
+            "description": "L'arco scenografico a LED che incornicia la consolle è il simbolo del club. Un'architettura che si accende dal tramonto e trasforma la pista in un anfiteatro naturale affacciato sull'Isola di Dino. Al centro dell'arco: il DJ booth, con vista mare a 180°.",
+            "highlights": ["Vista Isola di Dino", "Consolle DJ centrale", "Lighting LED pixel mapped"],
+        },
+        {
+            "id": "backthestage",
+            "title": "Back the Stage",
+            "subtitle": "I privé dietro la consolle",
+            "image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg",
+            "description": "L'area più esclusiva del Glitz: i privé dietro la consolle, a filo pista. Vista diretta sul DJ booth, servizio bottiglia premium e accesso riservato. È qui che si vive la serata da dentro il cuore del party, con la musica che ti arriva addosso e la pista sotto gli occhi.",
+            "highlights": ["Vista frontale sul DJ", "Accesso riservato", "Servizio bottiglia premium"],
+        },
+        {
+            "id": "riva-deck",
+            "title": "Riva Deck",
+            "subtitle": "Il cuore lounge del club",
+            "image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/6lina1we_PHOTO-2025-09-16-12-45-39.jpg",
+            "description": "Il Riva Deck ospita tavoli premium e lettini vista pista. LED al pavimento, servizio bottiglia, atmosfera raccolta. È qui che si vivono le serate più esclusive: dai tavoli VIP prima fila fino ai gruppi che vogliono ballare senza rinunciare al comfort.",
+            "highlights": ["Tavoli VIP prima fila", "Lettini lounge", "Servizio bottiglia dedicato"],
+        },
+        {
+            "id": "seaview",
+            "title": "Sea View",
+            "subtitle": "Il tramonto sulla Calabria",
+            "image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/ppzjzi3q_PHOTO-2025-09-16-12-45-39%202.jpg",
+            "description": "La zona vista mare è dove ogni serata inizia. Il sole tramonta dietro le montagne, i primi laser illuminano la baia, l'aperitivo scivola nel party. È il momento più fotografato del Glitz — non a caso questo scorcio è diventato il volto del club sui social.",
+            "highlights": ["Tramonto sull'Isola di Dino", "Aperitivo & sunset session", "Fotografia panoramica"],
+        },
+        {
+            "id": "artist-area",
+            "title": "Artist Area",
+            "subtitle": "L'area riservata agli artisti",
+            "image": "/artist-area/main.jpg",
+            "description": "Lo spazio dedicato agli artisti in line-up: dressing room, area relax privata con piscina panoramica affacciata sull'Isola di Dino e ingresso riservato. È qui che passano tutti i grandi nomi del calendario — da chi apre la serata alle superstar internazionali che chiudono l'alba.",
+            "highlights": ["Piscina panoramica vista mare", "Dressing room privata", "Ingresso riservato"],
+        },
+    ],
 }
 
 
@@ -1037,6 +1112,11 @@ async def startup():
                     patch[key] = default
         if not existing.get("instagram_posts") or any("unsplash" in (p.get("image","")) for p in existing.get("instagram_posts", [])):
             patch["instagram_posts"] = DEFAULT_SETTINGS["instagram_posts"]
+        # Backfill any newly-added copy/content keys that don't exist yet in the doc
+        for key, default in DEFAULT_SETTINGS.items():
+            if key.startswith("home_") or key.startswith("about_"):
+                if existing.get(key) in (None, "", []):
+                    patch[key] = default
         if patch:
             await db.settings.update_one({"id": "main"}, {"$set": patch})
             logging.info(f"Patched settings: {list(patch.keys())}")
