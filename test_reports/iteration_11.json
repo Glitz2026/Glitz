@@ -1,0 +1,36 @@
+{
+  "summary": "Iteration 11 retest. Fixed a critical backend crash (NameError: Request is not defined at line 507 of server.py) introduced by the partial-update PUT — added `Request` to top-level fastapi import; backend now starts cleanly. Backend partial-update PUT verified via pytest: partial payload {home_hero_line1:'BEYOND'} does NOT wipe about_zones (5) or about_gallery_groups (3), and full-payload PUT with reordered zones + appended group + new contact_email persists correctly. Admin Contenuti tab shows all editors (zone-editor-0..4, add-zone-btn, gallery-group-editor-0..2, add-gallery-group-btn, save-content-btn) and saving no-op preserves zones+groups counts. Regression home page OK: club-zone-card count=4, shop-preview-card count=3. HOWEVER home-gallery-preview section STILL does not render on / — root cause is now different: /api/media returns 0 items for category `gallery-eventi` (previously 9 after admin deletions during other testing). Backend logs show many `DELETE /api/admin/media/...` calls; the startup patcher restored zones/groups but does not reseed media items, so galleryPreview stays empty and the `galleryPreview.length > 0 && (...)` conditional short-circuits.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/admin/settings PUT", "issue": "Missing `Request` import broke module load at startup — fixed by adding Request to the fastapi import in server.py line 1. Without the fix the entire backend was returning 502/timeout and no APIs worked."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Home.jsx home-gallery-preview", "issue": "Section not rendering because /api/media?category=gallery-eventi returns []. Media items for gallery categories were deleted during prior admin testing and the startup patcher only reseeds settings.about_zones/about_gallery_groups, not media rows. Either (a) also reseed a few media items for categories gallery-eventi / gallery-location / gallery-dettagli on startup, or (b) render the section with a fallback placeholder image when the media list is empty.", "selector": "[data-testid='home-gallery-preview']", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "Home → gallery preview fetch", "issue": "Home.jsx useEffect uses settings.about_gallery_groups[0].category ('gallery-eventi') to hit /api/media. That call returns 0 items now → no tiles rendered, whole section absent from DOM.", "affected_selectors": ["[data-testid='home-gallery-preview']", "[data-testid='home-gallery-item-0']", "[data-testid='home-gallery-item-1']", "[data-testid='home-gallery-item-2']", "[data-testid='home-gallery-item-3']", "[data-testid='home-gallery-cta']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_partial_settings.py", "/app/test_reports/pytest/partial_settings.xml"],
+  "action_items": [
+    "Reseed media items on backend startup for categories gallery-eventi (and gallery-location, gallery-dettagli) so home-gallery-preview populates, OR update Home.jsx to render the section with placeholder tiles when the fetched media list is empty.",
+    "Confirm the fastapi Request import fix (already applied by tester) — main agent should keep it."
+  ],
+  "critical_code_review_comments": [
+    "server.py line 507 relied on `Request` which was only imported at line 1343 (below the endpoint definition). Ordering-fragile — always import at the top of the module.",
+    "Startup patcher restores settings but not related media rows; features that join settings→media should either seed both or gracefully degrade with a fallback in the UI.",
+    "PUT /api/admin/settings partial update looks good and correctly filters against SettingsIn.model_fields."
+  ],
+  "updated_files": ["/app/backend/server.py (added Request to fastapi import)", "/app/backend/tests/test_partial_settings.py"],
+  "success_rate": {"backend": "100% (2/2 pytest)", "frontend": "75% (admin OK, regression OK, home-gallery-preview still absent due to empty media)"},
+  "test_credentials": "Admin JWT: jalucas@hotmail.it / GlitzAdmin2026! via /api/auth/login (response key: `token`, not access_token).",
+  "seed_data_creation": "None. Tests self-restore hero/zones/groups/contact_email after mutation.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend restart required if server.py fails to import — check /var/log/supervisor/backend.err.log first. Login endpoint is /api/auth/login and returns `token` (not access_token). The remaining home-gallery-preview issue is purely because /api/media?category=gallery-eventi is empty; verify by curl before blaming the frontend. Iteration 11 already exercised partial+full PUT successfully.",
+  "rca of the issue": "Two-layer RCA. (1) Backend outage on this iteration: E1's partial-update refactor introduced `Request` as a function parameter at server.py:507 but Request was only imported at line 1343 (inside a later section). Python raised NameError at module import time, uvicorn crashed on every worker boot, external gateway returned 502/timeout. Fix: add Request to the top-level `from fastapi import ...`. (2) Home gallery preview absent: after the fix, /api/settings returns 5 zones + 3 groups (good), but /api/media?category=gallery-eventi returns 0 because those media rows were deleted during previous admin sessions and the startup seeder only backfills settings docs, not media. Home.jsx conditionally renders the section only when galleryPreview.length > 0, so the section is omitted from the DOM. Recommend reseeding media OR adding a UI fallback."
+}
