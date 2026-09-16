@@ -14,29 +14,22 @@ Italiano.
 ## Cosa è già stato implementato
 - MVP completo (hero, countdown, FAQ, eventi, blog, gallery, mappa, contatti)
 - Admin dashboard con JWT + CRUD eventi/blog/settings + upload media
-- Piantina 2D con perimetri PDF ufficiali + tavoli simmetrici (Back the Stage 4×4, Glitz Bar 2×4, Riva Deck 4×4)
+- **[16 Set 2026] Piantina pixel-perfect** — usa `/floorplan-official.png` come sfondo con 40 hotspot cliccabili trasparenti nelle posizioni esatte (rilevate via image analysis 1254×1254). Hover mostra tooltip con nome tavolo e zona, tavoli prenotati mostrano X rossa.
 - Booking modal → salva DB + WhatsApp deep-link
 - Cron Emergent `/api/cron/reminders` → Resend email 3h prima
 - Pagina "Il Club" con 5 ambienti
-- **[15 Set 2026] Shop merchandise `/shop` + `/shop/:id`**:
-  - 6 prodotti (Beach Towel €45, Ventaglio €15, Lip Balm €12, T-Shirt Vibes Only €55 taglie XS-XXL, Beach Bag €65, Gift Card €50)
-  - Pagine prodotto singole con gallery 4 foto ciascuna
-  - **Stripe checkout** con sandbox Emergent (`acct_1UFtZvEu0vFfkg7R`)
-  - Tax mode: "calc_only" (Stripe Tax attivo, calcolo automatico)
-  - Backend: `POST /api/payments/checkout`, `GET /api/payments/status/{id}`, webhook `/api/stripe/webhook`
-  - Pagine `/payment/success` con polling + `/payment/cancel`
-  - Fallback WhatsApp precompilato
+- Shop `/shop` + `/shop/:id` con 6 prodotti + gallery 4 foto + Stripe checkout + WhatsApp fallback + pagine success/cancel
+- Gift Card usa logo Glitz nero come immagine
 
 ## Backlog / Future
-- Admin CRUD prodotti shop (ora hardcoded in Shop.jsx) — P1
+- Admin CRUD prodotti shop — P1
 - Upload immagini prodotti da backoffice — P1
 - Mobile app Phase 2 — P2
 - Localizzazione EN (i18n) — P2
-- WhatsApp Business API centralizzata — P2
 
 ## Info critica
 - Cron via `.emergent/crons.yml`
 - Auth JWT — credenziali in `/app/memory/test_credentials.md`
-- Stripe sandbox: `acct_1UFtZvEu0vFfkg7R` (claim tramite Dashboard → onboarding link)
-- Setup catalogo: `python3 /app/backend/setup_stripe.py` (idempotente)
-- Test card: 4242 4242 4242 4242, qualsiasi CVC/scadenza futura
+- Stripe sandbox: `acct_1UFtZvEu0vFfkg7R`
+- Setup catalogo: `python3 /app/backend/setup_stripe.py`
+- Piantina background: `/app/frontend/public/floorplan-official.png` (immagine ufficiale utente)
