@@ -323,7 +323,19 @@ class SettingsIn(BaseModel):
     about_location_body: str = "Un anfiteatro naturale, aperto sul Tirreno, incorniciato dall'Isola di Dino."
     about_gallery_kicker: str = "Le Foto Più Belle"
     about_gallery_title: str = "Gallery"
+    about_gallery_groups: List[dict] = []
     about_zones: List[dict] = []
+    # --- Editable Contact page ---
+    contact_kicker: str = "Contatti"
+    contact_title: str = "Scrivici"
+    contact_whatsapp_number: str = "393444289232"
+    contact_whatsapp_display: str = "344 4289232"
+    contact_email: str = "glitzclubofficial@gmail.com"
+    contact_instagram: str = "https://instagram.com/glitzclubofficial"
+    contact_instagram_handle: str = "@glitzclubofficial"
+    contact_address: str = "Contrada Dino, San Nicola Arcella (CS), 87020"
+    contact_hours: str = "Aperto solo la sera, dal giovedì alla domenica\nGiugno – Settembre · 22:00 – 05:00"
+    contact_map_embed_url: str = "https://www.google.com/maps?q=San+Nicola+Arcella+Contrada+Dino&output=embed"
 
 
 class BookingIn(BaseModel):
@@ -401,6 +413,22 @@ DEFAULT_SETTINGS = {
     "about_location_body": "Un anfiteatro naturale, aperto sul Tirreno, incorniciato dall'Isola di Dino.",
     "about_gallery_kicker": "Le Foto Più Belle",
     "about_gallery_title": "Gallery",
+    "about_gallery_groups": [
+        {"id": "eventi-pubblico", "title": "Eventi & Pubblico", "category": "gallery-eventi"},
+        {"id": "location", "title": "Location", "category": "gallery-location"},
+        {"id": "dettagli", "title": "Dettagli", "category": "gallery-dettagli"},
+    ],
+    # Contatti
+    "contact_kicker": "Contatti",
+    "contact_title": "Scrivici",
+    "contact_whatsapp_number": "393444289232",
+    "contact_whatsapp_display": "344 4289232",
+    "contact_email": "glitzclubofficial@gmail.com",
+    "contact_instagram": "https://instagram.com/glitzclubofficial",
+    "contact_instagram_handle": "@glitzclubofficial",
+    "contact_address": "Contrada Dino, San Nicola Arcella (CS), 87020",
+    "contact_hours": "Aperto solo la sera, dal giovedì alla domenica\nGiugno – Settembre · 22:00 – 05:00",
+    "contact_map_embed_url": "https://www.google.com/maps?q=San+Nicola+Arcella+Contrada+Dino&output=embed",
     "about_zones": [
         {
             "id": "arco",
@@ -1114,7 +1142,7 @@ async def startup():
             patch["instagram_posts"] = DEFAULT_SETTINGS["instagram_posts"]
         # Backfill any newly-added copy/content keys that don't exist yet in the doc
         for key, default in DEFAULT_SETTINGS.items():
-            if key.startswith("home_") or key.startswith("about_"):
+            if key.startswith("home_") or key.startswith("about_") or key.startswith("contact_"):
                 if existing.get(key) in (None, "", []):
                     patch[key] = default
         if patch:

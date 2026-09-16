@@ -157,6 +157,21 @@ export default function AdminDashboard() {
                 about_location_body: settings.about_location_body || "",
                 about_gallery_kicker: settings.about_gallery_kicker || "",
                 about_gallery_title: settings.about_gallery_title || "",
+                about_gallery_groups: (settings.about_gallery_groups || []).map((g) => ({
+                    id: g.id || String(Math.random()).slice(2),
+                    title: g.title || "",
+                    category: g.category || "",
+                })),
+                contact_kicker: settings.contact_kicker || "",
+                contact_title: settings.contact_title || "",
+                contact_whatsapp_number: settings.contact_whatsapp_number || "",
+                contact_whatsapp_display: settings.contact_whatsapp_display || "",
+                contact_email: settings.contact_email || "",
+                contact_instagram: settings.contact_instagram || "",
+                contact_instagram_handle: settings.contact_instagram_handle || "",
+                contact_address: settings.contact_address || "",
+                contact_hours: settings.contact_hours || "",
+                contact_map_embed_url: settings.contact_map_embed_url || "",
                 about_zones: (settings.about_zones || []).map((z) => ({
                     id: z.id || String(Math.random()).slice(2),
                     title: z.title || "",
@@ -626,6 +641,138 @@ export default function AdminDashboard() {
                                         <input data-testid="about-gallery-kicker" className={input} placeholder="Kicker" value={settings.about_gallery_kicker || ""} onChange={(e) => setSettings({ ...settings, about_gallery_kicker: e.target.value })} />
                                         <input data-testid="about-gallery-title" className={input} placeholder="Titolo" value={settings.about_gallery_title || ""} onChange={(e) => setSettings({ ...settings, about_gallery_title: e.target.value })} />
                                     </div>
+                                    <div className="pt-3 border-t border-white/10 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="font-bold text-sm">Sottosezioni della gallery</h4>
+                                            <button
+                                                data-testid="add-gallery-group-btn"
+                                                onClick={() => {
+                                                    const list = [...(settings.about_gallery_groups || [])];
+                                                    list.push({ id: `grp-${Date.now()}`, title: "Nuova sezione", category: `gallery-${Date.now()}` });
+                                                    setSettings({ ...settings, about_gallery_groups: list });
+                                                }}
+                                                className="btn-lava !px-3 !py-1.5 !text-xs"
+                                            >
+                                                <Plus className="w-3 h-3" /> Aggiungi
+                                            </button>
+                                        </div>
+                                        <p className="text-xs text-white/50">Ogni sottosezione è una categoria: carica le foto nel tab <b>Media</b> selezionando la stessa categoria (es. <code className="text-lava">gallery-eventi</code>).</p>
+                                        <div className="space-y-2">
+                                            {(settings.about_gallery_groups || []).map((g, i) => (
+                                                <div key={g.id || i} data-testid={`gallery-group-editor-${i}`} className="rounded-xl border border-white/10 p-3 bg-black/30 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                                    <span className="text-[10px] uppercase tracking-widest text-lava font-bold sm:w-16">#{i + 1}</span>
+                                                    <input
+                                                        data-testid={`gallery-group-title-${i}`}
+                                                        className={input}
+                                                        placeholder="Titolo (es. Eventi & Pubblico)"
+                                                        value={g.title || ""}
+                                                        onChange={(e) => {
+                                                            const list = [...(settings.about_gallery_groups || [])];
+                                                            list[i] = { ...list[i], title: e.target.value };
+                                                            setSettings({ ...settings, about_gallery_groups: list });
+                                                        }}
+                                                    />
+                                                    <input
+                                                        data-testid={`gallery-group-category-${i}`}
+                                                        className={input}
+                                                        placeholder="Categoria slug (es. gallery-eventi)"
+                                                        value={g.category || ""}
+                                                        onChange={(e) => {
+                                                            const list = [...(settings.about_gallery_groups || [])];
+                                                            list[i] = { ...list[i], category: e.target.value };
+                                                            setSettings({ ...settings, about_gallery_groups: list });
+                                                        }}
+                                                    />
+                                                    <div className="flex gap-1">
+                                                        <button data-testid={`gallery-group-up-${i}`} disabled={i === 0} onClick={() => {
+                                                            const list = [...(settings.about_gallery_groups || [])];
+                                                            [list[i - 1], list[i]] = [list[i], list[i - 1]];
+                                                            setSettings({ ...settings, about_gallery_groups: list });
+                                                        }} className="p-2 rounded-lg border border-white/10 hover:border-lava/50 disabled:opacity-30">
+                                                            <ArrowUp className="w-4 h-4" />
+                                                        </button>
+                                                        <button data-testid={`gallery-group-down-${i}`} disabled={i === (settings.about_gallery_groups || []).length - 1} onClick={() => {
+                                                            const list = [...(settings.about_gallery_groups || [])];
+                                                            [list[i + 1], list[i]] = [list[i], list[i + 1]];
+                                                            setSettings({ ...settings, about_gallery_groups: list });
+                                                        }} className="p-2 rounded-lg border border-white/10 hover:border-lava/50 disabled:opacity-30">
+                                                            <ArrowDown className="w-4 h-4" />
+                                                        </button>
+                                                        <button data-testid={`gallery-group-del-${i}`} onClick={() => {
+                                                            if (!window.confirm("Eliminare questa sottosezione?")) return;
+                                                            const list = [...(settings.about_gallery_groups || [])];
+                                                            list.splice(i, 1);
+                                                            setSettings({ ...settings, about_gallery_groups: list });
+                                                        }} className="p-2 rounded-lg border border-white/10 hover:border-lava/50 text-lava">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ================ PAGINA CONTATTI ================ */}
+                            <div className="pt-6 border-t border-white/10 space-y-6" data-testid="contact-editor">
+                                <div>
+                                    <h2 className="text-2xl font-black uppercase tracking-tight text-lava">Pagina "Contatti"</h2>
+                                    <p className="text-xs text-white/50 mt-1">WhatsApp, email, indirizzo, orari e mappa Google della pagina /contatti.</p>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Titolo pagina</h3>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <input data-testid="contact-kicker" className={input} placeholder="Kicker (es. Contatti)" value={settings.contact_kicker || ""} onChange={(e) => setSettings({ ...settings, contact_kicker: e.target.value })} />
+                                        <input data-testid="contact-title-input" className={input} placeholder="Titolo (es. Scrivici)" value={settings.contact_title || ""} onChange={(e) => setSettings({ ...settings, contact_title: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Canali</h3>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <div>
+                                            <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">WhatsApp numero (solo cifre, con prefisso: 39...)</label>
+                                            <input data-testid="contact-wa-number" className={input} placeholder="393444289232" value={settings.contact_whatsapp_number || ""} onChange={(e) => setSettings({ ...settings, contact_whatsapp_number: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">WhatsApp visualizzato</label>
+                                            <input data-testid="contact-wa-display" className={input} placeholder="344 4289232" value={settings.contact_whatsapp_display || ""} onChange={(e) => setSettings({ ...settings, contact_whatsapp_display: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Email</label>
+                                            <input data-testid="contact-email-input" className={input} placeholder="glitzclubofficial@gmail.com" value={settings.contact_email || ""} onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Instagram URL</label>
+                                            <input data-testid="contact-ig-url" className={input} placeholder="https://instagram.com/..." value={settings.contact_instagram || ""} onChange={(e) => setSettings({ ...settings, contact_instagram: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Instagram handle mostrato</label>
+                                            <input data-testid="contact-ig-handle" className={input} placeholder="@glitzclubofficial" value={settings.contact_instagram_handle || ""} onChange={(e) => setSettings({ ...settings, contact_instagram_handle: e.target.value })} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Indirizzo e orari</h3>
+                                    <input data-testid="contact-address-input" className={input} placeholder="Contrada Dino, San Nicola Arcella (CS), 87020" value={settings.contact_address || ""} onChange={(e) => setSettings({ ...settings, contact_address: e.target.value })} />
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Orari (puoi andare a capo)</label>
+                                        <textarea data-testid="contact-hours-input" className={input} rows="3" placeholder={"Aperto solo la sera, dal giovedì alla domenica\nGiugno – Settembre · 22:00 – 05:00"} value={settings.contact_hours || ""} onChange={(e) => setSettings({ ...settings, contact_hours: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-3">
+                                    <h3 className="font-bold text-lg">Mappa Google</h3>
+                                    <p className="text-xs text-white/50">URL <b>embed</b> di Google Maps (deve contenere <code>output=embed</code> o essere un embed link).</p>
+                                    <input data-testid="contact-map-input" className={input} placeholder="https://www.google.com/maps?q=...&output=embed" value={settings.contact_map_embed_url || ""} onChange={(e) => setSettings({ ...settings, contact_map_embed_url: e.target.value })} />
+                                    {settings.contact_map_embed_url && (
+                                        <div className="rounded-xl overflow-hidden border border-white/10 mt-3 aspect-video">
+                                            <iframe title="Anteprima mappa" src={settings.contact_map_embed_url} className="w-full h-full border-0" loading="lazy" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

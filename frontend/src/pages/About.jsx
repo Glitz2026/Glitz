@@ -6,13 +6,6 @@ import { api } from "../lib/api";
 import { ADDRESS } from "../lib/constants";
 
 const HERO_FALLBACK = "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg";
-const GALLERY_TSMS = [
-    "https://d9x0j4yxg9m18.cloudfront.net/venue/5388ae92-425d-4037-8928-728162e874bf.jpg",
-    "https://d9x0j4yxg9m18.cloudfront.net/venue/5df9a781-c11c-4b9b-b878-9bfbaece973f.jpg",
-    "https://d9x0j4yxg9m18.cloudfront.net/venue/70f48107-962b-4856-830c-c1218214d439.jpg",
-    "https://d9x0j4yxg9m18.cloudfront.net/venue/ea24537a-04a2-4b75-9bbc-113b70a910df.jpg",
-    "https://d9x0j4yxg9m18.cloudfront.net/venue/0c690deb-6505-487d-a7d4-d057d949677b.jpg",
-];
 
 function resolveUrl(u) {
     if (!u) return "";
@@ -22,26 +15,28 @@ function resolveUrl(u) {
 
 export default function About() {
     const [lightbox, setLightbox] = useState(null);
-    const [dbMedia, setDbMedia] = useState([]);
+    const [galleryByCat, setGalleryByCat] = useState({});
     const [settings, setSettings] = useState(null);
 
     useEffect(() => {
-        api.get("/media", { params: { category: "gallery" } })
-            .then((r) => setDbMedia(r.data || []))
-            .catch(() => {});
         api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
     }, []);
 
+    useEffect(() => {
+        if (!settings) return;
+        const groups = settings.about_gallery_groups || [];
+        Promise.all(
+            groups.map((g) => api.get("/media", { params: { category: g.category } }).then((r) => [g.category, r.data]).catch(() => [g.category, []]))
+        ).then((pairs) => {
+            const obj = {};
+            for (const [k, v] of pairs) obj[k] = v;
+            setGalleryByCat(obj);
+        });
+    }, [settings]);
+
     const hero = resolveUrl(settings?.about_hero_image_url) || HERO_FALLBACK;
     const zones = (settings?.about_zones && settings.about_zones.length ? settings.about_zones : []);
-
-    // Final gallery: hero + zone images + TicketSMS + admin uploads
-    const gallery = [
-        hero,
-        ...zones.map((z) => resolveUrl(z.image)).filter(Boolean),
-        ...GALLERY_TSMS,
-        ...dbMedia.map((m) => resolveUrl(m.url)).filter(Boolean),
-    ];
+    const groups = settings?.about_gallery_groups || [];
 
     return (
         <div>
@@ -61,7 +56,7 @@ export default function About() {
                         <span className="bg-gradient-to-r from-lava to-sunset-pink bg-clip-text text-transparent">{settings?.about_hero_line2 || "Una Sola Notte"}</span>
                     </h1>
                     <p className="mt-6 max-w-2xl text-lg text-white/70 leading-relaxed">
-                        {settings?.about_hero_subtitle || "Affacciato su uno degli scorci più suggestivi della Calabria, il Glitz Club è un luogo esclusivo pensato per offrire esperienze di intrattenimento e relax uniche. Musica, atmosfera e bellezza si incontrano per dare vita a serate irripetibili."}
+                        {settings?.about_hero_subtitle || "Affacciato su uno degli scorci più suggestivi della Calabria, il Glitz Club è un luogo esclusivo pensato per offrire esperienze di intrattenimento e relax uniche."}
                     </p>
                 </div>
             </section>
@@ -131,23 +126,40 @@ export default function About() {
                 <p className="text-white/60 max-w-xl mx-auto">{settings?.about_location_body || "Un anfiteatro naturale, aperto sul Tirreno, incorniciato dall'Isola di Dino."}</p>
             </section>
 
-            {/* Final gallery */}
+            {/* Final gallery grouped in 3 subsections */}
             <section data-testid="zones-gallery" className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
-                <div className="mb-8 space-y-3">
+                <div className="mb-12 space-y-3">
                     <span className="overline-tag">{settings?.about_gallery_kicker || "Le Foto Più Belle"}</span>
                     <h2 className="section-title">{settings?.about_gallery_title || "Gallery"}</h2>
                 </div>
-                <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
-                    {gallery.map((url, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setLightbox(url)}
-                            data-testid={`zones-gallery-item-${i}`}
-                            className="masonry-item group relative block w-full overflow-hidden rounded-xl border border-white/5 hover:border-lava/40 transition"
-                        >
-                            <img src={url} alt="" loading="lazy" className="w-full h-auto group-hover:scale-105 transition-transform duration-500" />
-                        </button>
-                    ))}
+                <div className="space-y-16">
+                    {groups.map((g, gi) => {
+                        const items = (galleryByCat[g.category] || []).map((m) => resolveUrl(m.url)).filter(Boolean);
+                        return (
+                            <div key={g.id || gi} data-testid={`gallery-group-${g.id || gi}`}>
+                                <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
+                                    <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">{g.title}</h3>
+                                    <span className="text-xs uppercase tracking-widest text-white/40">{items.length} foto</span>
+                                </div>
+                                {items.length === 0 ? (
+                                    <p className="text-white/40 text-sm italic">Nessuna foto in questa sezione ancora. Caricale dall'area admin (categoria: {g.category}).</p>
+                                ) : (
+                                    <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+                                        {items.map((url, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => setLightbox(url)}
+                                                data-testid={`gallery-${g.id || gi}-item-${i}`}
+                                                className="masonry-item group relative block w-full overflow-hidden rounded-xl border border-white/5 hover:border-lava/40 transition mb-4"
+                                            >
+                                                <img src={url} alt="" loading="lazy" className="w-full h-auto group-hover:scale-105 transition-transform duration-500" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </section>
 
