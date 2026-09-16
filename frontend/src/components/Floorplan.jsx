@@ -105,7 +105,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
 
             <div
                 data-testid="floorplan-wrap"
-                className="rounded-2xl overflow-hidden border border-white/10 bg-white p-2 sm:p-3"
+                className="rounded-2xl overflow-hidden border border-white/10 bg-obsidian p-4 sm:p-6"
             >
                 <svg
                     viewBox="0 0 1254 1254"
