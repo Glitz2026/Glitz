@@ -111,19 +111,18 @@ export default function Home() {
                     className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center flex flex-col items-center gap-6 py-24"
                 >
                     <h1 data-testid="hero-title" className="font-editorial text-7xl sm:text-8xl lg:text-[10rem] tracking-[0.04em] leading-[0.95]">
-                        <span className="block hero-editorial uppercase not-italic">BEYOND</span>
-                        <span className="block hero-editorial-accent uppercase not-italic -mt-2 sm:-mt-4">THE NIGHT</span>
+                        <span className="block hero-editorial uppercase not-italic">{settings?.home_hero_line1 || "BEYOND"}</span>
+                        <span className="block hero-editorial-accent uppercase not-italic -mt-2 sm:-mt-4">{settings?.home_hero_line2 || "THE NIGHT"}</span>
                     </h1>
-                    <p className="max-w-2xl text-base sm:text-lg text-white/70 leading-relaxed">
-                        Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino.
-                        La stagione 2027 sta per iniziare.
+                    <p className="max-w-2xl text-base sm:text-lg text-white/70 leading-relaxed whitespace-pre-line">
+                        {settings?.home_hero_subtitle || "Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino.\nLa stagione 2027 sta per iniziare."}
                     </p>
 
                     {upcoming && (
                         <div data-testid="hero-upcoming" className="mt-4 flex flex-col items-center gap-4">
                             <div className="flex flex-col items-center gap-1">
                                 <div className="text-3xl sm:text-4xl font-black uppercase tracking-[0.3em] text-white text-center">
-                                    OPENING PARTY
+                                    {settings?.home_opening_title || "OPENING PARTY"}
                                 </div>
                                 <div className="text-xs sm:text-sm uppercase tracking-widest text-white/60">
                                     con {(upcoming.title || "").split("—")[0].trim()}
@@ -162,8 +161,8 @@ export default function Home() {
             <section data-testid="upcoming-events-section" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
                 <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
                     <div className="space-y-3">
-                        <span className="overline-tag">Stagione 2027</span>
-                        <h2 className="section-title">Prossimi Eventi</h2>
+                        <span className="overline-tag">{settings?.home_events_kicker || "Stagione 2027"}</span>
+                        <h2 className="section-title">{settings?.home_events_title || "Prossimi Eventi"}</h2>
                     </div>
                     <Link to="/eventi" data-testid="see-all-events-link" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
                         Tutti gli eventi <ArrowRight className="w-4 h-4" />
@@ -205,10 +204,10 @@ export default function Home() {
                 </div>
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
                     <div className="space-y-6">
-                        <span className="overline-tag">Location</span>
-                        <h2 className="section-title">Sul Mare<br />della Calabria</h2>
+                        <span className="overline-tag">{settings?.home_location_kicker || "Location"}</span>
+                        <h2 className="section-title whitespace-pre-line">{settings?.home_location_title || "Sul Mare\ndella Calabria"}</h2>
                         <p className="text-white/70 text-lg leading-relaxed max-w-xl">
-                            Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi.
+                            {settings?.home_location_body || "Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi."}
                         </p>
                         <div className="flex items-center gap-2 text-white/70">
                             <MapPin className="w-5 h-5 text-lava" /> Contrada Dino, 87020 San Nicola Arcella (CS)
@@ -266,9 +265,9 @@ export default function Home() {
             <section id="faq" data-testid="faq-section" className="py-24 px-4 sm:px-6 max-w-5xl mx-auto">
                 <div className="mb-12 flex flex-col gap-3">
                     <span className="overline-tag">Domande Frequenti</span>
-                    <h2 className="section-title">Info Rapide<br />sul Glitz</h2>
+                    <h2 className="section-title whitespace-pre-line">{settings?.home_faq_title || "Info Rapide\nsul Glitz"}</h2>
                     <p className="text-white/60 max-w-2xl">
-                        Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli.
+                        {settings?.home_faq_intro || "Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli."}
                     </p>
                 </div>
                 <Accordion type="single" collapsible className="space-y-4">

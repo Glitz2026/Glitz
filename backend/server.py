@@ -295,6 +295,18 @@ class SettingsIn(BaseModel):
     planimetria_url: str = ""
     instagram_url: str = "https://instagram.com/glitzclubofficial"
     instagram_posts: List[dict] = []
+    # --- Editable homepage copy ---
+    home_hero_line1: str = "BEYOND"
+    home_hero_line2: str = "THE NIGHT"
+    home_hero_subtitle: str = "Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino. La stagione 2027 sta per iniziare."
+    home_opening_title: str = "OPENING PARTY"
+    home_events_kicker: str = "Stagione 2027"
+    home_events_title: str = "Prossimi Eventi"
+    home_location_kicker: str = "Location"
+    home_location_title: str = "Sul Mare\ndella Calabria"
+    home_location_body: str = "Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi."
+    home_faq_title: str = "Info Rapide\nsul Glitz"
+    home_faq_intro: str = "Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli."
 
 
 class BookingIn(BaseModel):
@@ -344,6 +356,18 @@ DEFAULT_SETTINGS = {
         {"image": "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg", "url": "https://instagram.com/glitzclubofficial"},
         {"image": "https://d9x0j4yxg9m18.cloudfront.net/venue/5388ae92-425d-4037-8928-728162e874bf.jpg", "url": "https://instagram.com/glitzclubofficial"},
     ],
+    # Editable homepage copy
+    "home_hero_line1": "BEYOND",
+    "home_hero_line2": "THE NIGHT",
+    "home_hero_subtitle": "Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino. La stagione 2027 sta per iniziare.",
+    "home_opening_title": "OPENING PARTY",
+    "home_events_kicker": "Stagione 2027",
+    "home_events_title": "Prossimi Eventi",
+    "home_location_kicker": "Location",
+    "home_location_title": "Sul Mare\ndella Calabria",
+    "home_location_body": "Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi.",
+    "home_faq_title": "Info Rapide\nsul Glitz",
+    "home_faq_intro": "Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli.",
 }
 
 
@@ -382,6 +406,75 @@ async def update_settings(data: SettingsIn, admin=Depends(get_admin)):
     doc["id"] = "main"
     await db.settings.update_one({"id": "main"}, {"$set": doc}, upsert=True)
     return doc
+
+
+@api.get("/admin/stats")
+async def admin_stats(admin=Depends(get_admin)):
+    now = datetime.now(timezone.utc)
+    week_ago_iso = (now - timedelta(days=7)).isoformat()
+
+    # Revenue — paid Stripe transactions
+    revenue_cur = db.payment_transactions.aggregate([
+        {"$match": {"payment_status": "paid"}},
+        {"$group": {"_id": None, "total": {"$sum": "$amount"}, "count": {"$sum": 1}}},
+    ])
+    revenue_docs = await revenue_cur.to_list(1)
+    revenue_total_cents = int(revenue_docs[0]["total"]) if revenue_docs else 0
+    orders_count = int(revenue_docs[0]["count"]) if revenue_docs else 0
+
+    revenue_week_cur = db.payment_transactions.aggregate([
+        {"$match": {"payment_status": "paid", "created_at": {"$gte": week_ago_iso}}},
+        {"$group": {"_id": None, "total": {"$sum": "$amount"}}},
+    ])
+    revenue_week_docs = await revenue_week_cur.to_list(1)
+    revenue_week_cents = int(revenue_week_docs[0]["total"]) if revenue_week_docs else 0
+
+    # Bookings (table reservations)
+    bookings_total = await db.bookings.count_documents({})
+    bookings_week = await db.bookings.count_documents({"created_at": {"$gte": week_ago_iso}})
+    bookings_pending = await db.bookings.count_documents({"status": "pending"})
+
+    # Private-event inquiries
+    private_total = await db.private_events.count_documents({})
+    private_new = await db.private_events.count_documents({"status": "new"})
+
+    # Next event
+    next_event = await db.events.find_one(
+        {"date": {"$gte": now.isoformat()}, "published": True},
+        {"_id": 0},
+        sort=[("date", 1)],
+    )
+    expected_guests = 0
+    tables_reserved = 0
+    if next_event:
+        confirmed = await db.bookings.find(
+            {"event_id": next_event["id"], "status": {"$in": ["pending", "confirmed"]}},
+            {"_id": 0, "guests": 1, "status": 1},
+        ).to_list(1000)
+        tables_reserved = len(confirmed)
+        expected_guests = sum(int(b.get("guests") or 0) for b in confirmed)
+
+    return {
+        "revenue_paid_cents": revenue_total_cents,
+        "revenue_week_cents": revenue_week_cents,
+        "orders_count": orders_count,
+        "bookings_total": bookings_total,
+        "bookings_week": bookings_week,
+        "bookings_pending": bookings_pending,
+        "private_total": private_total,
+        "private_new": private_new,
+        "next_event": (
+            {
+                "id": next_event["id"],
+                "title": next_event["title"],
+                "date": next_event["date"],
+                "expected_guests": expected_guests,
+                "tables_reserved": tables_reserved,
+            }
+            if next_event
+            else None
+        ),
+    }
 
 
 # --- Table reservations (floorplan) ---

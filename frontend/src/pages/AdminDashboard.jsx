@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, API } from "../lib/api";
 import { toast } from "sonner";
-import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check } from "lucide-react";
+import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 
 function resolveMediaUrl(m) {
@@ -30,20 +30,22 @@ export default function AdminDashboard() {
     const [savingSettings, setSavingSettings] = useState(false);
     const [bookings, setBookings] = useState([]);
     const [privateEvents, setPrivateEvents] = useState([]);
+    const [stats, setStats] = useState(null);
 
     const email = localStorage.getItem("glitz_admin_email");
 
     const load = async () => {
         try {
-            const [e, p, f, m, s, b] = await Promise.all([
+            const [e, p, f, m, s, b, st] = await Promise.all([
                 api.get("/events", { params: { published_only: false } }),
                 api.get("/posts", { params: { published_only: false } }),
                 api.get("/faqs"),
                 api.get("/media"),
                 api.get("/settings"),
                 api.get("/admin/bookings"),
+                api.get("/admin/stats"),
             ]);
-            setEvents(e.data); setPosts(p.data); setFaqs(f.data); setMedia(m.data); setSettings(s.data); setBookings(b.data);
+            setEvents(e.data); setPosts(p.data); setFaqs(f.data); setMedia(m.data); setSettings(s.data); setBookings(b.data); setStats(st.data);
         } catch (err) {
             if (err?.response?.status === 401) { logout(); }
         }
@@ -126,8 +128,20 @@ export default function AdminDashboard() {
                 hero_image_url: settings.hero_image_url || "",
                 logo_url: settings.logo_url || "",
                 logo_dark_url: settings.logo_dark_url || "",
+                planimetria_url: settings.planimetria_url || "",
                 instagram_url: settings.instagram_url || "",
                 instagram_posts: settings.instagram_posts || [],
+                home_hero_line1: settings.home_hero_line1 || "",
+                home_hero_line2: settings.home_hero_line2 || "",
+                home_hero_subtitle: settings.home_hero_subtitle || "",
+                home_opening_title: settings.home_opening_title || "",
+                home_events_kicker: settings.home_events_kicker || "",
+                home_events_title: settings.home_events_title || "",
+                home_location_kicker: settings.home_location_kicker || "",
+                home_location_title: settings.home_location_title || "",
+                home_location_body: settings.home_location_body || "",
+                home_faq_title: settings.home_faq_title || "",
+                home_faq_intro: settings.home_faq_intro || "",
             };
             await api.put("/admin/settings", payload);
             toast.success("Impostazioni salvate");
@@ -173,8 +187,67 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
+            {/* ---------- Stats KPIs ---------- */}
+            {stats && (
+                <div data-testid="admin-stats" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                    <div className="glass-card rounded-2xl p-5 space-y-2">
+                        <div className="flex items-center gap-2 text-white/50 text-[10px] uppercase tracking-widest">
+                            <Euro className="w-4 h-4 text-lava" /> Ricavi totali
+                        </div>
+                        <div data-testid="stat-revenue-total" className="text-3xl font-black tracking-tight">
+                            € {(stats.revenue_paid_cents / 100).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div className="text-xs text-white/50">
+                            € {(stats.revenue_week_cents / 100).toLocaleString("it-IT", { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ultimi 7 giorni · {stats.orders_count} ordini
+                        </div>
+                    </div>
+
+                    <div className="glass-card rounded-2xl p-5 space-y-2">
+                        <div className="flex items-center gap-2 text-white/50 text-[10px] uppercase tracking-widest">
+                            <Ticket className="w-4 h-4 text-lava" /> Prenotazioni settimana
+                        </div>
+                        <div data-testid="stat-bookings-week" className="text-3xl font-black tracking-tight">
+                            {stats.bookings_week}
+                        </div>
+                        <div className="text-xs text-white/50">
+                            {stats.bookings_pending} da confermare · {stats.bookings_total} totali
+                        </div>
+                    </div>
+
+                    <div className="glass-card rounded-2xl p-5 space-y-2">
+                        <div className="flex items-center gap-2 text-white/50 text-[10px] uppercase tracking-widest">
+                            <Users className="w-4 h-4 text-lava" /> Eventi privati
+                        </div>
+                        <div data-testid="stat-private-new" className="text-3xl font-black tracking-tight">
+                            {stats.private_new}
+                        </div>
+                        <div className="text-xs text-white/50">
+                            nuove richieste su {stats.private_total} totali
+                        </div>
+                    </div>
+
+                    <div className="glass-card rounded-2xl p-5 space-y-2">
+                        <div className="flex items-center gap-2 text-white/50 text-[10px] uppercase tracking-widest">
+                            <CalendarDays className="w-4 h-4 text-lava" /> Prossimo evento
+                        </div>
+                        {stats.next_event ? (
+                            <>
+                                <div data-testid="stat-next-event" className="text-base font-black tracking-tight leading-tight line-clamp-2">
+                                    {stats.next_event.title}
+                                </div>
+                                <div className="text-xs text-white/50">
+                                    {new Date(stats.next_event.date).toLocaleDateString("it-IT", { day: "2-digit", month: "short", year: "numeric" })} · <span className="text-lava font-bold">{stats.next_event.expected_guests}</span> ospiti attesi · {stats.next_event.tables_reserved} tavoli
+                                </div>
+                            </>
+                        ) : (
+                            <div className="text-white/40 text-sm">Nessun evento in programma</div>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <Tabs value={tab} onValueChange={setTab}>
-                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-7 h-auto p-1">
+                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-8 h-auto p-1">
                     <TabsTrigger value="events" data-testid="tab-events" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><CalIcon className="w-4 h-4" /> Eventi</TabsTrigger>
                     <TabsTrigger value="posts" data-testid="tab-posts" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><FileText className="w-4 h-4" /> Blog</TabsTrigger>
                     <TabsTrigger value="faqs" data-testid="tab-faqs" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><HelpCircle className="w-4 h-4" /> FAQ</TabsTrigger>
@@ -183,6 +256,7 @@ export default function AdminDashboard() {
                     <TabsTrigger value="private" data-testid="tab-private" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2" onClick={() => api.get("/private-events").then((r) => setPrivateEvents(r.data)).catch(() => {})}>
                         <Users className="w-4 h-4" /> Eventi Privati
                     </TabsTrigger>
+                    <TabsTrigger value="content" data-testid="tab-content" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><PenLine className="w-4 h-4" /> Contenuti</TabsTrigger>
                     <TabsTrigger value="settings" data-testid="tab-settings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><SettingsIcon className="w-4 h-4" /> Config</TabsTrigger>
                 </TabsList>
 
@@ -312,6 +386,86 @@ export default function AdminDashboard() {
                             </div>
                         ))}
                     </div>
+                </TabsContent>
+
+                {/* CONTENT — Home copy editor */}
+                <TabsContent value="content" className="mt-6 space-y-6" data-testid="tab-content-content">
+                    {!settings && <p className="text-white/60">Caricamento...</p>}
+                    {settings && (
+                        <div className="space-y-6">
+                            <div className="glass-card rounded-2xl p-6 space-y-4">
+                                <div>
+                                    <h3 className="font-bold text-lg">Titolo Hero (2 righe)</h3>
+                                    <p className="text-xs text-white/50 mt-1">La prima riga (es. BEYOND) usa il font editorial bianco. La seconda (es. THE NIGHT) usa il colore lava.</p>
+                                </div>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input data-testid="content-hero-line1" className={input} placeholder="Riga 1" value={settings.home_hero_line1 || ""} onChange={(e) => setSettings({ ...settings, home_hero_line1: e.target.value })} />
+                                    <input data-testid="content-hero-line2" className={input} placeholder="Riga 2" value={settings.home_hero_line2 || ""} onChange={(e) => setSettings({ ...settings, home_hero_line2: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Sottotitolo hero</label>
+                                    <textarea data-testid="content-hero-subtitle" className={input} rows="3" value={settings.home_hero_subtitle || ""} onChange={(e) => setSettings({ ...settings, home_hero_subtitle: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Testo sopra countdown (es. OPENING PARTY)</label>
+                                    <input data-testid="content-opening-title" className={input} value={settings.home_opening_title || ""} onChange={(e) => setSettings({ ...settings, home_opening_title: e.target.value })} />
+                                </div>
+                            </div>
+
+                            <div className="glass-card rounded-2xl p-6 space-y-4">
+                                <h3 className="font-bold text-lg">Sezione "Prossimi Eventi"</h3>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Kicker (piccolo, rosso)</label>
+                                        <input data-testid="content-events-kicker" className={input} value={settings.home_events_kicker || ""} onChange={(e) => setSettings({ ...settings, home_events_kicker: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Titolo sezione</label>
+                                        <input data-testid="content-events-title" className={input} value={settings.home_events_title || ""} onChange={(e) => setSettings({ ...settings, home_events_title: e.target.value })} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="glass-card rounded-2xl p-6 space-y-4">
+                                <h3 className="font-bold text-lg">Sezione Location</h3>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Kicker</label>
+                                        <input data-testid="content-location-kicker" className={input} value={settings.home_location_kicker || ""} onChange={(e) => setSettings({ ...settings, home_location_kicker: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Titolo (usa \n per andare a capo)</label>
+                                        <input data-testid="content-location-title" className={input} value={settings.home_location_title || ""} onChange={(e) => setSettings({ ...settings, home_location_title: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Descrizione</label>
+                                    <textarea data-testid="content-location-body" className={input} rows="3" value={settings.home_location_body || ""} onChange={(e) => setSettings({ ...settings, home_location_body: e.target.value })} />
+                                </div>
+                            </div>
+
+                            <div className="glass-card rounded-2xl p-6 space-y-4">
+                                <h3 className="font-bold text-lg">Sezione FAQ (intro)</h3>
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Titolo (usa \n per andare a capo)</label>
+                                    <input data-testid="content-faq-title" className={input} value={settings.home_faq_title || ""} onChange={(e) => setSettings({ ...settings, home_faq_title: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Testo introduttivo</label>
+                                    <textarea data-testid="content-faq-intro" className={input} rows="3" value={settings.home_faq_intro || ""} onChange={(e) => setSettings({ ...settings, home_faq_intro: e.target.value })} />
+                                </div>
+                            </div>
+
+                            <button
+                                data-testid="save-content-btn"
+                                onClick={saveSettings}
+                                disabled={savingSettings}
+                                className="btn-lava disabled:opacity-50"
+                            >
+                                {savingSettings ? "Salvataggio..." : "Salva Contenuti"}
+                            </button>
+                        </div>
+                    )}
                 </TabsContent>
 
                 {/* SETTINGS */}
