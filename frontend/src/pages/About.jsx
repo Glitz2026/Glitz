@@ -104,7 +104,7 @@ export default function About() {
                     <span className="overline-tag">Il Club</span>
                     <h1 data-testid="about-title" className="section-title mt-4 max-w-4xl">
                         Cinque Ambienti,<br />
-                        <span className="bg-gradient-to-r from-lava via-sunset-pink to-sunset-purple bg-clip-text text-transparent">Una Sola Notte</span>
+                        <span className="bg-gradient-to-r from-lava to-sunset-pink bg-clip-text text-transparent">Una Sola Notte</span>
                     </h1>
                     <p className="mt-6 max-w-2xl text-lg text-white/70 leading-relaxed">
                         Affacciato su uno degli scorci più suggestivi della Calabria, il Glitz Club è un luogo esclusivo pensato per offrire esperienze di intrattenimento e relax uniche. Musica, atmosfera e bellezza si incontrano per dare vita a serate irripetibili.

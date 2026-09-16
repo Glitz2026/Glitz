@@ -138,7 +138,7 @@ export default function Shop() {
                 <div className="space-y-4">
                     <span className="overline-tag">Capsule Collection 2027</span>
                     <h1 data-testid="shop-title" className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-none">
-                        Glitz <span className="bg-gradient-to-r from-lava via-sunset-pink to-sunset-purple bg-clip-text text-transparent">Shop</span>
+                        Glitz <span className="bg-gradient-to-r from-lava to-sunset-pink bg-clip-text text-transparent">Shop</span>
                     </h1>
                     <p className="text-white/60 max-w-2xl text-base sm:text-lg leading-relaxed">
                         Il merchandise ufficiale del Glitz Club — pensato per l'estate, il mare e le tue serate. Pagamento sicuro con carta, spedizione in tutta Italia.

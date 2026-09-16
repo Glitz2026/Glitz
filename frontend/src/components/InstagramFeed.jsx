@@ -40,7 +40,7 @@ export default function InstagramFeed({ posts = [], profileUrl = "https://instag
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-lava/60 via-transparent to-sunset-purple/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-br from-lava/60 to-sunset-pink/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                             <ArrowUpRight className="w-8 h-8 text-white" />
                         </div>
                     </a>
