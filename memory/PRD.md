@@ -24,30 +24,25 @@ Premium cinematic web app per Glitz Club (glitzclub.it), club all'aperto 2000 po
 - **[16 Feb 2026]** Tasto "Accedi" spostato dentro il menu; link "AREA ADMIN" visibile
 - **[16 Feb 2026]** Rimosso `overline-tag` dall'hero Home
 - **[16 Feb 2026]** Tab **Contenuti** in admin: 11 campi editabili per Home
-- **[16 Feb 2026]** Dashboard Statistiche: 4 KPI (ricavi, prenotazioni, eventi privati, prossimo evento)
-- **[16 Feb 2026]** Pagina **/il-club** ora dinamica: legge da settings tutti i testi (hero, stats, zones, location, gallery) con fallback ai default. Backend `SettingsIn` esteso con 16+ campi `about_*` incluso `about_zones` (lista 5 ambienti).
-- **[16 Feb 2026]** Fix startup patcher: backfilla automaticamente qualsiasi nuovo campo `home_*`/`about_*` mancante nel doc settings → risolto bug segnalato dall'utente ("logo sparito", "backend non funziona"). Verifica 100% testing agent: logo file 200 OK, admin event CRUD funzionante, /il-club renderizza 5 zone.
+- **[16 Feb 2026]** Dashboard Statistiche: 4 KPI
+- **[16 Feb 2026]** Pagina **/il-club** dinamica: settings.about_* + about_zones (5 ambienti)
+- **[16 Feb 2026]** Fix startup patcher backfilla nuovi campi settings → risolto bug "logo sparito / backend rotto"
+- **[16 Feb 2026]** Logo ufficiale "GLITZ CLUB" (PDF fornito dall'utente) convertito in PNG trasparente 1200x567 e impostato come logo_url + logo_dark_url
 
 ## Pending / In Progress
-- **P0** UI editor "Il Club" nel tab Contenuti dell'admin: campi testo + editor ordinabile dei 5 ambienti (backend e frontend pubblico già pronti; manca solo l'admin UI)
+- **P0** UI editor "Il Club" nel tab Contenuti dell'admin
 - **P0** Upload `artist_photo_url` in Admin Events → risolve doppio testo poster
-- **P1 [Refactor]** Breakdown `server.py` (>1500 righe) in routes/models modulari
+- **P1 [Refactor]** Breakdown `server.py` (>1500 righe)
 
 ## Backlog
-- **P2** Mobile app (DJ requests, live feed, cashless)
-- **P2** i18n Inglese
-- **P2** WhatsApp Business API ufficiale
-- **P2** Ticketing interno via Stripe
-- **P2** Version stamp su settings doc + validation stricta su PUT (raccomandazione testing agent)
-
-## Known Issues
-- Doppio testo sui poster eventi (blocked su upload `artist_photo_url`)
-- Il file logo caricato appare come un quadrato quasi bianco su sfondo scuro: verificare visivamente se il PNG uploadato è il logo giusto o solo un placeholder
+- **P2** Mobile app / i18n / WhatsApp Business API / Ticketing interno Stripe
+- **P2** Version stamp su settings + validation stricta su PUT
 
 ## API Endpoints
-- `GET /api/settings` — public, include `home_*` e `about_*` keys
-- `PUT /api/admin/settings` — admin, salva tutte le settings + copy Home/About
-- `GET /api/admin/stats` — admin KPI dashboard
+- `GET /api/settings` — public, include `home_*` e `about_*`
+- `PUT /api/admin/settings` — admin
+- `GET /api/admin/stats` — admin KPI
+- `POST /api/admin/media` — upload asset (multipart)
 
 ## Admin Test Credentials
 Vedi `/app/memory/test_credentials.md`
