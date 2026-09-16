@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Ticket, MessageCircle, ChevronDown, MapPin, Calendar, ArrowRight, Sparkles } from "lucide-react";
+import { Ticket, MessageCircle, ChevronDown, MapPin, Calendar, ArrowRight, Sparkles, ShoppingBag } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
 import { api } from "../lib/api";
 import { formatItalianDateTime, ADDRESS_SHORT } from "../lib/constants";
@@ -9,6 +9,7 @@ import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
 import InstagramFeed from "../components/InstagramFeed";
 import BookingModal from "../components/BookingModal";
+import { PRODUCTS } from "./Shop";
 
 const HERO_IMG_FALLBACK = "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
 const DRONE_IMG = "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
@@ -72,7 +73,7 @@ export default function Home() {
             />
 
             {/* HERO */}
-            <section data-testid="hero-section" className="relative min-h-[95vh] w-full overflow-hidden flex items-center justify-center grain-overlay bg-cinema">
+            <section data-testid="hero-section" className="relative min-h-[85vh] sm:min-h-[95vh] w-full overflow-hidden flex items-center justify-center grain-overlay bg-cinema">
                 <div className="absolute inset-0 z-0">
                     {vimeoUrl ? (
                         <div className="absolute inset-0 w-full h-full">
@@ -149,17 +150,17 @@ export default function Home() {
                 </motion.div>
                 <button
                     onClick={() => document.querySelector("[data-testid=upcoming-events-section]")?.scrollIntoView({ behavior: "smooth" })}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce text-white/60 hover:text-white transition"
+                    className="absolute bottom-4 sm:bottom-8 left-0 right-0 mx-auto z-10 flex justify-center animate-bounce text-white/60 hover:text-white transition"
                     aria-label="Scorri"
                     data-testid="hero-scroll-down"
                 >
-                    <ChevronDown className="w-8 h-8" />
+                    <ChevronDown className="w-7 h-7 sm:w-8 sm:h-8" />
                 </button>
             </section>
 
             {/* Next Events */}
-            <section data-testid="upcoming-events-section" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
-                <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+            <section data-testid="upcoming-events-section" className="pt-10 pb-16 sm:py-24 px-4 sm:px-6 max-w-7xl mx-auto">
+                <div className="flex items-end justify-between mb-8 sm:mb-12 flex-wrap gap-4">
                     <div className="space-y-3">
                         <span className="overline-tag">{settings?.home_events_kicker || "Stagione 2027"}</span>
                         <h2 className="section-title">{settings?.home_events_title || "Prossimi Eventi"}</h2>
@@ -220,43 +221,79 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Blog highlights */}
-            {posts.length > 0 && (
-                <section data-testid="blog-highlights-section" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
+            {/* Il Club — anteprima ambienti */}
+            {(settings?.about_zones?.length || 0) > 0 && (
+                <section data-testid="club-preview-section" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
                     <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
                         <div className="space-y-3">
-                            <span className="overline-tag">Ultime News</span>
-                            <h2 className="section-title">Dal Magazine</h2>
+                            <span className="overline-tag">{settings?.about_kicker || "Il Club"}</span>
+                            <h2 className="section-title">Cinque Ambienti,<br /><span className="text-lava">Una Sola Notte</span></h2>
                         </div>
-                        <Link to="/news" data-testid="see-all-posts-link" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
-                            Tutti gli articoli <ArrowRight className="w-4 h-4" />
+                        <Link to="/il-club" data-testid="see-all-zones-link" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
+                            Scopri tutti gli ambienti <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
-                    <div className="grid gap-8 md:grid-cols-3">
-                        {posts.map((p, i) => (
-                            <Link
-                                key={p.id}
-                                to={`/news/${p.slug}`}
-                                data-testid={`blog-card-${i}`}
-                                className="group block rounded-2xl overflow-hidden bg-surface border border-white/10 hover:border-lava/40 transition"
-                            >
-                                <div className="aspect-video overflow-hidden">
-                                    <img src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                </div>
-                                <div className="p-6 space-y-3">
-                                    <div className="flex flex-wrap gap-2">
-                                        {p.tags?.slice(0, 2).map((t) => (
-                                            <span key={t} className="text-[10px] uppercase tracking-widest text-lava font-semibold">#{t}</span>
-                                        ))}
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        {settings.about_zones.slice(0, 4).map((z, i) => {
+                            const img = z.image?.startsWith("http") ? z.image : `${process.env.REACT_APP_BACKEND_URL}${z.image}`;
+                            return (
+                                <Link
+                                    key={z.id || i}
+                                    to="/il-club"
+                                    data-testid={`club-zone-card-${i}`}
+                                    className="group relative block aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 hover:border-lava/40 transition"
+                                >
+                                    <img src={img} alt={z.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent" />
+                                    <div className="absolute inset-x-0 bottom-0 p-5 space-y-1">
+                                        <div className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">Ambiente {String(i + 1).padStart(2, "0")}</div>
+                                        <h3 className="text-xl sm:text-2xl font-black uppercase text-white leading-tight line-clamp-2">{z.title}</h3>
+                                        <p className="text-white/70 text-xs uppercase tracking-widest line-clamp-1">{z.subtitle}</p>
                                     </div>
-                                    <h3 className="text-xl font-bold text-white group-hover:text-lava transition line-clamp-2">{p.title}</h3>
-                                    <p className="text-white/60 text-sm line-clamp-2">{p.excerpt}</p>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            );
+                        })}
                     </div>
                 </section>
             )}
+
+            {/* Shop — anteprima prodotti */}
+            <section data-testid="shop-preview-section" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
+                <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+                    <div className="space-y-3">
+                        <span className="overline-tag">Shop Ufficiale</span>
+                        <h2 className="section-title">Porta il<br /><span className="text-lava">Glitz con te</span></h2>
+                    </div>
+                    <Link to="/shop" data-testid="see-all-products-link" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
+                        Vai allo shop <ArrowRight className="w-4 h-4" />
+                    </Link>
+                </div>
+                <div className="grid gap-8 md:grid-cols-3">
+                    {PRODUCTS.slice(0, 3).map((p, i) => (
+                        <Link
+                            key={p.id}
+                            to={`/shop/${p.id}`}
+                            data-testid={`shop-preview-card-${i}`}
+                            className="group block rounded-2xl overflow-hidden bg-surface border border-white/10 hover:border-lava/40 transition"
+                        >
+                            <div className="aspect-square overflow-hidden bg-obsidian flex items-center justify-center">
+                                <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            </div>
+                            <div className="p-6 space-y-2">
+                                {p.badge && <span className="text-[10px] uppercase tracking-widest text-lava font-semibold">{p.badge}</span>}
+                                <h3 className="text-xl font-bold text-white group-hover:text-lava transition line-clamp-2">{p.name}</h3>
+                                <p className="text-white/60 text-sm line-clamp-1">{p.subtitle}</p>
+                                <div className="flex items-center justify-between pt-2">
+                                    <span className="text-2xl font-black text-lava">€ {p.price}</span>
+                                    <span className="inline-flex items-center gap-1 text-xs uppercase tracking-widest text-white/60 group-hover:text-white transition">
+                                        <ShoppingBag className="w-3 h-3" /> Acquista
+                                    </span>
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </section>
 
             {/* Instagram feed */}
             <InstagramFeed posts={instaPosts} profileUrl={settings?.instagram_url} />

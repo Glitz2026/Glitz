@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, API } from "../lib/api";
 import { toast } from "sonner";
-import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays } from "lucide-react";
+import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays, ArrowUp, ArrowDown } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 
 function resolveMediaUrl(m) {
@@ -142,11 +142,70 @@ export default function AdminDashboard() {
                 home_location_body: settings.home_location_body || "",
                 home_faq_title: settings.home_faq_title || "",
                 home_faq_intro: settings.home_faq_intro || "",
+                about_kicker: settings.about_kicker || "",
+                about_hero_line1: settings.about_hero_line1 || "",
+                about_hero_line2: settings.about_hero_line2 || "",
+                about_hero_image_url: settings.about_hero_image_url || "",
+                about_hero_subtitle: settings.about_hero_subtitle || "",
+                about_stat_1_value: settings.about_stat_1_value || "",
+                about_stat_1_label: settings.about_stat_1_label || "",
+                about_stat_2_value: settings.about_stat_2_value || "",
+                about_stat_2_label: settings.about_stat_2_label || "",
+                about_stat_3_value: settings.about_stat_3_value || "",
+                about_stat_3_label: settings.about_stat_3_label || "",
+                about_location_title: settings.about_location_title || "",
+                about_location_body: settings.about_location_body || "",
+                about_gallery_kicker: settings.about_gallery_kicker || "",
+                about_gallery_title: settings.about_gallery_title || "",
+                about_zones: (settings.about_zones || []).map((z) => ({
+                    id: z.id || String(Math.random()).slice(2),
+                    title: z.title || "",
+                    subtitle: z.subtitle || "",
+                    image: z.image || "",
+                    description: z.description || "",
+                    highlights: Array.isArray(z.highlights)
+                        ? z.highlights
+                        : String(z.highlights || "").split("\n").map((s) => s.trim()).filter(Boolean),
+                })),
             };
             await api.put("/admin/settings", payload);
             toast.success("Impostazioni salvate");
         } catch (err) { toast.error("Errore salvataggio"); }
         finally { setSavingSettings(false); }
+    };
+
+    // Zone editor helpers (About page)
+    const updateZone = (i, patch) => {
+        const list = [...(settings.about_zones || [])];
+        list[i] = { ...list[i], ...patch };
+        setSettings({ ...settings, about_zones: list });
+    };
+    const moveZone = (i, dir) => {
+        const list = [...(settings.about_zones || [])];
+        const j = i + dir;
+        if (j < 0 || j >= list.length) return;
+        [list[i], list[j]] = [list[j], list[i]];
+        setSettings({ ...settings, about_zones: list });
+    };
+    const removeZone = (i) => {
+        const list = [...(settings.about_zones || [])];
+        list.splice(i, 1);
+        setSettings({ ...settings, about_zones: list });
+    };
+    const addZone = () => {
+        const list = [...(settings.about_zones || [])];
+        list.push({ id: `zone-${Date.now()}`, title: "Nuovo Ambiente", subtitle: "", image: "", description: "", highlights: [] });
+        setSettings({ ...settings, about_zones: list });
+    };
+    const uploadZoneImage = async (i, file) => {
+        try {
+            const fd = new FormData();
+            fd.append("file", file);
+            fd.append("category", "about-zone");
+            const r = await api.post("/admin/media", fd);
+            updateZone(i, { image: r.data.url });
+            toast.success("Foto caricata");
+        } catch (err) { toast.error("Errore upload"); }
     };
 
     const uploadFor = async (file, target) => {
@@ -453,6 +512,120 @@ export default function AdminDashboard() {
                                 <div>
                                     <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Testo introduttivo</label>
                                     <textarea data-testid="content-faq-intro" className={input} rows="3" value={settings.home_faq_intro || ""} onChange={(e) => setSettings({ ...settings, home_faq_intro: e.target.value })} />
+                                </div>
+                            </div>
+
+                            {/* ================ PAGINA IL CLUB ================ */}
+                            <div className="pt-6 border-t border-white/10 space-y-6" data-testid="about-editor">
+                                <div>
+                                    <h2 className="text-2xl font-black uppercase tracking-tight text-lava">Pagina "Il Club"</h2>
+                                    <p className="text-xs text-white/50 mt-1">Testi, statistiche, ambienti (ordinabili) e location della pagina /il-club.</p>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Hero</h3>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <div>
+                                            <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Kicker</label>
+                                            <input data-testid="about-kicker" className={input} value={settings.about_kicker || ""} onChange={(e) => setSettings({ ...settings, about_kicker: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Immagine hero (URL)</label>
+                                            <input data-testid="about-hero-image" className={input} value={settings.about_hero_image_url || ""} onChange={(e) => setSettings({ ...settings, about_hero_image_url: e.target.value })} />
+                                        </div>
+                                        <input data-testid="about-hero-line1" className={input} placeholder="Titolo riga 1" value={settings.about_hero_line1 || ""} onChange={(e) => setSettings({ ...settings, about_hero_line1: e.target.value })} />
+                                        <input data-testid="about-hero-line2" className={input} placeholder="Titolo riga 2 (colorata)" value={settings.about_hero_line2 || ""} onChange={(e) => setSettings({ ...settings, about_hero_line2: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Sottotitolo hero</label>
+                                        <textarea data-testid="about-hero-subtitle" className={input} rows="3" value={settings.about_hero_subtitle || ""} onChange={(e) => setSettings({ ...settings, about_hero_subtitle: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Statistiche (3 card)</h3>
+                                    <div className="grid gap-3 sm:grid-cols-3">
+                                        {[1, 2, 3].map((n) => (
+                                            <div key={n} className="space-y-2 p-3 rounded-lg bg-black/20">
+                                                <label className="text-xs uppercase tracking-widest text-white/60 block">Stat {n}</label>
+                                                <input data-testid={`about-stat-${n}-value`} className={input} placeholder="Valore (es. 2000)" value={settings[`about_stat_${n}_value`] || ""} onChange={(e) => setSettings({ ...settings, [`about_stat_${n}_value`]: e.target.value })} />
+                                                <input data-testid={`about-stat-${n}-label`} className={input} placeholder="Etichetta" value={settings[`about_stat_${n}_label`] || ""} onChange={(e) => setSettings({ ...settings, [`about_stat_${n}_label`]: e.target.value })} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4" data-testid="about-zones-editor">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-bold text-lg">Ambienti (trascinabili)</h3>
+                                        <button data-testid="add-zone-btn" onClick={addZone} className="btn-lava !px-3 !py-1.5 !text-xs">
+                                            <Plus className="w-3 h-3" /> Aggiungi ambiente
+                                        </button>
+                                    </div>
+                                    {(settings.about_zones || []).length === 0 && (
+                                        <p className="text-white/50 text-sm">Nessun ambiente. Clicca "Aggiungi ambiente" per iniziare.</p>
+                                    )}
+                                    <div className="space-y-4">
+                                        {(settings.about_zones || []).map((z, i) => {
+                                            const highlightsStr = Array.isArray(z.highlights) ? z.highlights.join("\n") : (z.highlights || "");
+                                            return (
+                                                <div key={z.id || i} data-testid={`zone-editor-${i}`} className="rounded-xl border border-white/10 p-4 space-y-3 bg-black/30">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-lava font-bold">
+                                                            Ambiente {String(i + 1).padStart(2, "0")}
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <button data-testid={`zone-up-${i}`} onClick={() => moveZone(i, -1)} disabled={i === 0} className="p-2 rounded-lg border border-white/10 hover:border-lava/50 disabled:opacity-30" title="Sposta su">
+                                                                <ArrowUp className="w-4 h-4" />
+                                                            </button>
+                                                            <button data-testid={`zone-down-${i}`} onClick={() => moveZone(i, 1)} disabled={i === (settings.about_zones || []).length - 1} className="p-2 rounded-lg border border-white/10 hover:border-lava/50 disabled:opacity-30" title="Sposta giù">
+                                                                <ArrowDown className="w-4 h-4" />
+                                                            </button>
+                                                            <button data-testid={`zone-del-${i}`} onClick={() => { if (window.confirm("Eliminare questo ambiente?")) removeZone(i); }} className="p-2 rounded-lg border border-white/10 hover:border-lava/50 text-lava" title="Elimina">
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid gap-3 lg:grid-cols-[160px_1fr]">
+                                                        <div className="space-y-2">
+                                                            {z.image ? (
+                                                                <img src={z.image.startsWith("http") ? z.image : `${process.env.REACT_APP_BACKEND_URL}${z.image}`} alt="preview" className="w-full aspect-[4/5] object-cover rounded-lg border border-white/10" />
+                                                            ) : (
+                                                                <div className="w-full aspect-[4/5] rounded-lg border border-dashed border-white/15 flex items-center justify-center text-white/40 text-xs">Nessuna foto</div>
+                                                            )}
+                                                            <label className="btn-ghost !text-xs !px-2 !py-1.5 cursor-pointer flex items-center justify-center gap-1 w-full">
+                                                                <Upload className="w-3 h-3" /> Carica foto
+                                                                <input data-testid={`zone-upload-${i}`} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadZoneImage(i, e.target.files[0])} />
+                                                            </label>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <div className="grid gap-2 sm:grid-cols-2">
+                                                                <input data-testid={`zone-title-${i}`} className={input} placeholder="Titolo (es. Riva Deck)" value={z.title || ""} onChange={(e) => updateZone(i, { title: e.target.value })} />
+                                                                <input data-testid={`zone-subtitle-${i}`} className={input} placeholder="Sottotitolo" value={z.subtitle || ""} onChange={(e) => updateZone(i, { subtitle: e.target.value })} />
+                                                            </div>
+                                                            <input data-testid={`zone-image-${i}`} className={input} placeholder="URL immagine (o usa Carica foto)" value={z.image || ""} onChange={(e) => updateZone(i, { image: e.target.value })} />
+                                                            <textarea data-testid={`zone-description-${i}`} className={input} rows="3" placeholder="Descrizione" value={z.description || ""} onChange={(e) => updateZone(i, { description: e.target.value })} />
+                                                            <textarea data-testid={`zone-highlights-${i}`} className={input} rows="3" placeholder={"Punti chiave (uno per riga)\nEs: Vista mare\nAccesso riservato"} value={highlightsStr} onChange={(e) => updateZone(i, { highlights: e.target.value.split("\n") })} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Location (fondo pagina)</h3>
+                                    <input data-testid="about-location-title" className={input} placeholder="Titolo indirizzo" value={settings.about_location_title || ""} onChange={(e) => setSettings({ ...settings, about_location_title: e.target.value })} />
+                                    <textarea data-testid="about-location-body" className={input} rows="2" placeholder="Descrizione breve" value={settings.about_location_body || ""} onChange={(e) => setSettings({ ...settings, about_location_body: e.target.value })} />
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 space-y-4">
+                                    <h3 className="font-bold text-lg">Sezione Gallery (fondo pagina)</h3>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <input data-testid="about-gallery-kicker" className={input} placeholder="Kicker" value={settings.about_gallery_kicker || ""} onChange={(e) => setSettings({ ...settings, about_gallery_kicker: e.target.value })} />
+                                        <input data-testid="about-gallery-title" className={input} placeholder="Titolo" value={settings.about_gallery_title || ""} onChange={(e) => setSettings({ ...settings, about_gallery_title: e.target.value })} />
+                                    </div>
                                 </div>
                             </div>
 
