@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { X, MapPin, Users, Wine, Music, Waves, Sparkles } from "lucide-react";
+import { X, MapPin } from "lucide-react";
 import Seo from "../components/Seo";
 import { api } from "../lib/api";
 import { ADDRESS } from "../lib/constants";
@@ -10,17 +10,7 @@ const ASSETS = "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nig
 // Zones with real Glitz Club photos (user-provided)
 const ZONES = [
     {
-        id: "backthestage",
-        icon: Users,
-        title: "Back the Stage",
-        subtitle: "I privé dietro la consolle",
-        image: `${ASSETS}/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg`,
-        description: "L'area più esclusiva del Glitz: i privé dietro la consolle, a filo pista. Vista diretta sul DJ booth, servizio bottiglia premium e accesso riservato. È qui che si vive la serata da dentro il cuore del party, con la musica che ti arriva addosso e la pista sotto gli occhi.",
-        highlights: ["Vista frontale sul DJ", "Accesso riservato", "Servizio bottiglia premium"],
-    },
-    {
         id: "arco",
-        icon: Sparkles,
         title: "L'Arco Iconico",
         subtitle: "Il simbolo del Glitz",
         image: `${ASSETS}/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg`,
@@ -28,31 +18,36 @@ const ZONES = [
         highlights: ["Vista Isola di Dino", "Consolle DJ centrale", "Lighting LED pixel mapped"],
     },
     {
-        id: "tables",
-        icon: Wine,
-        title: "Terrazza Tavoli & Lettini",
+        id: "backthestage",
+        title: "Back the Stage",
+        subtitle: "I privé dietro la consolle",
+        image: `${ASSETS}/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg`,
+        description: "L'area più esclusiva del Glitz: i privé dietro la consolle, a filo pista. Vista diretta sul DJ booth, servizio bottiglia premium e accesso riservato. È qui che si vive la serata da dentro il cuore del party, con la musica che ti arriva addosso e la pista sotto gli occhi.",
+        highlights: ["Vista frontale sul DJ", "Accesso riservato", "Servizio bottiglia premium"],
+    },
+    {
+        id: "riva-deck",
+        title: "Riva Deck",
         subtitle: "Il cuore lounge del club",
         image: `${ASSETS}/6lina1we_PHOTO-2025-09-16-12-45-39.jpg`,
-        description: "La terrazza principale ospita tavoli premium e lettini vista pista. LED al pavimento, servizio bottiglia, atmosfera raccolta. È qui che si vivono le serate più esclusive: dai tavoli VIP prima fila fino ai gruppi che vogliono ballare senza rinunciare al comfort.",
+        description: "Il Riva Deck ospita tavoli premium e lettini vista pista. LED al pavimento, servizio bottiglia, atmosfera raccolta. È qui che si vivono le serate più esclusive: dai tavoli VIP prima fila fino ai gruppi che vogliono ballare senza rinunciare al comfort.",
         highlights: ["Tavoli VIP prima fila", "Lettini lounge", "Servizio bottiglia dedicato"],
     },
     {
         id: "seaview",
-        icon: Waves,
-        title: "Sea View & Sunset Deck",
+        title: "Sea View",
         subtitle: "Il tramonto sulla Calabria",
         image: `${ASSETS}/ppzjzi3q_PHOTO-2025-09-16-12-45-39%202.jpg`,
         description: "La zona vista mare è dove ogni serata inizia. Il sole tramonta dietro le montagne, i primi laser illuminano la baia, l'aperitivo scivola nel party. È il momento più fotografato del Glitz — non a caso questo scorcio è diventato il volto del club sui social.",
         highlights: ["Tramonto sull'Isola di Dino", "Aperitivo & sunset session", "Fotografia panoramica"],
     },
     {
-        id: "pool",
-        icon: Music,
-        title: "Pool & Chill Area",
-        subtitle: "Relax con vista",
+        id: "artist-area",
+        title: "Artist Area",
+        subtitle: "L'area riservata agli artisti",
         image: `${ASSETS}/97nlxf8c_PHOTO-2025-09-16-12-45-38%203.jpg`,
-        description: "Piscina panoramica e area chill per chi vuole staccare dal ritmo della pista senza perdersi la vibe. Lettini a bordo piscina, luci soffuse, cocktail bar dedicato. Un rifugio elegante nel cuore del party.",
-        highlights: ["Piscina panoramica", "Chill bar dedicato", "Zona conversazione"],
+        description: "Lo spazio dedicato agli artisti in line-up: dressing room, area relax privata e ingresso riservato. È qui che passano tutti i grandi nomi del calendario — da chi apre la serata alle superstar internazionali che chiudono l'alba.",
+        highlights: ["Dressing room privata", "Ingresso riservato", "Zona meet & greet"],
     },
 ];
 
@@ -131,7 +126,6 @@ export default function About() {
             {/* Zones */}
             <section data-testid="zones-section" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-24">
                 {ZONES.map((z, i) => {
-                    const Icon = z.icon;
                     const reverse = i % 2 === 1;
                     return (
                         <motion.div
@@ -144,8 +138,8 @@ export default function About() {
                             className={`grid gap-8 lg:grid-cols-2 items-center ${reverse ? "lg:[&>*:first-child]:order-2" : ""}`}
                         >
                             <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-lava font-bold">
-                                    <Icon className="w-4 h-4" /> Ambiente {String(i + 1).padStart(2, "0")}
+                                <div className="text-xs uppercase tracking-[0.3em] text-lava font-bold">
+                                    Ambiente {String(i + 1).padStart(2, "0")}
                                 </div>
                                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white leading-none">{z.title}</h2>
                                 <p className="text-lava text-sm uppercase tracking-widest font-semibold">{z.subtitle}</p>
