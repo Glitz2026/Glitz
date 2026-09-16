@@ -110,9 +110,6 @@ export default function Home() {
                     transition={{ duration: 0.8 }}
                     className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center flex flex-col items-center gap-6 py-24"
                 >
-                    <span className="overline-tag">
-                        Glitz Club • {ADDRESS_SHORT}
-                    </span>
                     <h1 data-testid="hero-title" className="font-editorial text-7xl sm:text-8xl lg:text-[10rem] tracking-[0.04em] leading-[0.95]">
                         <span className="block hero-editorial uppercase not-italic">BEYOND</span>
                         <span className="block hero-editorial-accent uppercase not-italic -mt-2 sm:-mt-4">THE NIGHT</span>

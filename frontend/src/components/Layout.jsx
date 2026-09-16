@@ -1,6 +1,6 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, User } from "lucide-react";
+import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, LogOut, User } from "lucide-react";
 import { WHATSAPP_DISPLAY, EMAIL, INSTAGRAM, TIKTOK, ADDRESS, whatsappInfoLink } from "../lib/constants";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
@@ -28,7 +28,7 @@ export default function Layout({ children }) {
     const [scrolled, setScrolled] = useState(false);
     const [logoUrl, setLogoUrl] = useState("");
     const loc = useLocation();
-    const { user, loginWithGoogle } = useAuth();
+    const { user, loginWithGoogle, logout } = useAuth();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -71,26 +71,40 @@ export default function Layout({ children }) {
                                 {n.label}
                             </NavLink>
                         ))}
-                    </nav>
-                    <div className="flex items-center gap-3">
+                        <span className="h-4 w-px bg-white/15" aria-hidden />
                         {user ? (
-                            <Link to="/account" data-testid="header-account-btn" className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 hover:border-lava/50 transition">
-                                {user.picture ? (
-                                    <img src={user.picture} alt={user.name} className="w-6 h-6 rounded-full" />
-                                ) : (
-                                    <User className="w-4 h-4 text-white/70" />
-                                )}
-                                <span className="text-xs uppercase tracking-widest text-white/80 font-semibold max-w-[100px] truncate">{(user.name || user.email).split(" ")[0]}</span>
-                            </Link>
+                            <div className="flex items-center gap-4">
+                                <Link
+                                    to="/account"
+                                    data-testid="header-account-btn"
+                                    className="flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-white/80 hover:text-white transition"
+                                >
+                                    {user.picture ? (
+                                        <img src={user.picture} alt={user.name} className="w-6 h-6 rounded-full" />
+                                    ) : (
+                                        <User className="w-4 h-4" />
+                                    )}
+                                    <span className="max-w-[120px] truncate">{(user.name || user.email).split(" ")[0]}</span>
+                                </Link>
+                                <button
+                                    onClick={logout}
+                                    data-testid="header-logout-btn"
+                                    className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
+                                >
+                                    <LogOut className="w-4 h-4" /> Esci
+                                </button>
+                            </div>
                         ) : (
                             <button
                                 onClick={loginWithGoogle}
                                 data-testid="header-login-btn"
-                                className="hidden sm:inline-flex btn-ghost !px-4 !py-2 !text-xs"
+                                className="flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
                             >
                                 <LogIn className="w-4 h-4" /> Accedi
                             </button>
                         )}
+                    </nav>
+                    <div className="flex items-center gap-3">
                         <a
                             href={whatsappInfoLink()}
                             target="_blank"
@@ -126,13 +140,38 @@ export default function Layout({ children }) {
                                 </NavLink>
                             ))}
                             {user ? (
-                                <Link to="/account" data-testid="mobile-account" className="text-lg uppercase tracking-widest font-semibold text-white/80 mt-2 flex items-center gap-2">
-                                    <User className="w-4 h-4" /> Il mio account
-                                </Link>
+                                <>
+                                    <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-3">
+                                        {user.picture ? (
+                                            <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full" />
+                                        ) : (
+                                            <User className="w-5 h-5 text-white/70" />
+                                        )}
+                                        <span className="text-sm uppercase tracking-widest text-white/80 font-semibold truncate">
+                                            {(user.name || user.email).split(" ")[0]}
+                                        </span>
+                                    </div>
+                                    <Link to="/account" data-testid="mobile-account" className="text-lg uppercase tracking-widest font-semibold text-white/80 flex items-center gap-2">
+                                        <User className="w-4 h-4" /> Il mio account
+                                    </Link>
+                                    <button
+                                        onClick={logout}
+                                        data-testid="mobile-logout"
+                                        className="text-lg uppercase tracking-widest font-semibold text-lava flex items-center gap-2 text-left"
+                                    >
+                                        <LogOut className="w-4 h-4" /> Esci
+                                    </button>
+                                </>
                             ) : (
-                                <button onClick={loginWithGoogle} data-testid="mobile-login" className="text-lg uppercase tracking-widest font-semibold text-lava mt-2 flex items-center gap-2">
-                                    <LogIn className="w-4 h-4" /> Accedi con Google
-                                </button>
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <button
+                                        onClick={loginWithGoogle}
+                                        data-testid="mobile-login"
+                                        className="text-lg uppercase tracking-widest font-semibold text-lava flex items-center gap-2"
+                                    >
+                                        <LogIn className="w-4 h-4" /> Accedi con Google
+                                    </button>
+                                </div>
                             )}
                         </nav>
                     </div>

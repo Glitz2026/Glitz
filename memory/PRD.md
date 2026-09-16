@@ -1,22 +1,39 @@
 # Glitz Club — PRD
 
-## Feature completate (16 Set 2026)
-- MVP + Piantina pixel-perfect + Booking + Shop Stripe (6 prodotti) + Programmazione 2027 (10 eventi AI)
-- Hero: BEYOND THE NIGHT (Cormorant Garamond)
-- Palette: rosso #E10600 (Italian editorial red)
-- Google Auth Emergent-managed (jalucas@hotmail.it auto-admin)
-- Account page `/account` (prenotazioni + ordini)
-- PosterFrame template Glitz (`/app/frontend/src/components/PosterFrame.jsx`)
-- **Eventi Privati `/prenota-evento`**:
-  - Form: area (5 zone), nome, email, telefono, data, ospiti (1-2500), occasione, budget, messaggio
-  - Backend `POST /api/private-events` + email notifica admin via Resend
-  - Admin listing `GET /api/private-events` (JWT protected)
-  - Link "EVENTI PRIVATI" in nav
+## Original Problem Statement
+Premium cinematic web app per Glitz Club (glitzclub.it), club all'aperto 2000 posti. Include: eventi, blog/magazine, FAQ, admin dashboard, floorplan interattivo 2D per prenotazione tavoli, e-commerce Stripe, eventi privati, Google Auth Emergent, poster dinamici, email automatiche Resend.
 
-## Backlog / Future
-- Admin UI per gestire richieste eventi privati (contattare/archiviare) — P1
-- Field `artist_photo_url` in EventIn/EventOut + admin upload — P1
-- Countdown Opening DAMANTE maxi homepage — P1
-- Foto reali artisti da management (Damante info.damantecrew@gmail.com, Bob Sinclar press@yellowprod.fr) — P1
-- Instagram auto-post 7gg prima evento — P2
-- Localizzazione EN — P2
+**Lingua**: Italiano.
+
+## Stack
+- FE: React CRA + Tailwind + Framer Motion
+- BE: FastAPI + MongoDB (Motor)
+- Auth: Emergent-managed Google Sign-In (JWT cookie)
+- Payments: Stripe Checkout + Webhook
+- Email: Resend (cron reminders)
+
+## Completed
+- 2D floorplan interattivo su immagine ufficiale invertita
+- Shop Stripe + fallback WhatsApp
+- Google Auth Emergent (admin: `jalucas@hotmail.it`)
+- Componente `PosterFrame.jsx`
+- 10 eventi Estate 2027 seeded
+- Booking eventi privati + tab admin
+- Brand color rosso `#E10600`, Cormorant Garamond Light
+- About page: ordine ambienti + foto corrette
+- **[16 Feb 2026]** Tasto "Accedi" spostato dentro il menu di navigazione (sezione separata con divisore) su desktop e mobile. Quando loggato: nome utente + Esci
+- **[16 Feb 2026]** Rimosso `overline-tag` "Glitz Club • ADDRESS" dall'hero Home
+
+## Pending / Backlog
+- **P0 [In progress]** Upload `artist_photo_url` in Admin Events → per risolvere doppio testo poster
+- **P0 [Refactor]** Breakdown `server.py` (>1200 righe) in routes/models modulari
+- **P2** Mobile app (DJ requests, live feed, cashless)
+- **P2** i18n Inglese
+- **P2** WhatsApp Business API ufficiale
+- **P2** Ticketing interno via Stripe
+
+## Known Issues
+- Doppio testo sui poster eventi (blocked su upload `artist_photo_url`)
+
+## Admin Test Credentials
+Vedi `/app/memory/test_credentials.md`
