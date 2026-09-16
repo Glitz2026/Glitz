@@ -504,11 +504,19 @@ async def list_past_events():
 
 
 @api.put("/admin/settings")
-async def update_settings(data: SettingsIn, admin=Depends(get_admin)):
-    doc = data.model_dump()
-    doc["id"] = "main"
-    await db.settings.update_one({"id": "main"}, {"$set": doc}, upsert=True)
-    return doc
+async def update_settings(request: Request, admin=Depends(get_admin)):
+    # Partial-update: only the keys the client actually sends are written.
+    # Validates the payload against SettingsIn (drops unknown keys, coerces types).
+    body = await request.json()
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Invalid body")
+    allowed = set(SettingsIn.model_fields.keys())
+    patch = {k: v for k, v in body.items() if k in allowed}
+    if not patch:
+        raise HTTPException(status_code=400, detail="Nessun campo aggiornabile")
+    patch["id"] = "main"
+    await db.settings.update_one({"id": "main"}, {"$set": patch}, upsert=True)
+    return await db.settings.find_one({"id": "main"}, {"_id": 0})
 
 
 @api.get("/admin/stats")
