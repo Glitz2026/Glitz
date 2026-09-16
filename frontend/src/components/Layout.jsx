@@ -245,9 +245,6 @@ export default function Layout({ children }) {
                         <a href={TIKTOK} target="_blank" rel="noreferrer" data-testid="footer-tiktok" className="text-white/70 hover:text-white transition block">
                             TikTok
                         </a>
-                        <Link to="/admin/login" data-testid="footer-admin-link" className="text-white/40 hover:text-white/70 transition block text-xs mt-6">
-                            Area Riservata
-                        </Link>
                     </div>
                 </div>
                 <div className="border-t border-white/5 py-6 text-center text-xs text-white/40">
