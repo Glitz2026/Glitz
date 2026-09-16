@@ -71,14 +71,14 @@ EVENTS = [
         "floorplan_enabled": True,
     },
     {
-        "slug": "format-nostro",
-        "title": "FORMAT NOSTRO — Italian House Movement",
+        "slug": "ai-attenzione",
+        "title": "A.I. — Attenzione Instabile",
         "date": "2027-07-17T22:00:00+02:00",
-        "lineup": ["Format Nostro Collective", "Guest Special TBA"],
+        "lineup": ["A.I. Collective", "Guest Special TBA"],
         "description": (
-            "Il collettivo **Format Nostro** sbarca per la prima volta al Glitz. "
-            "Il format che sta ridefinendo la scena house italiana con serate sold out da Milano a Napoli porta la sua energia sul Belvedere. "
-            "Warm sunset tones, tribal drums, italo-house nostalgia con una punta di groove contemporaneo. "
+            "**A.I. — Attenzione Instabile** sbarca per la prima volta al Glitz. "
+            "Il format che sta ridefinendo la scena house/techno italiana con serate sold out da Milano a Napoli porta la sua energia sul Belvedere. "
+            "Warm sunset tones, tribal drums, house nostalgia con una punta di groove contemporaneo. "
             "Serata pensata per ballare fino al tramonto seguente, con un roster di DJ che si passano il testimone senza soluzione di continuità."
         ),
         "location": "Contrada Dino, San Nicola Arcella (CS)",
@@ -131,14 +131,14 @@ EVENTS = [
         "floorplan_enabled": True,
     },
     {
-        "slug": "peggy-gou",
-        "title": "PEGGY GOU — International Headliner",
+        "slug": "bob-sinclar",
+        "title": "BOB SINCLAR — International Headliner",
         "date": "2027-08-21T22:00:00+02:00",
-        "lineup": ["Peggy Gou", "Opening: Angelica Nova"],
+        "lineup": ["Bob Sinclar", "Opening: Angelica Nova"],
         "description": (
-            "**PEGGY GOU** al Glitz. L'headliner internazionale della stagione. "
-            "La regina globale del clubbing arriva a Praia a Mare dopo i suoi sold out a Ibiza, Coachella e Tokyo. "
-            "Un set di house profonda, K-house iconica, groove ipnotico e i suoi hit più cantati — da \"It Goes Like Nanana\" a \"I Believe In Love Again\". "
+            "**BOB SINCLAR** al Glitz. L'headliner internazionale della stagione. "
+            "La leggenda francese della French house arriva a Praia a Mare dopo i suoi sold out da Ibiza a Miami. "
+            "Un set di house melodica, groove solare e i suoi hit più cantati — da \"World Hold On\" a \"Love Generation\", \"Rock This Party\" e \"Sound Of Freedom\". "
             "Ingressi contingentati, area VIP privé sold out da mesi. È la notte che segnerà l'estate italiana 2027 e che ricorderai per sempre."
         ),
         "location": "Contrada Dino, San Nicola Arcella (CS)",
