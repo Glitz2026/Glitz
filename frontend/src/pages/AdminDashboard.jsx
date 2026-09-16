@@ -29,6 +29,7 @@ export default function AdminDashboard() {
     const [settings, setSettings] = useState(null);
     const [savingSettings, setSavingSettings] = useState(false);
     const [bookings, setBookings] = useState([]);
+    const [privateEvents, setPrivateEvents] = useState([]);
 
     const email = localStorage.getItem("glitz_admin_email");
 
@@ -173,12 +174,15 @@ export default function AdminDashboard() {
             </div>
 
             <Tabs value={tab} onValueChange={setTab}>
-                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-6 h-auto p-1">
+                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-7 h-auto p-1">
                     <TabsTrigger value="events" data-testid="tab-events" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><CalIcon className="w-4 h-4" /> Eventi</TabsTrigger>
                     <TabsTrigger value="posts" data-testid="tab-posts" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><FileText className="w-4 h-4" /> Blog</TabsTrigger>
                     <TabsTrigger value="faqs" data-testid="tab-faqs" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><HelpCircle className="w-4 h-4" /> FAQ</TabsTrigger>
                     <TabsTrigger value="media" data-testid="tab-media" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><ImgIcon className="w-4 h-4" /> Media</TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-bookings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><Users className="w-4 h-4" /> Prenotazioni</TabsTrigger>
+                    <TabsTrigger value="private" data-testid="tab-private" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2" onClick={() => api.get("/private-events").then((r) => setPrivateEvents(r.data)).catch(() => {})}>
+                        <Users className="w-4 h-4" /> Eventi Privati
+                    </TabsTrigger>
                     <TabsTrigger value="settings" data-testid="tab-settings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><SettingsIcon className="w-4 h-4" /> Config</TabsTrigger>
                 </TabsList>
 
@@ -457,6 +461,60 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </TabsContent>
+
+                {/* PRIVATE EVENTS */}
+                <TabsContent value="private" className="mt-6 space-y-3" data-testid="tab-content-private">
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-lg">Richieste Eventi Privati</h3>
+                        <span className="text-sm text-white/60">{privateEvents.length} totali</span>
+                    </div>
+                    {privateEvents.length === 0 && <p className="text-white/50">Ancora nessuna richiesta.</p>}
+                    <div className="grid gap-3">
+                        {privateEvents.map((pe) => {
+                            const setPeStatus = async (status) => {
+                                await api.patch(`/private-events/${pe.id}`, { status });
+                                setPrivateEvents((prev) => prev.map((x) => x.id === pe.id ? { ...x, status } : x));
+                                toast.success(`Richiesta segnata come ${status}`);
+                            };
+                            const areaLabel = { full: "Tutto il club", "riva-deck": "Riva Deck", "back-stage": "Back the Stage", "glitz-bar": "Glitz Bar", custom: "Da concordare" }[pe.area] || pe.area;
+                            return (
+                                <div key={pe.id} data-testid={`private-row-${pe.id}`} className="glass-card rounded-xl p-4">
+                                    <div className="flex flex-wrap items-start gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="font-bold text-white">{pe.name}</span>
+                                                <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full ${pe.status === "contacted" ? "bg-blue-500/20 text-blue-400" : pe.status === "won" ? "bg-green-500/20 text-green-400" : pe.status === "archived" ? "bg-white/10 text-white/50" : "bg-yellow-500/20 text-yellow-400"}`}>
+                                                    {pe.status || "new"}
+                                                </span>
+                                                <span className="text-[10px] uppercase tracking-widest bg-lava/20 text-lava px-2 py-0.5 rounded-full">
+                                                    {areaLabel}
+                                                </span>
+                                            </div>
+                                            <div className="text-xs text-white/50 mt-1 flex flex-wrap gap-3">
+                                                <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> <a href={`tel:${pe.phone}`} className="hover:text-white">{pe.phone}</a></span>
+                                                <span className="flex items-center gap-1"><MailIcon className="w-3 h-3" /> <a href={`mailto:${pe.email}`} className="hover:text-white">{pe.email}</a></span>
+                                                <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {pe.guests} ospiti</span>
+                                                <span className="flex items-center gap-1"><CalIcon className="w-3 h-3" /> {pe.event_date}</span>
+                                            </div>
+                                            <div className="text-xs text-white/70 mt-2 space-y-0.5">
+                                                <div><span className="text-white/40">Occasione:</span> {pe.occasion}</div>
+                                                {pe.budget && <div><span className="text-white/40">Budget:</span> {pe.budget}</div>}
+                                                {pe.message && <div className="text-white/60 italic pt-1 border-l-2 border-lava pl-2 mt-1">{pe.message}</div>}
+                                            </div>
+                                            <div className="text-[10px] text-white/40 mt-2">Ricevuta il {new Date(pe.created_at).toLocaleString("it-IT")}</div>
+                                        </div>
+                                        <div className="flex gap-1.5 flex-wrap">
+                                            <a href={`https://wa.me/${pe.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Ciao ${pe.name}, ti scrivo dal Glitz Club per la tua richiesta evento privato del ${pe.event_date}.`)}`} target="_blank" rel="noreferrer" className="px-2.5 py-1.5 text-xs bg-green-500/20 text-green-400 rounded hover:bg-green-500/30" title="Contatta su WhatsApp">WhatsApp</a>
+                                            <button onClick={() => setPeStatus("contacted")} data-testid={`pe-contacted-${pe.id}`} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded" title="Contattato"><MailIcon className="w-4 h-4" /></button>
+                                            <button onClick={() => setPeStatus("won")} data-testid={`pe-won-${pe.id}`} className="p-2 text-green-400 hover:bg-green-500/20 rounded" title="Confermato"><Check className="w-4 h-4" /></button>
+                                            <button onClick={() => setPeStatus("archived")} className="p-2 text-white/40 hover:bg-white/10 rounded" title="Archivia"><Trash2 className="w-4 h-4" /></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </TabsContent>
             </Tabs>

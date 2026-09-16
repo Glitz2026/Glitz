@@ -1314,6 +1314,17 @@ async def list_private_events(admin=Depends(get_admin)):
 
 app.include_router(private_router)
 
+
+@private_router.patch("/{event_id}")
+async def update_private_event(event_id: str, body: dict, admin=Depends(get_admin)):
+    allowed = {k: body[k] for k in ("status", "notes") if k in body}
+    if not allowed:
+        raise HTTPException(400, "No valid fields")
+    r = await db.private_events.update_one({"id": event_id}, {"$set": allowed})
+    if r.matched_count == 0:
+        raise HTTPException(404, "Not found")
+    return {"ok": True}
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

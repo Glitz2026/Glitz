@@ -45,9 +45,9 @@ const ZONES = [
         id: "artist-area",
         title: "Artist Area",
         subtitle: "L'area riservata agli artisti",
-        image: `${ASSETS}/97nlxf8c_PHOTO-2025-09-16-12-45-38%203.jpg`,
-        description: "Lo spazio dedicato agli artisti in line-up: dressing room, area relax privata e ingresso riservato. È qui che passano tutti i grandi nomi del calendario — da chi apre la serata alle superstar internazionali che chiudono l'alba.",
-        highlights: ["Dressing room privata", "Ingresso riservato", "Zona meet & greet"],
+        image: "/artist-area/main.jpg",
+        description: "Lo spazio dedicato agli artisti in line-up: dressing room, area relax privata con piscina panoramica affacciata sull'Isola di Dino e ingresso riservato. È qui che passano tutti i grandi nomi del calendario — da chi apre la serata alle superstar internazionali che chiudono l'alba.",
+        highlights: ["Piscina panoramica vista mare", "Dressing room privata", "Ingresso riservato"],
     },
 ];
 
