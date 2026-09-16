@@ -124,8 +124,13 @@ export default function Home() {
 
                     {upcoming && (
                         <div data-testid="hero-upcoming" className="mt-4 flex flex-col items-center gap-4">
-                            <div className="text-2xl sm:text-3xl font-black uppercase tracking-widest text-white text-center">
-                                {(upcoming.title || "").split("—")[0].trim()}
+                            <div className="flex flex-col items-center gap-1">
+                                <div className="text-3xl sm:text-4xl font-black uppercase tracking-[0.3em] text-white text-center">
+                                    OPENING PARTY
+                                </div>
+                                <div className="text-xs sm:text-sm uppercase tracking-widest text-white/60">
+                                    con {(upcoming.title || "").split("—")[0].trim()}
+                                </div>
                             </div>
                             <Countdown targetIso={upcoming.date} testIdPrefix="hero-countdown" />
                         </div>

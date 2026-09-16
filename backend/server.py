@@ -1130,10 +1130,145 @@ app.include_router(stripe_router)
 
 app.include_router(api)
 
+# ================= GOOGLE AUTH (Emergent-managed) =================
+from fastapi import Request, Response as FastResponse, Cookie
+import httpx as _httpx_auth
+
+auth_router = APIRouter(prefix="/api/auth", tags=["auth"])
+SESSION_DAYS = 7
+OWNER_EMAIL = "jalucas@hotmail.it"
+
+
+class SessionIn(BaseModel):
+    session_id: str
+
+
+async def _get_current_user(session_token: Optional[str]):
+    if not session_token:
+        return None
+    session = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+    if not session:
+        return None
+    expires_at = session["expires_at"]
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc):
+        await db.user_sessions.delete_one({"session_token": session_token})
+        return None
+    user = await db.users.find_one({"user_id": session["user_id"]}, {"_id": 0})
+    return user
+
+
+async def get_optional_user(request: Request):
+    token = request.cookies.get("session_token")
+    if not token:
+        auth = request.headers.get("authorization", "")
+        if auth.lower().startswith("bearer "):
+            token = auth[7:]
+    return await _get_current_user(token)
+
+
+async def require_user(request: Request):
+    user = await get_optional_user(request)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    return user
+
+
+@auth_router.post("/google/session")
+async def google_session(body: SessionIn, response: FastResponse):
+    # Exchange session_id with Emergent Auth
+    async with _httpx_auth.AsyncClient(timeout=15) as c:
+        r = await c.get(
+            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+            headers={"X-Session-ID": body.session_id},
+        )
+    if r.status_code != 200:
+        raise HTTPException(401, "Invalid session")
+    data = r.json()
+    email = data["email"]
+    now = datetime.now(timezone.utc)
+
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user:
+        user_id = f"user_{uuid.uuid4().hex[:12]}"
+        user = {
+            "user_id": user_id,
+            "email": email,
+            "name": data.get("name", ""),
+            "picture": data.get("picture", ""),
+            "is_admin": email.lower() == OWNER_EMAIL.lower(),
+            "created_at": now.isoformat(),
+        }
+        await db.users.insert_one(user)
+        user = {k: v for k, v in user.items() if k != "_id"}
+    else:
+        await db.users.update_one(
+            {"user_id": user["user_id"]},
+            {"$set": {"name": data.get("name", user.get("name", "")),
+                      "picture": data.get("picture", user.get("picture", "")),
+                      "last_login_at": now.isoformat()}},
+        )
+
+    session_token = data["session_token"]
+    await db.user_sessions.insert_one({
+        "user_id": user["user_id"],
+        "session_token": session_token,
+        "expires_at": (now + timedelta(days=SESSION_DAYS)).isoformat(),
+        "created_at": now.isoformat(),
+    })
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        max_age=SESSION_DAYS * 24 * 60 * 60,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+    )
+    return {"user": user}
+
+
+@auth_router.get("/user")
+async def current_user(request: Request):
+    user = await get_optional_user(request)
+    if not user:
+        raise HTTPException(401, "Not authenticated")
+    return user
+
+
+@auth_router.post("/logout")
+async def logout(request: Request, response: FastResponse):
+    token = request.cookies.get("session_token")
+    if token:
+        await db.user_sessions.delete_one({"session_token": token})
+    response.delete_cookie("session_token", path="/", samesite="none", secure=True)
+    return {"ok": True}
+
+
+@auth_router.get("/my/bookings")
+async def my_bookings(user=Depends(require_user)):
+    docs = await db.bookings.find({"email": user["email"]}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    return docs
+
+
+@auth_router.get("/my/orders")
+async def my_orders(user=Depends(require_user)):
+    docs = await db.payment_transactions.find(
+        {"customer_email": user["email"]}, {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+    return docs
+
+
+app.include_router(auth_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=[o.strip() for o in os.environ.get('CORS_ORIGINS', '').split(',') if o.strip()] or ["*"],
+    allow_origin_regex=os.environ.get('CORS_ORIGIN_REGEX') or None,
     allow_methods=["*"],
     allow_headers=["*"],
 )
