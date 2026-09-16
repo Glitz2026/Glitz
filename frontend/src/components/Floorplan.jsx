@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapPin, Wine, CircleDollarSign } from "lucide-react";
+import { MapPin, Wine, CircleDollarSign, Maximize2, X } from "lucide-react";
 import BookingModal from "./BookingModal";
 import { api } from "../lib/api";
 
@@ -44,6 +44,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
     const [hoveredId, setHoveredId] = useState(null);
     const [zonesData, setZonesData] = useState({});
     const [tableOverrides, setTableOverrides] = useState({});
+    const [fullscreen, setFullscreen] = useState(false);
 
     useEffect(() => {
         api.get("/settings").then((r) => {
@@ -121,6 +122,13 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                     <span className="flex items-center gap-2">
                         <span className="w-3 h-3 rounded-sm inline-block bg-red-500/40 border border-red-500" /> Prenotato
                     </span>
+                    <button
+                        data-testid="floorplan-fullscreen-btn"
+                        onClick={() => setFullscreen(true)}
+                        className="lg:hidden ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lava text-white text-xs font-bold uppercase tracking-widest shadow-[0_0_20px_rgba(225,6,0,0.35)] hover:bg-lava-hover transition"
+                    >
+                        <Maximize2 className="w-4 h-4" /> Vedi a schermo intero
+                    </button>
                 </div>
 
                 <div
@@ -207,6 +215,62 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                 zone={selectedInfo?.label || ""}
                 zoneInfo={selectedInfo}
             />
+
+            {/* Fullscreen mobile floorplan overlay */}
+            {fullscreen && (
+                <div
+                    data-testid="floorplan-fullscreen"
+                    className="fixed inset-0 z-[70] bg-obsidian overflow-auto"
+                >
+                    <div className="sticky top-0 z-[71] flex items-center justify-between px-4 py-3 bg-obsidian/95 backdrop-blur border-b border-white/10">
+                        <div>
+                            <div className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">Piantina</div>
+                            <div className="text-sm font-black uppercase text-white">Scegli il tuo tavolo</div>
+                        </div>
+                        <button
+                            data-testid="floorplan-fullscreen-close"
+                            onClick={() => setFullscreen(false)}
+                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-lava text-white flex items-center justify-center"
+                            aria-label="Chiudi"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                    <div className="p-2">
+                        <svg
+                            viewBox="0 0 1254 1254"
+                            className="w-full h-auto block"
+                            style={{ minWidth: "150vw", maxWidth: "none" }}
+                            preserveAspectRatio="xMidYMid meet"
+                        >
+                            <image href={FLOORPLAN_URL} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                            {TABLES.map((t) => {
+                                const status = reservedTables[t.id];
+                                const isReserved = status === "reserved" || status === "booked";
+                                const zoneColor = getZone(t.zone).color;
+                                let fill = `${zoneColor}22`, stroke = zoneColor, strokeWidth = 2;
+                                if (isReserved) { fill = "rgba(225,6,0,0.35)"; stroke = "#E10600"; strokeWidth = 2; }
+                                return (
+                                    <g
+                                        key={t.id}
+                                        data-testid={`fs-table-${t.id}`}
+                                        onClick={() => { if (!isReserved) { setSelected(t); setModalOpen(true); setFullscreen(false); } }}
+                                        style={{ cursor: isReserved ? "not-allowed" : "pointer" }}
+                                    >
+                                        <rect x={t.x - CELL_W / 2 - 4} y={t.y - CELL_H / 2 - 4} width={CELL_W + 8} height={CELL_H + 8} rx="6" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+                                        {isReserved && (
+                                            <text x={t.x} y={t.y + 6} textAnchor="middle" fill="#E10600" fontSize="18" fontWeight="900">×</text>
+                                        )}
+                                    </g>
+                                );
+                            })}
+                        </svg>
+                        <p className="text-center text-white/60 text-xs mt-4 px-4 pb-6">
+                            Scorri orizzontalmente per vedere tutte le zone. Tocca un tavolo libero per prenotare.
+                        </p>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
