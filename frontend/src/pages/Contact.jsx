@@ -22,11 +22,11 @@ export default function Contact() {
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
             <Seo title="Contatti" description={`Glitz Club — Contatti. WhatsApp ${waDisplay}, email ${email}, ${address}.`} />
-            <div className="mb-12 space-y-3">
+            <div className="mb-12 space-y-3 text-center">
                 <span className="overline-tag">{s?.contact_kicker || "Contatti"}</span>
                 <h1 data-testid="contact-title" className="section-title">{s?.contact_title || "Scrivici"}</h1>
             </div>
-            <div className="grid lg:grid-cols-2 gap-12">
+            <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
                 <div className="space-y-6">
                     <a href={waLink} target="_blank" rel="noreferrer" data-testid="contact-whatsapp" className="glass-card rounded-2xl p-6 flex items-center gap-4 hover:border-lava/40 transition group">
                         <div className="w-12 h-12 rounded-full bg-lava/20 flex items-center justify-center group-hover:bg-lava/30">

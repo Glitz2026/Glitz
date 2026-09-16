@@ -194,6 +194,7 @@ export default function AdminDashboard() {
                     bottles: z.bottles || "",
                     description: z.description || "",
                 })),
+                floorplan_table_overrides: settings.floorplan_table_overrides || {},
                 about_zones: (settings.about_zones || []).map((z) => ({
                     id: z.id || String(Math.random()).slice(2),
                     title: z.title || "",
@@ -933,6 +934,37 @@ export default function AdminDashboard() {
                                     <h2 className="text-2xl font-black uppercase tracking-tight text-lava">Piantina — Prezzi & Bottiglie</h2>
                                     <p className="text-xs text-white/50 mt-1">Testi e prezzi mostrati sotto la piantina "Scegli il tuo tavolo" e nel modale di prenotazione per ogni zona.</p>
                                 </div>
+
+                                {/* Anteprima live piantina */}
+                                <div data-testid="floorplan-live-preview" className="glass-card rounded-2xl p-4">
+                                    <div className="text-xs uppercase tracking-widest text-white/60 mb-2">Anteprima live</div>
+                                    <svg viewBox="0 0 1254 1254" className="w-full max-w-[420px] h-auto block rounded-lg" style={{ background: "#0a0a0a" }}>
+                                        {(() => {
+                                            const zoneMap = {};
+                                            (settings.floorplan_zones || []).forEach((z) => { if (z.id) zoneMap[z.id] = z; });
+                                            // Zone bounding rectangles (approximate)
+                                            const boxes = [
+                                                { id: "STAGE", x: 40, y: 130, w: 520, h: 680 },
+                                                { id: "RIVA", x: 580, y: 190, w: 660, h: 380 },
+                                                { id: "BAR", x: 90, y: 790, w: 430, h: 320 },
+                                            ];
+                                            return boxes.map((b) => {
+                                                const z = zoneMap[b.id] || {};
+                                                const color = z.color || "#666";
+                                                return (
+                                                    <g key={b.id}>
+                                                        <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="20" fill={`${color}30`} stroke={color} strokeWidth="4" />
+                                                        <text x={b.x + b.w / 2} y={b.y + b.h / 2 - 15} textAnchor="middle" fill="#fff" fontSize="42" fontWeight="900">{z.label || b.id}</text>
+                                                        {z.price_from && (
+                                                            <text x={b.x + b.w / 2} y={b.y + b.h / 2 + 30} textAnchor="middle" fill={color} fontSize="34" fontWeight="700">Da {z.price_from}</text>
+                                                        )}
+                                                    </g>
+                                                );
+                                            });
+                                        })()}
+                                    </svg>
+                                </div>
+
                                 <div className="space-y-3">
                                     {["STAGE", "RIVA", "BAR"].map((zid) => {
                                         const list = settings.floorplan_zones || [];
@@ -945,18 +977,68 @@ export default function AdminDashboard() {
                                             else next[idx] = { ...next[idx], ...patch };
                                             setSettings({ ...settings, floorplan_zones: next });
                                         };
+                                        const saveZone = async () => {
+                                            try {
+                                                await api.put("/admin/settings", { floorplan_zones: settings.floorplan_zones });
+                                                toast.success(`Zona ${z.label} salvata`);
+                                            } catch { toast.error("Errore salvataggio zona"); }
+                                        };
+                                        // Riva table overrides
+                                        const RIVA_IDS = ["R1","R2","R3","R4","R5","R6","R7","R8","R9","R10","R11","R12","R13","R14","R15","R16"];
+                                        const tos = settings.floorplan_table_overrides || {};
+                                        const setTableOverride = (tid, patch) => {
+                                            const next = { ...(settings.floorplan_table_overrides || {}) };
+                                            next[tid] = { ...(next[tid] || {}), ...patch };
+                                            setSettings({ ...settings, floorplan_table_overrides: next });
+                                        };
+                                        const saveOverrides = async () => {
+                                            try {
+                                                await api.put("/admin/settings", { floorplan_table_overrides: settings.floorplan_table_overrides });
+                                                toast.success("Prezzi tavoli Riva salvati");
+                                            } catch { toast.error("Errore salvataggio"); }
+                                        };
                                         return (
                                             <div key={zid} data-testid={`floorplan-zone-${zid}`} className="glass-card rounded-2xl p-5 space-y-3 border-l-4" style={{ borderLeftColor: z.color || "#E10600" }}>
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <div className="text-sm font-black uppercase tracking-wide text-white">{z.label || zid}</div>
+                                                    <button data-testid={`save-zone-${zid}`} onClick={saveZone} className="btn-lava !px-3 !py-1.5 !text-xs">
+                                                        <Check className="w-3 h-3" /> Salva zona
+                                                    </button>
+                                                </div>
                                                 <div className="grid gap-3 sm:grid-cols-3">
                                                     <input data-testid={`floorplan-${zid}-label`} className={input} placeholder="Nome zona" value={z.label || ""} onChange={(e) => setField({ label: e.target.value })} />
                                                     <input data-testid={`floorplan-${zid}-color`} type="color" className={`${input} h-11`} value={z.color || "#E10600"} onChange={(e) => setField({ color: e.target.value })} />
                                                     <input data-testid={`floorplan-${zid}-price`} className={input} placeholder="Prezzo da (es. € 400)" value={z.price_from || ""} onChange={(e) => setField({ price_from: e.target.value })} />
                                                 </div>
                                                 <div className="grid gap-3 sm:grid-cols-2">
-                                                    <input data-testid={`floorplan-${zid}-min`} className={input} placeholder="Consumazione minima (es. € 400 minimum)" value={z.min_spend || ""} onChange={(e) => setField({ min_spend: e.target.value })} />
-                                                    <input data-testid={`floorplan-${zid}-bottles`} className={input} placeholder="Bottiglie incluse (es. 1 bottiglia vodka premium)" value={z.bottles || ""} onChange={(e) => setField({ bottles: e.target.value })} />
+                                                    <input data-testid={`floorplan-${zid}-min`} className={input} placeholder="Consumazione minima" value={z.min_spend || ""} onChange={(e) => setField({ min_spend: e.target.value })} />
+                                                    <input data-testid={`floorplan-${zid}-bottles`} className={input} placeholder="Bottiglie incluse" value={z.bottles || ""} onChange={(e) => setField({ bottles: e.target.value })} />
                                                 </div>
                                                 <textarea data-testid={`floorplan-${zid}-desc`} rows="2" className={input} placeholder="Descrizione breve" value={z.description || ""} onChange={(e) => setField({ description: e.target.value })} />
+
+                                                {zid === "RIVA" && (
+                                                    <div className="pt-4 mt-3 border-t border-white/10 space-y-3" data-testid="riva-table-overrides">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="text-xs uppercase tracking-widest text-lava font-bold">Prezzo per singolo tavolo Riva Deck</div>
+                                                            <button data-testid="save-riva-overrides" onClick={saveOverrides} className="btn-lava !px-3 !py-1.5 !text-xs">
+                                                                <Check className="w-3 h-3" /> Salva prezzi tavoli
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-[10px] text-white/50">Lascia vuoto per usare il prezzo di zona. Compila solo i tavoli premium (es. R1-R4 vista mare).</p>
+                                                        <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
+                                                            {RIVA_IDS.map((tid) => {
+                                                                const ov = tos[tid] || {};
+                                                                return (
+                                                                    <div key={tid} className="rounded-lg border border-white/10 bg-black/30 p-2 space-y-1">
+                                                                        <div className="text-[10px] uppercase tracking-widest text-white/50 font-bold">Tavolo {tid}</div>
+                                                                        <input data-testid={`riva-${tid}-price`} className={`${input} !py-1.5 !text-xs`} placeholder="Prezzo" value={ov.price_from || ""} onChange={(e) => setTableOverride(tid, { price_from: e.target.value })} />
+                                                                        <input data-testid={`riva-${tid}-bottles`} className={`${input} !py-1.5 !text-xs`} placeholder="Bottiglie" value={ov.bottles || ""} onChange={(e) => setTableOverride(tid, { bottles: e.target.value })} />
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}

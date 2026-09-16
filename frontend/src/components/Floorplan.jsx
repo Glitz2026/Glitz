@@ -43,6 +43,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
     const [modalOpen, setModalOpen] = useState(false);
     const [hoveredId, setHoveredId] = useState(null);
     const [zonesData, setZonesData] = useState({});
+    const [tableOverrides, setTableOverrides] = useState({});
 
     useEffect(() => {
         api.get("/settings").then((r) => {
@@ -50,6 +51,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
             const map = {};
             list.forEach((z) => { if (z?.id) map[z.id] = z; });
             setZonesData(map);
+            setTableOverrides(r.data?.floorplan_table_overrides || {});
         }).catch(() => {});
     }, []);
 
@@ -62,7 +64,18 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
         setModalOpen(true);
     };
 
-    const selectedZone = selected ? getZone(selected.zone) : null;
+    const getTableInfo = (t) => {
+        const zone = getZone(t.zone);
+        const override = tableOverrides[t.id] || {};
+        return {
+            ...zone,
+            ...(override.price_from ? { price_from: override.price_from } : {}),
+            ...(override.min_spend ? { min_spend: override.min_spend } : {}),
+            ...(override.bottles ? { bottles: override.bottles } : {}),
+        };
+    };
+
+    const selectedInfo = selected ? getTableInfo(selected) : null;
 
     return (
         <section data-testid="floorplan-section" className="my-16 -mx-4 sm:-mx-6 lg:-mx-16 xl:-mx-32">
@@ -191,8 +204,8 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                 eventTitle={eventTitle}
                 eventId={eventId}
                 tableNumber={selected?.id}
-                zone={selectedZone?.label || ""}
-                zoneInfo={selectedZone}
+                zone={selectedInfo?.label || ""}
+                zoneInfo={selectedInfo}
             />
         </section>
     );

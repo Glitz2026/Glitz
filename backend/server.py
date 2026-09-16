@@ -341,6 +341,7 @@ class SettingsIn(BaseModel):
     contact_map_embed_url: str = "https://www.google.com/maps?q=San+Nicola+Arcella+Contrada+Dino&output=embed"
     # --- Floorplan zones with prices/bottles ---
     floorplan_zones: List[dict] = []
+    floorplan_table_overrides: dict = {}
 
 
 class BookingIn(BaseModel):
@@ -507,6 +508,7 @@ DEFAULT_SETTINGS = {
             "highlights": ["Piscina panoramica vista mare", "Dressing room privata", "Ingresso riservato"],
         },
     ],
+    "floorplan_table_overrides": {},
 }
 
 

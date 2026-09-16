@@ -211,10 +211,10 @@ export default function Layout({ children }) {
             <main className="pt-20">{children}</main>
 
             <footer data-testid="site-footer" className="mt-24 border-t border-white/10 bg-surface/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-12 md:grid-cols-4">
-                    <div className="md:col-span-2 space-y-4">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-16 md:grid-cols-4">
+                    <div className="md:col-span-2 space-y-8">
                         {logoUrl ? (
-                            <img src={logoUrl} alt="Glitz Club" className="h-12 w-auto object-contain" />
+                            <img src={logoUrl} alt="Glitz Club" className="h-14 w-auto object-contain" />
                         ) : (
                             <div className="text-3xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent">
                                 GLITZ
@@ -236,12 +236,14 @@ export default function Layout({ children }) {
                     </div>
                     <div className="space-y-3 text-sm">
                         <h4 className="uppercase tracking-widest text-lava text-xs font-bold">Social</h4>
-                        <a href={INSTAGRAM} target="_blank" rel="noreferrer" data-testid="footer-instagram" className="flex items-center gap-2 text-white/70 hover:text-white transition">
-                            <Instagram className="w-4 h-4" /> @glitzclubofficial
-                        </a>
-                        <a href={TIKTOK} target="_blank" rel="noreferrer" data-testid="footer-tiktok" className="text-white/70 hover:text-white transition block">
-                            TikTok
-                        </a>
+                        <div className="flex items-center gap-3">
+                            <a href={INSTAGRAM} target="_blank" rel="noreferrer" aria-label="Instagram" data-testid="footer-instagram" className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-lava transition">
+                                <Instagram className="w-4 h-4" />
+                            </a>
+                            <a href={TIKTOK} target="_blank" rel="noreferrer" aria-label="TikTok" data-testid="footer-tiktok" className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-lava transition">
+                                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden><path d="M19.5 6.5a5.9 5.9 0 0 1-4-1.5V15a5 5 0 1 1-5-5v3a2 2 0 1 0 2 2V2h3a4 4 0 0 0 4 4v.5z"/></svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div className="border-t border-white/5 py-6 text-center text-xs text-white/40">
