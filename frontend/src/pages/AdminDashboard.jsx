@@ -927,6 +927,42 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
+                            {/* ================ FLOORPLAN — Prezzi & Bottiglie ================ */}
+                            <div className="pt-6 border-t border-white/10 space-y-6" data-testid="floorplan-editor">
+                                <div>
+                                    <h2 className="text-2xl font-black uppercase tracking-tight text-lava">Piantina — Prezzi & Bottiglie</h2>
+                                    <p className="text-xs text-white/50 mt-1">Testi e prezzi mostrati sotto la piantina "Scegli il tuo tavolo" e nel modale di prenotazione per ogni zona.</p>
+                                </div>
+                                <div className="space-y-3">
+                                    {["STAGE", "RIVA", "BAR"].map((zid) => {
+                                        const list = settings.floorplan_zones || [];
+                                        const idx0 = list.findIndex((z) => z.id === zid);
+                                        const z = idx0 >= 0 ? list[idx0] : { id: zid, label: zid, color: "#E10600", price_from: "", min_spend: "", bottles: "", description: "" };
+                                        const setField = (patch) => {
+                                            const next = [...(settings.floorplan_zones || [])];
+                                            const idx = next.findIndex((x) => x.id === zid);
+                                            if (idx < 0) next.push({ ...z, ...patch });
+                                            else next[idx] = { ...next[idx], ...patch };
+                                            setSettings({ ...settings, floorplan_zones: next });
+                                        };
+                                        return (
+                                            <div key={zid} data-testid={`floorplan-zone-${zid}`} className="glass-card rounded-2xl p-5 space-y-3 border-l-4" style={{ borderLeftColor: z.color || "#E10600" }}>
+                                                <div className="grid gap-3 sm:grid-cols-3">
+                                                    <input data-testid={`floorplan-${zid}-label`} className={input} placeholder="Nome zona" value={z.label || ""} onChange={(e) => setField({ label: e.target.value })} />
+                                                    <input data-testid={`floorplan-${zid}-color`} type="color" className={`${input} h-11`} value={z.color || "#E10600"} onChange={(e) => setField({ color: e.target.value })} />
+                                                    <input data-testid={`floorplan-${zid}-price`} className={input} placeholder="Prezzo da (es. € 400)" value={z.price_from || ""} onChange={(e) => setField({ price_from: e.target.value })} />
+                                                </div>
+                                                <div className="grid gap-3 sm:grid-cols-2">
+                                                    <input data-testid={`floorplan-${zid}-min`} className={input} placeholder="Consumazione minima (es. € 400 minimum)" value={z.min_spend || ""} onChange={(e) => setField({ min_spend: e.target.value })} />
+                                                    <input data-testid={`floorplan-${zid}-bottles`} className={input} placeholder="Bottiglie incluse (es. 1 bottiglia vodka premium)" value={z.bottles || ""} onChange={(e) => setField({ bottles: e.target.value })} />
+                                                </div>
+                                                <textarea data-testid={`floorplan-${zid}-desc`} rows="2" className={input} placeholder="Descrizione breve" value={z.description || ""} onChange={(e) => setField({ description: e.target.value })} />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
                             <button
                                 data-testid="save-content-btn"
                                 onClick={saveSettings}

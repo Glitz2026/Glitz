@@ -1,7 +1,7 @@
 # Glitz Club — PRD
 
 ## Original Problem Statement
-Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. Include: eventi, blog/magazine, FAQ, admin dashboard, floorplan 2D, shop Stripe, eventi privati, Google Auth Emergent, poster dinamici, email automatiche Resend. **Lingua: Italiano.**
+Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. Include: eventi, blog/magazine, FAQ, admin dashboard, floorplan 2D interattivo, shop Stripe, eventi privati, Google Auth Emergent, poster dinamici, email automatiche Resend. **Lingua: Italiano.**
 
 ## Stack
 - FE: React CRA + Tailwind + Framer Motion
@@ -10,35 +10,35 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. Include: e
 - Payments: Stripe Checkout + Webhook
 - Email: Resend (cron)
 
-## Completed (recap)
-- Floorplan 2D interattivo, Shop Stripe, Google Auth + Admin email/password
-- 10 eventi 2027, Booking eventi privati, brand `#E10600`, Cormorant
+## Completed
+- 2D floorplan interattivo, Shop Stripe, Google + Admin email/password auth
+- 10 eventi 2027, Booking eventi privati, `#E10600`, Cormorant
 - Menu con "Accedi" + "Area Admin"
-- Tab **Contenuti** admin: editor Home + Il Club (5 ambienti ordinabili+add) + Contatti
+- Tab **Contenuti** admin: Home + Il Club + Contatti + **Floorplan (Prezzi & Bottiglie)**
 - Dashboard 4 KPI stats
-- Pagina /il-club: 5 ambienti + gallery a **3 tab a pillola** (Eventi/Location/Dettagli)
-- Logo ufficiale + favicon + apple-touch + PWA icons
-- Home ristrutturata: rimossa Magazine + preview Club + preview Shop
-- Fix mobile Home: freccia centrata + gap ridotto
-- **[16 Feb 2026]** Home: anteprima gallery (4 foto della prima sottosezione con CTA "Scopri il Club")
-- **[16 Feb 2026]** Backend PUT /api/admin/settings → **partial update** (`$set` solo dei campi inviati). Previene wipe accidentale di zones/gallery_groups quando l'admin salva la Contenuti tab
-- **[16 Feb 2026]** Media collection reseeded: 13 gallery-eventi + 4 gallery-location + 3 gallery-dettagli
-- **[16 Feb 2026]** Zone editor già presente da precedenti iterazioni: add-zone-btn / up-down-del / upload foto per ambiente / textarea highlights
+- Pagina /il-club: 5 ambienti + gallery a 3 tab
+- Home: no Magazine + preview Club + preview Gallery + preview Shop
+- Logo ufficiale + favicon + PWA icons
+- **[16 Feb 2026]** Upload foto artista + copertina per evento
+- **[16 Feb 2026]** Media tab: filtro + riordino ↑↓ + cambio categoria
+- **[16 Feb 2026]** Piantina "Scegli il tuo tavolo" **breakout** al max (-mx-16 xl:-mx-32, max-w-[1600px]). Card zone con prezzi + bottiglie sopra la mappa
+- **[16 Feb 2026]** BookingModal mostra prezzo + bottiglie + descrizione della zona
+- **[16 Feb 2026]** Admin Contenuti > "Piantina — Prezzi & Bottiglie": editor per zona (label/color/price/min/bottles/desc)
 
 ## Pending / In Progress
-- **P0** Upload `artist_photo_url` in Admin Events → doppio testo poster
-- **P1** 401 console noise su route pubbliche
+- **Deploy in produzione** — attesa risposta utente (ask_human aperto)
 
 ## Backlog
-- **P1** Breakdown `server.py` (>1500 righe)
+- **P1** Breakdown `server.py` (>1600 righe)
 - **P2** Mobile app / i18n / WhatsApp Business API / Ticketing Stripe interno
 
 ## API Endpoints
-- `GET /api/settings` — public, home_/about_/contact_ keys
-- `GET /api/media?category=...` — filter per categoria
-- `PUT /api/admin/settings` — admin, **partial update**
+- `GET /api/settings` — public, home_/about_/contact_/floorplan_ keys
+- `PUT /api/admin/settings` — admin, partial update
+- `GET /api/media?category=...` — sorted by order asc / created_at desc
+- `POST /api/admin/media/reorder` — admin
+- `PATCH /api/admin/media/{id}` — admin
 - `GET /api/admin/stats` — admin KPI
-- `POST /api/admin/media` — upload asset
 
 ## Admin Test Credentials
 Vedi `/app/memory/test_credentials.md`
