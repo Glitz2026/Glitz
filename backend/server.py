@@ -1213,7 +1213,7 @@ async def startup():
             patch["instagram_posts"] = DEFAULT_SETTINGS["instagram_posts"]
         # Backfill any newly-added copy/content keys that don't exist yet in the doc
         for key, default in DEFAULT_SETTINGS.items():
-            if key.startswith("home_") or key.startswith("about_") or key.startswith("contact_"):
+            if key.startswith("home_") or key.startswith("about_") or key.startswith("contact_") or key.startswith("floorplan_"):
                 if existing.get(key) in (None, "", []):
                     patch[key] = default
         if patch:
