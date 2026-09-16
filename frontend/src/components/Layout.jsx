@@ -1,6 +1,6 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, LogOut, User } from "lucide-react";
+import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, LogOut, User, Shield } from "lucide-react";
 import { WHATSAPP_DISPLAY, EMAIL, INSTAGRAM, TIKTOK, ADDRESS, whatsappInfoLink } from "../lib/constants";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
@@ -86,6 +86,15 @@ export default function Layout({ children }) {
                                     )}
                                     <span className="max-w-[120px] truncate">{(user.name || user.email).split(" ")[0]}</span>
                                 </Link>
+                                {user.is_admin && (
+                                    <Link
+                                        to="/admin"
+                                        data-testid="header-admin-dash"
+                                        className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-white/70 hover:text-lava transition"
+                                    >
+                                        <Shield className="w-4 h-4" /> Admin
+                                    </Link>
+                                )}
                                 <button
                                     onClick={logout}
                                     data-testid="header-logout-btn"
@@ -95,13 +104,22 @@ export default function Layout({ children }) {
                                 </button>
                             </div>
                         ) : (
-                            <button
-                                onClick={loginWithGoogle}
-                                data-testid="header-login-btn"
-                                className="flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
-                            >
-                                <LogIn className="w-4 h-4" /> Accedi
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={loginWithGoogle}
+                                    data-testid="header-login-btn"
+                                    className="flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
+                                >
+                                    <LogIn className="w-4 h-4" /> Accedi
+                                </button>
+                                <Link
+                                    to="/admin/login"
+                                    data-testid="header-admin-link"
+                                    className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-white/60 hover:text-white transition"
+                                >
+                                    <Shield className="w-4 h-4" /> Area Admin
+                                </Link>
+                            </div>
                         )}
                     </nav>
                     <div className="flex items-center gap-3">
@@ -154,6 +172,11 @@ export default function Layout({ children }) {
                                     <Link to="/account" data-testid="mobile-account" className="text-lg uppercase tracking-widest font-semibold text-white/80 flex items-center gap-2">
                                         <User className="w-4 h-4" /> Il mio account
                                     </Link>
+                                    {user.is_admin && (
+                                        <Link to="/admin" data-testid="mobile-admin-dash" className="text-lg uppercase tracking-widest font-semibold text-white/80 flex items-center gap-2">
+                                            <Shield className="w-4 h-4" /> Dashboard Admin
+                                        </Link>
+                                    )}
                                     <button
                                         onClick={logout}
                                         data-testid="mobile-logout"
@@ -163,7 +186,7 @@ export default function Layout({ children }) {
                                     </button>
                                 </>
                             ) : (
-                                <div className="mt-4 pt-4 border-t border-white/10">
+                                <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-4">
                                     <button
                                         onClick={loginWithGoogle}
                                         data-testid="mobile-login"
@@ -171,6 +194,13 @@ export default function Layout({ children }) {
                                     >
                                         <LogIn className="w-4 h-4" /> Accedi con Google
                                     </button>
+                                    <Link
+                                        to="/admin/login"
+                                        data-testid="mobile-admin-link"
+                                        className="text-lg uppercase tracking-widest font-semibold text-white/60 flex items-center gap-2"
+                                    >
+                                        <Shield className="w-4 h-4" /> Area Admin
+                                    </Link>
                                 </div>
                             )}
                         </nav>
