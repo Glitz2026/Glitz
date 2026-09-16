@@ -271,10 +271,14 @@ export default function Home() {
                 <section data-testid="home-gallery-preview" className="pt-4 pb-16 px-4 sm:px-6 max-w-7xl mx-auto">
                     <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
                         <div className="space-y-1">
-                            <span className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">
-                                {settings?.about_gallery_groups?.[0]?.title || "Gallery"}
-                            </span>
-                            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">Uno sguardo dentro</h3>
+                            {(settings?.home_gallery_preview_kicker || settings?.about_gallery_groups?.[0]?.title) && (
+                                <span className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">
+                                    {settings?.home_gallery_preview_kicker || settings?.about_gallery_groups?.[0]?.title}
+                                </span>
+                            )}
+                            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
+                                {settings?.home_gallery_preview_title || "Uno sguardo dentro"}
+                            </h3>
                         </div>
                         <Link to="/il-club" data-testid="home-gallery-cta" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
                             Scopri il Club <ArrowRight className="w-4 h-4" />

@@ -233,6 +233,7 @@ class EventIn(BaseModel):
     lineup: List[str] = []
     description: str = ""
     poster_url: str = ""
+    artist_photo_url: str = ""
     gallery: List[str] = []
     ticket_url: str = ""
     location: str = "Contrada Dino, San Nicola Arcella (CS)"
@@ -307,6 +308,8 @@ class SettingsIn(BaseModel):
     home_location_body: str = "Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi."
     home_faq_title: str = "Info Rapide\nsul Glitz"
     home_faq_intro: str = "Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli."
+    home_gallery_preview_kicker: str = ""
+    home_gallery_preview_title: str = "Uno sguardo dentro"
     # --- Editable "Il Club" (About) page ---
     about_kicker: str = "Il Club"
     about_hero_line1: str = "Cinque Ambienti,"
@@ -397,6 +400,8 @@ DEFAULT_SETTINGS = {
     "home_location_body": "Contrada Dino, San Nicola Arcella. Un club all'aperto affacciato sull'omonima Isola di Dino, dove il tramonto tirrenico incontra le luci laser e i bassi profondi.",
     "home_faq_title": "Info Rapide\nsul Glitz",
     "home_faq_intro": "Tutto quello che devi sapere per vivere la miglior notte della tua estate. Location, orari, biglietti, tavoli.",
+    "home_gallery_preview_kicker": "",
+    "home_gallery_preview_title": "Uno sguardo dentro",
     # About / Il Club
     "about_kicker": "Il Club",
     "about_hero_line1": "Cinque Ambienti,",
@@ -927,7 +932,34 @@ async def list_media(category: Optional[str] = None, event_id: Optional[str] = N
         q["category"] = category
     if event_id:
         q["event_id"] = event_id
-    return await db.media.find(q, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return await db.media.find(q, {"_id": 0}).sort([("order", 1), ("created_at", -1)]).to_list(1000)
+
+
+@api.post("/admin/media/reorder")
+async def reorder_media(body: dict, admin=Depends(get_admin)):
+    """Body: {order: [media_id_1, media_id_2, ...]} — assigns index as 'order' field."""
+    ids = body.get("order") or []
+    if not isinstance(ids, list):
+        raise HTTPException(status_code=400, detail="order deve essere una lista")
+    for idx, mid in enumerate(ids):
+        await db.media.update_one({"id": mid}, {"$set": {"order": idx}})
+    return {"reordered": len(ids)}
+
+
+@api.patch("/admin/media/{media_id}")
+async def update_media(media_id: str, body: dict, admin=Depends(get_admin)):
+    """Update mutable media fields: category, caption."""
+    patch = {}
+    if "category" in body:
+        patch["category"] = str(body["category"]).strip()
+    if "caption" in body:
+        patch["caption"] = str(body["caption"])
+    if not patch:
+        raise HTTPException(status_code=400, detail="Nessun campo aggiornabile")
+    r = await db.media.update_one({"id": media_id}, {"$set": patch})
+    if r.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Foto non trovata")
+    return {"updated": 1}
 
 
 @api.post("/admin/media", response_model=MediaOut)

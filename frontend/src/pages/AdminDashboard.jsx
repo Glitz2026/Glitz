@@ -12,7 +12,7 @@ function resolveMediaUrl(m) {
     return `${base}${m.url}`;
 }
 
-const emptyEvent = { title: "", date: "", lineup: "", description: "", poster_url: "", ticket_url: "https://www.ticketsms.it/", location: "Contrada Dino, San Nicola Arcella (CS)", published: true, floorplan_enabled: false };
+const emptyEvent = { title: "", date: "", lineup: "", description: "", poster_url: "", artist_photo_url: "", ticket_url: "https://www.ticketsms.it/", location: "Contrada Dino, San Nicola Arcella (CS)", published: true, floorplan_enabled: false };
 const emptyPost = { title: "", slug: "", excerpt: "", cover_url: "", body: "", tags: "", published: true };
 const emptyFaq = { question: "", answer: "", order: 0 };
 
@@ -23,6 +23,7 @@ export default function AdminDashboard() {
     const [posts, setPosts] = useState([]);
     const [faqs, setFaqs] = useState([]);
     const [media, setMedia] = useState([]);
+    const [mediaCategoryFilter, setMediaCategoryFilter] = useState("");
     const [editEvent, setEditEvent] = useState(null);
     const [editPost, setEditPost] = useState(null);
     const [editFaq, setEditFaq] = useState(null);
@@ -118,6 +119,16 @@ export default function AdminDashboard() {
         } catch (err) { toast.error("Errore upload"); }
     };
     const delMedia = async (id) => { if (!window.confirm("Eliminare?")) return; await api.delete(`/admin/media/${id}`); load(); };
+    const moveMedia = async (list, i, dir) => {
+        const j = i + dir;
+        if (j < 0 || j >= list.length) return;
+        const reordered = [...list];
+        [reordered[i], reordered[j]] = [reordered[j], reordered[i]];
+        try {
+            await api.post("/admin/media/reorder", { order: reordered.map((m) => m.id) });
+            load();
+        } catch { toast.error("Errore riordino"); }
+    };
 
     // Settings
     const saveSettings = async () => {
@@ -142,6 +153,8 @@ export default function AdminDashboard() {
                 home_location_body: settings.home_location_body || "",
                 home_faq_title: settings.home_faq_title || "",
                 home_faq_intro: settings.home_faq_intro || "",
+                home_gallery_preview_kicker: settings.home_gallery_preview_kicker || "",
+                home_gallery_preview_title: settings.home_gallery_preview_title || "",
                 about_kicker: settings.about_kicker || "",
                 about_hero_line1: settings.about_hero_line1 || "",
                 about_hero_line2: settings.about_hero_line2 || "",
@@ -359,7 +372,62 @@ export default function AdminDashboard() {
                             <input data-testid="event-title-input" className={input} placeholder="Titolo" value={editEvent.title} onChange={(e) => setEditEvent({ ...editEvent, title: e.target.value })} />
                             <input type="datetime-local" className={input} value={editEvent.date} onChange={(e) => setEditEvent({ ...editEvent, date: e.target.value })} />
                             <input className={input} placeholder="Line-up (virgole)" value={editEvent.lineup} onChange={(e) => setEditEvent({ ...editEvent, lineup: e.target.value })} />
-                            <input className={input} placeholder="URL Poster" value={editEvent.poster_url} onChange={(e) => setEditEvent({ ...editEvent, poster_url: e.target.value })} />
+                            {/* Poster copertina evento */}
+                            <div className="rounded-xl border border-white/10 p-3 bg-black/30 space-y-2">
+                                <label className="text-xs uppercase tracking-widest text-white/60 block">Foto copertina evento</label>
+                                <div className="flex items-center gap-3">
+                                    {editEvent.poster_url ? (
+                                        <img src={editEvent.poster_url.startsWith("http") ? editEvent.poster_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.poster_url}`} alt="poster" className="w-20 h-24 rounded object-cover border border-white/10" />
+                                    ) : (
+                                        <div className="w-20 h-24 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px]">Nessuna</div>
+                                    )}
+                                    <div className="flex-1 space-y-2">
+                                        <input className={input} placeholder="Oppure incolla URL Poster" value={editEvent.poster_url} onChange={(e) => setEditEvent({ ...editEvent, poster_url: e.target.value })} />
+                                        <label data-testid="upload-event-poster" className="btn-ghost !px-3 !py-1.5 !text-xs cursor-pointer inline-flex">
+                                            <Upload className="w-3 h-3" /> Carica foto
+                                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                                const f = e.target.files?.[0]; if (!f) return;
+                                                try {
+                                                    const fd = new FormData();
+                                                    fd.append("file", f);
+                                                    fd.append("category", "event-poster");
+                                                    const r = await api.post("/admin/media", fd);
+                                                    setEditEvent({ ...editEvent, poster_url: r.data.url });
+                                                    toast.success("Foto copertina caricata");
+                                                } catch { toast.error("Errore upload"); }
+                                            }} />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Foto artista pulita per PosterFrame */}
+                            <div className="rounded-xl border border-white/10 p-3 bg-black/30 space-y-2">
+                                <label className="text-xs uppercase tracking-widest text-white/60 block">Foto artista (senza testo) — usata dal template poster</label>
+                                <div className="flex items-center gap-3">
+                                    {editEvent.artist_photo_url ? (
+                                        <img src={editEvent.artist_photo_url.startsWith("http") ? editEvent.artist_photo_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.artist_photo_url}`} alt="artist" className="w-20 h-24 rounded object-cover border border-white/10" />
+                                    ) : (
+                                        <div className="w-20 h-24 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px]">Nessuna</div>
+                                    )}
+                                    <div className="flex-1 space-y-2">
+                                        <input className={input} placeholder="Oppure incolla URL foto artista" value={editEvent.artist_photo_url || ""} onChange={(e) => setEditEvent({ ...editEvent, artist_photo_url: e.target.value })} />
+                                        <label data-testid="upload-event-artist" className="btn-ghost !px-3 !py-1.5 !text-xs cursor-pointer inline-flex">
+                                            <Upload className="w-3 h-3" /> Carica foto artista
+                                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                                const f = e.target.files?.[0]; if (!f) return;
+                                                try {
+                                                    const fd = new FormData();
+                                                    fd.append("file", f);
+                                                    fd.append("category", "event-artist");
+                                                    const r = await api.post("/admin/media", fd);
+                                                    setEditEvent({ ...editEvent, artist_photo_url: r.data.url });
+                                                    toast.success("Foto artista caricata");
+                                                } catch { toast.error("Errore upload"); }
+                                            }} />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <input className={input} placeholder="URL TicketSms" value={editEvent.ticket_url} onChange={(e) => setEditEvent({ ...editEvent, ticket_url: e.target.value })} />
                             <textarea className={input} rows="4" placeholder="Descrizione" value={editEvent.description} onChange={(e) => setEditEvent({ ...editEvent, description: e.target.value })} />
                             <label className="flex items-center gap-2 text-sm text-white/70">
@@ -446,20 +514,79 @@ export default function AdminDashboard() {
 
                 {/* MEDIA */}
                 <TabsContent value="media" className="mt-6 space-y-4">
-                    <label data-testid="upload-media-btn" className="btn-lava !px-5 !py-2.5 !text-xs cursor-pointer inline-flex">
-                        <Upload className="w-4 h-4" /> Carica Foto
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files[0] && uploadMedia(e.target.files[0])} />
-                    </label>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <label data-testid="upload-media-btn" className="btn-lava !px-5 !py-2.5 !text-xs cursor-pointer inline-flex">
+                            <Upload className="w-4 h-4" /> Carica Foto
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files[0] && uploadMedia(e.target.files[0], mediaCategoryFilter || "gallery-eventi")} />
+                        </label>
+                        <select
+                            data-testid="media-category-filter"
+                            value={mediaCategoryFilter}
+                            onChange={(e) => setMediaCategoryFilter(e.target.value)}
+                            className="bg-surface border border-white/15 rounded-lg px-3 py-2 text-xs text-white/80"
+                        >
+                            <option value="">Tutte le categorie</option>
+                            {(settings?.about_gallery_groups || []).map((g) => (
+                                <option key={g.id} value={g.category}>{g.title} ({g.category})</option>
+                            ))}
+                            <option value="event-poster">Event poster</option>
+                            <option value="event-artist">Event artist</option>
+                            <option value="assets">Assets/Logo</option>
+                        </select>
+                        {mediaCategoryFilter && (
+                            <span className="text-xs text-white/50">Le frecce ↑↓ definiscono l'ordine (le prime 4 di ogni categoria appaiono in Home)</span>
+                        )}
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                        {media.map((m) => (
-                            <div key={m.id} className="relative group rounded-xl overflow-hidden border border-white/10">
+                        {(mediaCategoryFilter ? media.filter((m) => m.category === mediaCategoryFilter) : media).map((m, idx, arr) => (
+                            <div key={m.id} data-testid={`media-tile-${m.id}`} className="relative group rounded-xl overflow-hidden border border-white/10">
                                 <img src={resolveMediaUrl(m)} alt="" className="w-full aspect-square object-cover" />
+                                {mediaCategoryFilter && (
+                                    <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition">
+                                        <button
+                                            data-testid={`media-up-${m.id}`}
+                                            disabled={idx === 0}
+                                            onClick={() => moveMedia(arr, idx, -1)}
+                                            className="p-1.5 bg-black/70 text-white rounded-full disabled:opacity-30"
+                                            title="Sposta su"
+                                        >
+                                            <ArrowUp className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            data-testid={`media-down-${m.id}`}
+                                            disabled={idx === arr.length - 1}
+                                            onClick={() => moveMedia(arr, idx, 1)}
+                                            className="p-1.5 bg-black/70 text-white rounded-full disabled:opacity-30"
+                                            title="Sposta giù"
+                                        >
+                                            <ArrowDown className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                )}
+                                <select
+                                    data-testid={`media-cat-${m.id}`}
+                                    value={m.category || ""}
+                                    onChange={async (e) => {
+                                        try { await api.patch(`/admin/media/${m.id}`, { category: e.target.value }); toast.success("Categoria aggiornata"); load(); } catch { toast.error("Errore"); }
+                                    }}
+                                    className="absolute bottom-2 left-2 right-10 bg-black/70 border border-white/20 rounded px-2 py-1 text-[10px] text-white/90 opacity-0 group-hover:opacity-100 transition"
+                                >
+                                    {(settings?.about_gallery_groups || []).map((g) => (
+                                        <option key={g.id} value={g.category}>{g.title}</option>
+                                    ))}
+                                    <option value="event-poster">Event poster</option>
+                                    <option value="event-artist">Event artist</option>
+                                    <option value="assets">Assets</option>
+                                </select>
                                 <button onClick={() => delMedia(m.id)} className="absolute top-2 right-2 p-2 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition">
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         ))}
                     </div>
+                    {mediaCategoryFilter && media.filter((m) => m.category === mediaCategoryFilter).length === 0 && (
+                        <p className="text-white/40 text-sm italic mt-4">Nessuna foto in questa categoria.</p>
+                    )}
                 </TabsContent>
 
                 {/* CONTENT — Home copy editor */}
@@ -527,6 +654,21 @@ export default function AdminDashboard() {
                                 <div>
                                     <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Testo introduttivo</label>
                                     <textarea data-testid="content-faq-intro" className={input} rows="3" value={settings.home_faq_intro || ""} onChange={(e) => setSettings({ ...settings, home_faq_intro: e.target.value })} />
+                                </div>
+                            </div>
+
+                            <div className="glass-card rounded-2xl p-6 space-y-4">
+                                <h3 className="font-bold text-lg">Anteprima Gallery (Home)</h3>
+                                <p className="text-xs text-white/50">Titolo e kicker sopra le 4 foto anteprima gallery in Home.</p>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Kicker (piccolo, rosso)</label>
+                                        <input data-testid="content-gallery-preview-kicker" className={input} placeholder="Lascia vuoto per usare il nome della prima sottosezione" value={settings.home_gallery_preview_kicker || ""} onChange={(e) => setSettings({ ...settings, home_gallery_preview_kicker: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Titolo</label>
+                                        <input data-testid="content-gallery-preview-title" className={input} placeholder="Uno sguardo dentro" value={settings.home_gallery_preview_title || ""} onChange={(e) => setSettings({ ...settings, home_gallery_preview_title: e.target.value })} />
+                                    </div>
                                 </div>
                             </div>
 
