@@ -28,6 +28,7 @@ export default function Home() {
     const [events, setEvents] = useState([]);
     const [settings, setSettings] = useState(null);
     const [bookingOpen, setBookingOpen] = useState(false);
+    const [galleryPreview, setGalleryPreview] = useState([]);
 
     useEffect(() => {
         api.get("/events/upcoming").then((r) => setUpcoming(r.data)).catch(() => {});
@@ -36,6 +37,14 @@ export default function Home() {
         api.get("/events").then((r) => setEvents(r.data.slice(0, 3))).catch(() => {});
         api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
     }, []);
+
+    useEffect(() => {
+        const firstGroup = settings?.about_gallery_groups?.[0];
+        if (!firstGroup?.category) return;
+        api.get("/media", { params: { category: firstGroup.category } })
+            .then((r) => setGalleryPreview((r.data || []).slice(0, 4)))
+            .catch(() => setGalleryPreview([]));
+    }, [settings]);
 
     const heroVideoUrl = settings?.hero_video_url;
     const rawHero = settings?.hero_image_url || HERO_IMG_FALLBACK;
