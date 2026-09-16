@@ -17,6 +17,7 @@ import Shop from "@/pages/Shop";
 import ProductDetail from "@/pages/ProductDetail";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import PaymentCancel from "@/pages/PaymentCancel";
+import PrivateEvents from "@/pages/PrivateEvents";
 import Account from "@/pages/Account";
 import AuthCallback from "@/pages/AuthCallback";
 import { AuthProvider } from "@/context/AuthContext";
@@ -39,6 +40,7 @@ function AppRouter() {
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
             <Route path="/il-club" element={<Layout><About /></Layout>} />
             <Route path="/contatti" element={<Layout><Contact /></Layout>} />
+            <Route path="/prenota-evento" element={<Layout><PrivateEvents /></Layout>} />
             <Route path="/shop" element={<Layout><Shop /></Layout>} />
             <Route path="/shop/:id" element={<Layout><ProductDetail /></Layout>} />
             <Route path="/payment/success" element={<Layout><PaymentSuccess /></Layout>} />

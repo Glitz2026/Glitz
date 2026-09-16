@@ -1,26 +1,22 @@
 # Glitz Club — PRD
 
-## Cosa è già stato implementato
-- MVP completo, Piantina pixel-perfect, Booking, Shop Stripe (6 prodotti + gift card)
-- Programmazione 2027: 10 eventi con AI posters (silhouette artisti + arco reale)
-- Hero: BEYOND THE NIGHT (Cormorant Garamond 300 gradient rosso→magenta)
-- Palette: rosso Italian editorial #E10600 (era arancione #FF3300)
-- **[16 Set 2026] Google Auth Emergent-managed**:
-  - Header: "ACCEDI" button (public) / user avatar dropdown (loggato)
-  - Cookie `session_token` httpOnly 7gg via `POST /api/auth/google/session`
-  - `jalucas@hotmail.it` auto-promosso admin
-  - Pagina `/account` con "Le tue prenotazioni" + "I tuoi ordini shop"
-  - Endpoints: `/auth/user`, `/auth/logout`, `/auth/my/bookings`, `/auth/my/orders`
-- **[16 Set 2026] PosterFrame template**:
-  - `/app/frontend/src/components/PosterFrame.jsx`
-  - Stile Glitz ufficiale: logo top, data SABATO/gg/mese, mirror ghost laterali, nome artista stampatello, opening lineup, sponsor bar
-  - Toggle "Vista Template" in `/eventi` per switch AI ↔ Template
-  - Nota: le AI posters attuali hanno testo bruciato dentro → il template va sovrapposto solo su foto artista pulite
+## Feature completate (16 Set 2026)
+- MVP + Piantina pixel-perfect + Booking + Shop Stripe (6 prodotti) + Programmazione 2027 (10 eventi AI)
+- Hero: BEYOND THE NIGHT (Cormorant Garamond)
+- Palette: rosso #E10600 (Italian editorial red)
+- Google Auth Emergent-managed (jalucas@hotmail.it auto-admin)
+- Account page `/account` (prenotazioni + ordini)
+- PosterFrame template Glitz (`/app/frontend/src/components/PosterFrame.jsx`)
+- **Eventi Privati `/prenota-evento`**:
+  - Form: area (5 zone), nome, email, telefono, data, ospiti (1-2500), occasione, budget, messaggio
+  - Backend `POST /api/private-events` + email notifica admin via Resend
+  - Admin listing `GET /api/private-events` (JWT protected)
+  - Link "EVENTI PRIVATI" in nav
 
 ## Backlog / Future
-- Foto artista pulite (portrait no testo) da caricare via admin — P1
-- Field `artist_photo_url` in EventIn/EventOut backend — P1
-- Admin CRUD prodotti shop — P1
-- Countdown Opening DAMANTE maxi in homepage — P1
+- Admin UI per gestire richieste eventi privati (contattare/archiviare) — P1
+- Field `artist_photo_url` in EventIn/EventOut + admin upload — P1
+- Countdown Opening DAMANTE maxi homepage — P1
+- Foto reali artisti da management (Damante info.damantecrew@gmail.com, Bob Sinclar press@yellowprod.fr) — P1
+- Instagram auto-post 7gg prima evento — P2
 - Localizzazione EN — P2
-- Instagram auto-post — P2

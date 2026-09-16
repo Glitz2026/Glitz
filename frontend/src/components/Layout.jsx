@@ -19,6 +19,7 @@ const NAV = [
     { to: "/eventi/passati", label: "Archivio" },
     { to: "/news", label: "News" },
     { to: "/shop", label: "Shop" },
+    { to: "/prenota-evento", label: "Eventi Privati" },
     { to: "/contatti", label: "Contatti" },
 ];
 

@@ -1264,6 +1264,56 @@ async def my_orders(user=Depends(require_user)):
 
 app.include_router(auth_router)
 
+
+# ================= PRIVATE EVENT INQUIRIES =================
+private_router = APIRouter(prefix="/api/private-events", tags=["private-events"])
+
+
+class PrivateEventIn(BaseModel):
+    area: str
+    name: str
+    email: EmailStr
+    phone: str
+    event_date: str
+    guests: int = Field(ge=1, le=2500)
+    occasion: str
+    budget: Optional[str] = None
+    message: Optional[str] = None
+
+
+@private_router.post("")
+async def create_private_event(body: PrivateEventIn):
+    doc = {
+        "id": str(uuid.uuid4()),
+        **body.model_dump(),
+        "status": "new",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.private_events.insert_one(doc)
+    # Notification email to admin (best-effort)
+    try:
+        html = (
+            f"<h2>Nuova richiesta evento privato</h2>"
+            f"<p><b>Da:</b> {escape(body.name)} — {escape(body.email)} · {escape(body.phone)}</p>"
+            f"<p><b>Data:</b> {escape(body.event_date)} · <b>Ospiti:</b> {body.guests} · <b>Zona:</b> {escape(body.area)}</p>"
+            f"<p><b>Occasione:</b> {escape(body.occasion)}</p>"
+            f"<p><b>Budget:</b> {escape(body.budget or '—')}</p>"
+            f"<p><b>Messaggio:</b><br/>{escape(body.message or '—')}</p>"
+        )
+        await send_email(to=ADMIN_EMAIL, subject=f"Evento privato — {body.name} ({body.guests} ospiti)", html=html)
+    except Exception as e:
+        logging.error(f"private event notification failed: {e}")
+    return {"ok": True, "id": doc["id"]}
+
+
+@private_router.get("")
+async def list_private_events(admin=Depends(get_admin)):
+    docs = await db.private_events.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return docs
+
+
+app.include_router(private_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
