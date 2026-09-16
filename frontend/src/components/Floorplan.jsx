@@ -9,7 +9,7 @@ import BookingModal from "./BookingModal";
  */
 
 const ZONE = {
-    STAGE: { label: "Back the Stage", color: "#FF3300" },
+    STAGE: { label: "Back the Stage", color: "#E10600" },
     RIVA: { label: "Riva Deck", color: "#00BFFF" },
     BAR: { label: "Glitz Bar", color: "#FFA500" },
 };
@@ -127,8 +127,8 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                         let stroke = "transparent";
                         let strokeWidth = 0;
                         if (isReserved) {
-                            fill = "rgba(255,51,0,0.28)";
-                            stroke = "#FF3300";
+                            fill = "rgba(225,6,0,0.28)";
+                            stroke = "#E10600";
                             strokeWidth = 1.5;
                         } else if (isHover) {
                             fill = `${zoneColor}44`;
@@ -163,7 +163,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                                             y1={t.y - CELL_H / 2 + 4}
                                             x2={t.x + CELL_W / 2 - 4}
                                             y2={t.y + CELL_H / 2 - 4}
-                                            stroke="#FF3300"
+                                            stroke="#E10600"
                                             strokeWidth="2"
                                         />
                                         <line
@@ -171,7 +171,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                                             y1={t.y - CELL_H / 2 + 4}
                                             x2={t.x - CELL_W / 2 + 4}
                                             y2={t.y + CELL_H / 2 - 4}
-                                            stroke="#FF3300"
+                                            stroke="#E10600"
                                             strokeWidth="2"
                                         />
                                     </>

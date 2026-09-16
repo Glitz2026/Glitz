@@ -23,8 +23,8 @@ module.exports = {
                 surface: '#0F0D15',
                 'surface-hover': '#171420',
                 lava: {
-                    DEFAULT: '#FF3300',
-                    hover: '#FF5522',
+                    DEFAULT: '#E10600',
+                    hover: '#F51F2F',
                 },
                 sunset: {
                     purple: '#8A2BE2',
@@ -52,8 +52,8 @@ module.exports = {
                     '50%': { transform: 'translateX(100%) rotate(15deg)', opacity: '0.4' },
                 },
                 'pulse-glow': {
-                    '0%,100%': { boxShadow: '0 0 20px rgba(255,51,0,0.4), 0 0 40px rgba(255,51,0,0.2)' },
-                    '50%': { boxShadow: '0 0 30px rgba(255,51,0,0.7), 0 0 60px rgba(255,51,0,0.4)' },
+                    '0%,100%': { boxShadow: '0 0 20px rgba(225,6,0,0.45), 0 0 40px rgba(225,6,0,0.22)' },
+                    '50%': { boxShadow: '0 0 30px rgba(225,6,0,0.75), 0 0 60px rgba(225,6,0,0.45)' },
                 },
                 'fade-up': {
                     '0%': { opacity: '0', transform: 'translateY(20px)' },

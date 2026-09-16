@@ -33,7 +33,7 @@ export default function Events() {
                         key={ev.id}
                         to={`/eventi/${ev.id}`}
                         data-testid={`events-card-${i}`}
-                        className="group relative block overflow-hidden rounded-2xl bg-surface border border-white/10 hover:border-lava/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,51,0,0.25)]"
+                        className="group relative block overflow-hidden rounded-2xl bg-surface border border-white/10 hover:border-lava/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(225,6,0,0.25)]"
                     >
                         <div className="aspect-[4/5] w-full overflow-hidden relative">
                             <img src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

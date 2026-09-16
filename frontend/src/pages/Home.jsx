@@ -177,7 +177,7 @@ export default function Home() {
                             transition={{ delay: i * 0.1, duration: 0.5 }}
                             data-testid={`event-card-${i}`}
                         >
-                            <Link to={`/eventi/${ev.id}`} className="group relative block overflow-hidden rounded-2xl bg-surface border border-white/10 hover:border-lava/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,51,0,0.25)]">
+                            <Link to={`/eventi/${ev.id}`} className="group relative block overflow-hidden rounded-2xl bg-surface border border-white/10 hover:border-lava/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(225,6,0,0.25)]">
                                 <div className="aspect-[4/5] w-full overflow-hidden">
                                     <img src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent" />
