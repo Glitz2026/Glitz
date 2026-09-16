@@ -266,6 +266,39 @@ export default function Home() {
                 </section>
             )}
 
+            {/* Gallery preview — 4 foto dalla prima sottosezione */}
+            {galleryPreview.length > 0 && (
+                <section data-testid="home-gallery-preview" className="pt-4 pb-16 px-4 sm:px-6 max-w-7xl mx-auto">
+                    <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
+                        <div className="space-y-1">
+                            <span className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">
+                                {settings?.about_gallery_groups?.[0]?.title || "Gallery"}
+                            </span>
+                            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">Uno sguardo dentro</h3>
+                        </div>
+                        <Link to="/il-club" data-testid="home-gallery-cta" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
+                            Scopri il Club <ArrowRight className="w-4 h-4" />
+                        </Link>
+                    </div>
+                    <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+                        {galleryPreview.map((m, i) => {
+                            const url = m.url.startsWith("http") ? m.url : `${process.env.REACT_APP_BACKEND_URL}${m.url}`;
+                            return (
+                                <Link
+                                    key={m.id || i}
+                                    to="/il-club"
+                                    data-testid={`home-gallery-item-${i}`}
+                                    className="group relative block aspect-square rounded-xl overflow-hidden border border-white/5 hover:border-lava/40 transition"
+                                >
+                                    <img src={url} alt="Glitz Club anteprima" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
+
             {/* Shop — anteprima prodotti */}
             <section data-testid="shop-preview-section" className="py-24 px-4 sm:px-6 max-w-7xl mx-auto">
                 <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
