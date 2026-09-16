@@ -1,0 +1,27 @@
+{
+  "summary": "Verified two new features: /api/admin/stats endpoint and 'Contenuti' homepage editor. Backend: 4/4 pytest cases pass — stats requires auth (401/403 without token), returns 200 with all int KPI fields and next_event object containing DAMANTE Opening Season 2027; /api/settings exposes all 11 home_* keys; PUT /api/admin/settings round-trips home_hero_line1 correctly. Frontend: admin login works, admin-stats block visible with 4 KPI cards (stat-revenue-total='€ 0,00', stat-bookings-week='4', stat-private-new='1', stat-next-event='DAMANTE — Opening Season 2027'); all 8 tabs present (events/posts/faqs/media/bookings/private/content/settings); Contenuti tab exposes all 11 content-* editable inputs + save-content-btn; editing content-hero-line1 to 'QATEST_HERO' + save updates Home /hero-title in real time to 'QATEST_HEROTHE NIGHT'; location-section and faq-section still render on Home; stats block stays visible after switching tabs. Value restored to 'BEYOND' via API after the Playwright script errored on Home navigation timeout (networkidle wait) before its own restore step.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_stats_and_content.py",
+    "/app/test_reports/pytest/iter4_stats.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home page has heavy assets (video/countdown) causing playwright 'networkidle' waits to time out; consider using domcontentloaded in future tests but not a product bug.",
+    "Consider adding a whitespace or line-break between home_hero_line1 and home_hero_line2 spans in Home.jsx — currently rendered concatenated ('QATEST_HEROTHE NIGHT' had no space). With default values 'BEYOND' + 'THE NIGHT' the layout still reads fine visually because the two words are on separate lines via block spans, but semantic separation could be improved."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_stats_and_content.py"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "jalucas@hotmail.it / GlitzAdmin2026!",
+  "seed_data_creation": "None. Modified home_hero_line1 during test and restored to 'BEYOND' via /api/admin/settings.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest file /app/backend/tests/test_stats_and_content.py covers stats + settings round-trip. When automating Home page checks, use wait_until='domcontentloaded' or explicit wait_for_selector rather than networkidle (heavy video). Admin stats and Contenuti editor confirmed functional as of iteration 4."
+}
