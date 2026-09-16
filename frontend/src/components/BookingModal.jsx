@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, MessageCircle, Send, Loader2 } from "lucide-react";
+import { X, MessageCircle, Send, Loader2, Wine, CircleDollarSign } from "lucide-react";
 import { api } from "../lib/api";
 import { WHATSAPP_NUMBER } from "../lib/constants";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ export default function BookingModal({
     eventId = "",
     tableNumber = "",
     zone = "",
+    zoneInfo = null,
 }) {
     const [form, setForm] = useState({ name: "", phone: "", email: "", guests: 2, note: "" });
     const [loading, setLoading] = useState(false);
@@ -84,6 +85,26 @@ export default function BookingModal({
                     {eventTitle && <p className="text-white/60 text-sm">Serata: <span className="text-white">{eventTitle}</span></p>}
                     {zone && <p className="text-white/60 text-sm">Zona: <span className="text-white">{zone}</span></p>}
                 </div>
+
+                {zoneInfo && (zoneInfo.price_from || zoneInfo.bottles || zoneInfo.description) && (
+                    <div data-testid="booking-zone-info" className="rounded-xl border border-white/10 bg-black/30 p-4 mb-5 space-y-2">
+                        {zoneInfo.price_from && (
+                            <div className="flex items-center gap-2 text-sm text-white/90">
+                                <CircleDollarSign className="w-4 h-4 text-lava" />
+                                <span className="font-bold">Da {zoneInfo.price_from}</span>
+                                {zoneInfo.min_spend && <span className="text-white/50 text-xs">· {zoneInfo.min_spend}</span>}
+                            </div>
+                        )}
+                        {zoneInfo.bottles && (
+                            <div className="flex items-center gap-2 text-sm text-white/80">
+                                <Wine className="w-4 h-4 text-lava" /> {zoneInfo.bottles}
+                            </div>
+                        )}
+                        {zoneInfo.description && (
+                            <p className="text-xs text-white/50 leading-relaxed pt-1">{zoneInfo.description}</p>
+                        )}
+                    </div>
+                )}
 
                 <form onSubmit={submit} className="space-y-3">
                     <div>

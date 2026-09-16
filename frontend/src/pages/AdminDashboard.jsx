@@ -185,6 +185,15 @@ export default function AdminDashboard() {
                 contact_address: settings.contact_address || "",
                 contact_hours: settings.contact_hours || "",
                 contact_map_embed_url: settings.contact_map_embed_url || "",
+                floorplan_zones: (settings.floorplan_zones || []).map((z) => ({
+                    id: z.id || "",
+                    label: z.label || "",
+                    color: z.color || "#E10600",
+                    price_from: z.price_from || "",
+                    min_spend: z.min_spend || "",
+                    bottles: z.bottles || "",
+                    description: z.description || "",
+                })),
                 about_zones: (settings.about_zones || []).map((z) => ({
                     id: z.id || String(Math.random()).slice(2),
                     title: z.title || "",

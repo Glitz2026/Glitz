@@ -339,6 +339,8 @@ class SettingsIn(BaseModel):
     contact_address: str = "Contrada Dino, San Nicola Arcella (CS), 87020"
     contact_hours: str = "Aperto solo la sera, dal giovedì alla domenica\nGiugno – Settembre · 22:00 – 05:00"
     contact_map_embed_url: str = "https://www.google.com/maps?q=San+Nicola+Arcella+Contrada+Dino&output=embed"
+    # --- Floorplan zones with prices/bottles ---
+    floorplan_zones: List[dict] = []
 
 
 class BookingIn(BaseModel):
@@ -434,6 +436,35 @@ DEFAULT_SETTINGS = {
     "contact_address": "Contrada Dino, San Nicola Arcella (CS), 87020",
     "contact_hours": "Aperto solo la sera, dal giovedì alla domenica\nGiugno – Settembre · 22:00 – 05:00",
     "contact_map_embed_url": "https://www.google.com/maps?q=San+Nicola+Arcella+Contrada+Dino&output=embed",
+    "floorplan_zones": [
+        {
+            "id": "STAGE",
+            "label": "Back the Stage",
+            "color": "#E10600",
+            "price_from": "€ 400",
+            "min_spend": "€ 400 minimum",
+            "bottles": "1 bottiglia inclusa (vodka o gin premium)",
+            "description": "L'area privé dietro la consolle: vista frontale sul DJ, servizio bottiglia premium, accesso riservato.",
+        },
+        {
+            "id": "RIVA",
+            "label": "Riva Deck",
+            "color": "#00BFFF",
+            "price_from": "€ 300",
+            "min_spend": "€ 300 minimum",
+            "bottles": "1 bottiglia inclusa (vodka standard)",
+            "description": "Tavoli premium vista pista e mare, LED al pavimento. Il cuore lounge del club.",
+        },
+        {
+            "id": "BAR",
+            "label": "Glitz Bar",
+            "color": "#FFA500",
+            "price_from": "€ 200",
+            "min_spend": "€ 200 minimum",
+            "bottles": "Consumazione dedicata",
+            "description": "Tavoli di prossimità al Glitz Bar, ideali per gruppi che vogliono ballare senza rinunciare al comfort.",
+        },
+    ],
     "about_zones": [
         {
             "id": "arco",
