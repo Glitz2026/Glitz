@@ -48,11 +48,15 @@ const ZONE_ANCHORS = {
     BAR: { cover: { x: 198, y: 938, w: 145, h: 40 }, label: { x: 270, y: 965 }, fontSize: 20 },
 };
 
-// Bounding box approssimato di ogni zona sulla PNG 1254×1254 — usato per l'illuminazione dell'area quando selezionata
-const ZONE_AREAS = {
-    STAGE: { x: 40, y: 130, w: 520, h: 680 },
-    RIVA: { x: 580, y: 190, w: 660, h: 380 },
-    BAR: { x: 90, y: 790, w: 430, h: 320 },
+// Path SVG che ripercorre le pareti interne dei privé sulla PNG 1254×1254.
+// Ogni zona può contenere più sotto-tracciati (M ... Z M ... Z) per stanze non contigue.
+const ZONE_POLYGONS = {
+    // STAGE = due sotto-aree: cluster B0-B7 in alto + area "BACK THE STAGE" (B8-B15) in basso
+    STAGE: "M 26 180 L 350 180 L 350 450 L 26 450 Z M 26 570 L 350 570 L 620 590 L 620 650 L 540 810 L 26 810 Z",
+    // RIVA = area centrale con parete diagonale in alto-sinistra + smusso in basso-destra
+    RIVA: "M 552 190 L 1225 190 L 1225 440 L 1216 470 L 1200 500 L 1178 525 L 1150 545 L 950 555 L 820 555 L 615 540 L 552 190 Z",
+    // BAR = area in basso-sinistra
+    BAR: "M 75 800 L 432 800 L 432 1120 L 289 1120 L 289 1080 L 75 1080 Z",
 };
 
 export default function Floorplan({ eventTitle, eventId, reservedTables = {}, customImageUrl = "" }) {
@@ -183,19 +187,16 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         preserveAspectRatio="xMidYMid meet"
                     >
                         <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
-                        {/* Illuminazione area zona attiva — cornice pulsante che segue il perimetro dell'area */}
-                        {activeZone && ZONE_AREAS[activeZone] && (() => {
-                            const b = ZONE_AREAS[activeZone];
+                        {/* Illuminazione area zona attiva — path SVG che calca le pareti reali della zona */}
+                        {activeZone && ZONE_POLYGONS[activeZone] && (() => {
+                            const d = ZONE_POLYGONS[activeZone];
                             const c = getZone(activeZone).color;
                             return (
                                 <g pointerEvents="none" data-testid={`floorplan-zone-glow-${activeZone}`}>
-                                    <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="18" fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7">
+                                    <path d={d} fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7" strokeLinejoin="round">
                                         <animate attributeName="stroke-width" values="6;12;6" dur="1.4s" repeatCount="indefinite" />
                                         <animate attributeName="stroke-opacity" values="0.35;0.9;0.35" dur="1.4s" repeatCount="indefinite" />
-                                    </rect>
-                                    <rect x={b.x - 4} y={b.y - 4} width={b.w + 8} height={b.h + 8} rx="22" fill="none" stroke={c} strokeWidth="1.5" strokeOpacity="0.4" strokeDasharray="8 6">
-                                        <animate attributeName="stroke-dashoffset" from="0" to="14" dur="1s" repeatCount="indefinite" />
-                                    </rect>
+                                    </path>
                                 </g>
                             );
                         })()}
@@ -335,16 +336,16 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         >
                             <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                             {/* Copertura scritte + label cliccabili anche in fullscreen */}
-                            {/* Illuminazione area zona attiva anche in fullscreen */}
-                            {activeZone && ZONE_AREAS[activeZone] && (() => {
-                                const b = ZONE_AREAS[activeZone];
+                            {/* Illuminazione area zona attiva anche in fullscreen (path reale) */}
+                            {activeZone && ZONE_POLYGONS[activeZone] && (() => {
+                                const d = ZONE_POLYGONS[activeZone];
                                 const c = getZone(activeZone).color;
                                 return (
                                     <g pointerEvents="none">
-                                        <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="18" fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7">
+                                        <path d={d} fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7" strokeLinejoin="round">
                                             <animate attributeName="stroke-width" values="6;14;6" dur="1.4s" repeatCount="indefinite" />
                                             <animate attributeName="stroke-opacity" values="0.35;0.9;0.35" dur="1.4s" repeatCount="indefinite" />
-                                        </rect>
+                                        </path>
                                     </g>
                                 );
                             })()}
