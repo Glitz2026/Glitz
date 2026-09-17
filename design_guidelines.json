@@ -1,0 +1,184 @@
+{
+  "app_name": "A.I. — ATTENZIONE INSTABILE",
+  "personality": "7 Dark-First Utility fused with 6 Glass / Luxe DARK elements",
+  "personality_one_liner": "A provocative, high-energy digital stage presence that commands the nightclub with deep blacks, glowing neon reds, and silver metallic tactility.",
+  "color": {
+    "surface": "#000000",
+    "onSurface": "#FFFFFF",
+    "surfaceSecondary": "#0F0303",
+    "onSurfaceSecondary": "#F5F5F5",
+    "surfaceTertiary": "#1A0505",
+    "onSurfaceTertiary": "#EBEBEB",
+    "surfaceInverse": "#FF0033",
+    "onSurfaceInverse": "#000000",
+    "brand": "#FF0033",
+    "onBrand": "#000000",
+    "brandPrimary": "#FF0033",
+    "onBrandPrimary": "#000000",
+    "brandSecondary": "#C0C0C0",
+    "onBrandSecondary": "#000000",
+    "brandTertiary": "#4D000F",
+    "onBrandTertiary": "#FF8099",
+    "success": "#00FF66",
+    "onSuccess": "#000000",
+    "warning": "#FFCC00",
+    "onWarning": "#000000",
+    "error": "#FF0033",
+    "onError": "#FFFFFF",
+    "info": "#00F0FF",
+    "onInfo": "#000000",
+    "border": "#33000A",
+    "borderStrong": "#FF0033",
+    "divider": "#1A1A1A",
+    "muted": "#808080"
+  },
+  "typography": {
+    "displayFontFamily": "Space Grotesk",
+    "textFontFamily": "Satoshi",
+    "monoFontFamily": "Space Mono",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24,
+      "3xl": 48
+    }
+  },
+  "spacing": {
+    "rule": "Generous vertical breathing room for idle states, tight grid-like utility spacing for live voting and control panels.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "0",
+  "navigation": "stack_only",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Use intense blur over red neon background images for the Idle/Live state",
+      "Use frosted glass panels for the 'Il Potere' control dashboard"
+    ],
+    "dont's": [
+      "Do not blur the 'NON PREMERE' button—it must remain sharp and tactile",
+      "Avoid heavy blur on the Live Voting bars to ensure perfect legibility"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Onboarding",
+      "purpose": "User selects nickname, avatar, and mood (BALLARE / CONOSCERE / FARE CASINO).",
+      "states": {
+        "loading": "Dark screen with subtle red pulsing border.",
+        "empty": "N/A",
+        "error": "Red inline text below inputs."
+      },
+      "layout": "Full-screen single column. Massive display typography for the greeting. The Mood selection uses large touch targets (cards taking up full width), highlighted with a borderStrong red glow when selected. Sticky primary CTA at the bottom."
+    },
+    {
+      "name": "Live Stage / Idle",
+      "purpose": "Wait state showing 'Ti chiamo io. Tu balla.' while the A.I. speaks.",
+      "states": {
+        "loading": "Solid black.",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Cinematic and minimal. Full-bleed background of dark red neon club lights heavily blurred. Dead center large pulsing typography ('Ti chiamo io. Tu balla.'). No buttons, no navigation. The UI must feel completely passive and controlled by the club."
+    },
+    {
+      "name": "Voto Musicale",
+      "purpose": "20-second live vote between HOT, LOUD, BACK.",
+      "states": {
+        "loading": "Bars at 0%.",
+        "empty": "N/A",
+        "error": "Vote failed toast in surfaceInverse."
+      },
+      "layout": "Tactile command-center layout. Top of screen: Oversized Space Mono 20s countdown timer. Below: Three massive horizontal cards (HOT, LOUD, BACK). The cards themselves act as live progress bars, filling with brandPrimary (Red) from left to right as votes increase. Vote totals displayed cleanly inside the bars."
+    },
+    {
+      "name": "Messaggio Dalla Pista",
+      "purpose": "Flash a large symbol (cherry, lightning, moon) for a social mission.",
+      "states": {
+        "loading": "Black screen.",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Poster-like focus. A solitary, massive glowing symbol (using Phosphor icons or SVGs at 120pt+) centered on a pure black background. Below it, a subtle Mono font timer counting down the mission duration."
+    },
+    {
+      "name": "NON PREMERE",
+      "purpose": "A mysterious button that triggers a glitchy stage takeover when pressed enough times.",
+      "states": {
+        "loading": "N/A",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "A solitary, tactile metallic silver or glowing red button dead center on a pure black screen. Text: 'NON PREMERE'. When the global threshold is hit, the screen transitions into an aggressive, flashing red glitch-art background with distorted text."
+    },
+    {
+      "name": "Il Potere",
+      "purpose": "30-second exclusive control panel for a selected user to change lights, message, or drop.",
+      "states": {
+        "loading": "Verifying access...",
+        "empty": "N/A",
+        "error": "Connection lost."
+      },
+      "layout": "Industrial dashboard. Silver metallic accents on dark frosted glass cards. Countdown timer pinned at the top. Large, segmented controls for Color and bold primary action buttons for 'Drop' and 'Message'. Needs to feel like a high-stakes remote control."
+    }
+  ],
+  "images": {
+    "idle_background": {
+      "url": "https://images.unsplash.com/photo-1545128485-c400e7702796?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjh8MHwxfHNlYXJjaHwxfHxyZWQlMjBuZW9uJTIwbmlnaHRjbHViJTIwbGlnaHRzJTIwZGFya3xlbnwwfHx8fDE3ODk2NjI2NzN8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Dark room illuminated by intense red neon lights"
+    },
+    "glitch_takeover": {
+      "url": "https://images.unsplash.com/photo-1559999831-7deaf136d4a9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMHJlZCUyMGdsaXRjaCUyMGFydCUyMGRhcmt8ZW58MHx8fHwxNzg5NjYyNjczfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Abstract dark red glitch distortion"
+    },
+    "metallic_texture_potere": {
+      "url": "https://images.pexels.com/photos/7325108/pexels-photo-7325108.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Reflective crumpled silver foil texture"
+    }
+  },
+  "haptics": {
+    "events": {
+      "mood_select": "light",
+      "vote_cast": "medium",
+      "live_bar_tick": "soft",
+      "non_premere_tap": "heavy",
+      "glitch_takeover_trigger": "success",
+      "il_potere_control_use": "rigid"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strict Color Adherence: The background MUST remain #000000 (total black). Do not use the standard dark-grey off-black rule here, as the brief explicitly commands 'sempre total black lo sfondo'.",
+    "Accent Execution: #FF0033 is the dominant accent. Use it for glows, borders, and active states. Treat it like a neon sign in a dark club.",
+    "Typography: Use Space Grotesk for display headers to give an AI/Digital feel, Satoshi for body, and Space Mono for all countdown timers (Voto Musicale, Messaggio, Potere).",
+    "Live Voting UI: The HOT/LOUD/BACK buttons must double as progress bars. Fill their background dynamically based on vote percentage, keeping text legible on top. Use absolute positioning for the fill layer.",
+    "Glitch Effect: On the 'NON PREMERE' takeover state, rapidly alternate between the glitch image background and surfaceInverse (solid red), along with heavy haptics.",
+    "Haptics are critical for this app. Ensure `expo-haptics` is wired to the vote buttons, the 'NON PREMERE' button, and the 'Il Potere' dashboard toggles."
+  ]
+}
