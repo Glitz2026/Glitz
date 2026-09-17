@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
 import Seo from "../components/Seo";
-import PosterFrame from "../components/PosterFrame";
 
 const MESI = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
 const GIORNI = ["DOMENICA", "LUNEDÌ", "MARTEDÌ", "MERCOLEDÌ", "GIOVEDÌ", "VENERDÌ", "SABATO"];
@@ -42,7 +41,6 @@ function derivePoster(ev) {
 
 export default function Events() {
     const [events, setEvents] = useState([]);
-    const [useTemplate, setUseTemplate] = useState(false);
 
     useEffect(() => {
         api.get("/events").then((r) => setEvents(r.data)).catch(() => {});
@@ -54,16 +52,9 @@ export default function Events() {
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
                 <div className="space-y-3">
                     <span className="overline-tag">Line-up 2027</span>
-                    <h1 className="section-title">Eventi & Serate</h1>
+                    <h1 className="section-title">EVENTI 2027</h1>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setUseTemplate((v) => !v)}
-                        data-testid="poster-toggle"
-                        className="btn-ghost !text-xs !px-3 !py-2"
-                    >
-                        {useTemplate ? "Vista AI" : "Vista Template"}
-                    </button>
                     <Link to="/eventi/passati" data-testid="past-events-link" className="btn-ghost !text-xs">
                         Eventi Passati
                     </Link>
@@ -82,21 +73,15 @@ export default function Events() {
                             data-testid={`events-card-${i}`}
                             className="group relative block overflow-hidden rounded-2xl bg-surface border border-white/10 hover:border-lava/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(225,6,0,0.25)]"
                         >
-                            {useTemplate ? (
-                                <PosterFrame {...p} small />
-                            ) : (
-                                <>
-                                    <div className="aspect-[4/5] w-full overflow-hidden relative">
-                                        <img src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent" />
-                                    </div>
-                                    <div className="absolute inset-x-0 bottom-0 p-6 space-y-1">
-                                        <div className="text-[10px] uppercase tracking-widest text-lava font-black">{p.dayLabel} {p.dateDay} {p.dateMonth}</div>
-                                        <h3 className="text-2xl font-black text-white leading-tight uppercase tracking-tight">{p.artistName}</h3>
-                                        <p className="text-white/60 text-xs uppercase tracking-widest">{p.opening.split(" | ").slice(0, 3).join(" · ")}</p>
-                                    </div>
-                                </>
-                            )}
+                            <div className="aspect-[4/5] w-full overflow-hidden relative">
+                                <img src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent" />
+                            </div>
+                            <div className="absolute inset-x-0 bottom-0 p-6 space-y-1">
+                                <div className="text-[10px] uppercase tracking-widest text-lava font-black">{p.dayLabel} {p.dateDay} {p.dateMonth}</div>
+                                <h3 className="text-2xl font-black text-white leading-tight uppercase tracking-tight">{p.artistName}</h3>
+                                <p className="text-white/60 text-xs uppercase tracking-widest">{p.opening.split(" | ").slice(0, 3).join(" · ")}</p>
+                            </div>
                         </Link>
                     );
                 })}

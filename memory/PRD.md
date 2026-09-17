@@ -33,6 +33,7 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
 - **[17 Feb 2026]** Floorplan: 3 card privé (STAGE/RIVA/BAR) rese cliccabili → evidenziano i tavoli della zona con colore. Rimosse scritte originali della PNG (BACK THE STAGE, RIVA DECK, GLITZ BAR) via rect di copertura #0a0a0a tra B8-B15, R10-R11, G4-G8. Aggiunti label SVG cliccabili (ZONE_ANCHORS con coord estratte via connected-components) che replicano il toggle della card. Funziona anche in fullscreen mobile.
 - **[17 Feb 2026]** Floorplan v2: contorno tavoli ridotto a `LABEL_W×LABEL_H` (46×42) coincidente col quadratino della PNG; rimosso il fill colorato → solo bordo + overlay `<text>` colorato che "illumina" numero/lettera del tavolo. Hit-box invisibile 54×40 (52×58 fullscreen) mantenuta per tap facile. Stesso comportamento in fullscreen.
 - **[17 Feb 2026]** Home hero: bottone "Prenota Tavolo" → ora è un `<Link>` che punta a `/eventi/{upcoming.id}#floorplan`. EventDetail.jsx legge `location.hash` e scrolla automaticamente alla sezione Floorplan con `scrollIntoView`. Fallback: se non c'è upcoming, apre BookingModal come prima.
+- **[17 Feb 2026]** Events page: H1 "Eventi & Serate" → "EVENTI 2027". Rimosso toggle Vista AI/Template + state `useTemplate` + import `PosterFrame` non più usato.
 
 ## Pending
 - **Deploy in produzione** — utente ancora indeciso (ask_human aperto)
