@@ -48,6 +48,13 @@ const ZONE_ANCHORS = {
     BAR: { cover: { x: 198, y: 938, w: 145, h: 40 }, label: { x: 270, y: 965 }, fontSize: 20 },
 };
 
+// Bounding box approssimato di ogni zona sulla PNG 1254×1254 — usato per l'illuminazione dell'area quando selezionata
+const ZONE_AREAS = {
+    STAGE: { x: 40, y: 130, w: 520, h: 680 },
+    RIVA: { x: 580, y: 190, w: 660, h: 380 },
+    BAR: { x: 90, y: 790, w: 430, h: 320 },
+};
+
 export default function Floorplan({ eventTitle, eventId, reservedTables = {}, customImageUrl = "" }) {
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -56,6 +63,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
     const [tableOverrides, setTableOverrides] = useState({});
     const [fullscreen, setFullscreen] = useState(false);
     const [activeZone, setActiveZone] = useState(null);
+    const [pulseId, setPulseId] = useState(null); // id del tavolo appena cliccato per animazione
 
     const floorplanUrl = customImageUrl
         ? (customImageUrl.startsWith("http") ? customImageUrl : `${process.env.REACT_APP_BACKEND_URL}${customImageUrl}`)
@@ -76,8 +84,13 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
     const openBooking = (t) => {
         const status = reservedTables[t.id];
         if (status === "reserved" || status === "booked") return;
-        setSelected(t);
-        setModalOpen(true);
+        // Animazione pulse sul contorno del tavolo, poi apre il modale
+        setPulseId(t.id);
+        setTimeout(() => {
+            setSelected(t);
+            setModalOpen(true);
+            setPulseId(null);
+        }, 380);
     };
 
     const getTableInfo = (t) => {
@@ -170,6 +183,22 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         preserveAspectRatio="xMidYMid meet"
                     >
                         <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                        {/* Illuminazione area zona attiva — cornice pulsante che segue il perimetro dell'area */}
+                        {activeZone && ZONE_AREAS[activeZone] && (() => {
+                            const b = ZONE_AREAS[activeZone];
+                            const c = getZone(activeZone).color;
+                            return (
+                                <g pointerEvents="none" data-testid={`floorplan-zone-glow-${activeZone}`}>
+                                    <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="18" fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7">
+                                        <animate attributeName="stroke-width" values="6;12;6" dur="1.4s" repeatCount="indefinite" />
+                                        <animate attributeName="stroke-opacity" values="0.35;0.9;0.35" dur="1.4s" repeatCount="indefinite" />
+                                    </rect>
+                                    <rect x={b.x - 4} y={b.y - 4} width={b.w + 8} height={b.h + 8} rx="22" fill="none" stroke={c} strokeWidth="1.5" strokeOpacity="0.4" strokeDasharray="8 6">
+                                        <animate attributeName="stroke-dashoffset" from="0" to="14" dur="1s" repeatCount="indefinite" />
+                                    </rect>
+                                </g>
+                            );
+                        })()}
                         {/* Copertura scritte originali della PNG + label cliccabili delle zone */}
                         {["STAGE", "RIVA", "BAR"].map((zid) => {
                             const a = ZONE_ANCHORS[zid];
@@ -189,13 +218,14 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                             const isHover = hoveredId === t.id && !isReserved;
                             const zoneColor = getZone(t.zone).color;
                             const isZoneActive = activeZone === t.zone && !isReserved;
-                            const showOutline = isReserved || isHover || isZoneActive;
+                            const isPulsing = pulseId === t.id;
+                            const showOutline = isReserved || isHover || isZoneActive || isPulsing;
                             let stroke = "transparent";
                             let strokeWidth = 0;
                             if (isReserved) { stroke = "#E10600"; strokeWidth = 2; }
                             else if (isHover) { stroke = zoneColor; strokeWidth = 2.5; }
                             else if (isZoneActive) { stroke = zoneColor; strokeWidth = 2; }
-                            const textFill = isReserved ? "#E10600" : (isZoneActive || isHover ? zoneColor : null);
+                            if (isPulsing) { stroke = zoneColor; }
                             return (
                                 <g
                                     key={t.id}
@@ -214,7 +244,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                         height={CELL_H}
                                         fill="transparent"
                                     />
-                                    {/* Contorno visibile, dimensione = quadratino etichetta della PNG */}
+                                    {/* Contorno visibile: solo attorno al quadrato del tavolo, nessuna illuminazione del testo */}
                                     {showOutline && (
                                         <rect
                                             x={t.x - LABEL_W / 2}
@@ -227,11 +257,17 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                             strokeWidth={strokeWidth}
                                             style={{ transition: "stroke 0.15s" }}
                                             pointerEvents="none"
-                                        />
-                                    )}
-                                    {/* Illuminazione: sovrapposizione del solo testo colorato (ID tavolo / × per prenotato) */}
-                                    {textFill && !isReserved && (
-                                        <text x={t.x} y={t.y + 7} textAnchor="middle" fill={textFill} fontSize="22" fontWeight="900" pointerEvents="none" style={{ paintOrder: "stroke", stroke: "#0a0a0a", strokeWidth: 0.5 }}>{t.id}</text>
+                                        >
+                                            {isPulsing && (
+                                                <>
+                                                    <animate attributeName="stroke-width" values="2;6;2" dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="width" values={`${LABEL_W};${LABEL_W * 2};${LABEL_W}`} dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="height" values={`${LABEL_H};${LABEL_H * 2};${LABEL_H}`} dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="x" values={`${t.x - LABEL_W / 2};${t.x - LABEL_W};${t.x - LABEL_W / 2}`} dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="y" values={`${t.y - LABEL_H / 2};${t.y - LABEL_H};${t.y - LABEL_H / 2}`} dur="0.38s" repeatCount="1" />
+                                                </>
+                                            )}
+                                        </rect>
                                     )}
                                     {isReserved && (
                                         <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#E10600" fontSize="22" fontWeight="900" pointerEvents="none">×</text>
@@ -299,6 +335,19 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         >
                             <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                             {/* Copertura scritte + label cliccabili anche in fullscreen */}
+                            {/* Illuminazione area zona attiva anche in fullscreen */}
+                            {activeZone && ZONE_AREAS[activeZone] && (() => {
+                                const b = ZONE_AREAS[activeZone];
+                                const c = getZone(activeZone).color;
+                                return (
+                                    <g pointerEvents="none">
+                                        <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="18" fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7">
+                                            <animate attributeName="stroke-width" values="6;14;6" dur="1.4s" repeatCount="indefinite" />
+                                            <animate attributeName="stroke-opacity" values="0.35;0.9;0.35" dur="1.4s" repeatCount="indefinite" />
+                                        </rect>
+                                    </g>
+                                );
+                            })()}
                             {["STAGE", "RIVA", "BAR"].map((zid) => {
                                 const a = ZONE_ANCHORS[zid];
                                 const z = getZone(zid);
@@ -316,19 +365,28 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                 const isReserved = status === "reserved" || status === "booked";
                                 const zoneColor = getZone(t.zone).color;
                                 const isZoneActive = activeZone === t.zone && !isReserved;
+                                const isPulsing = pulseId === t.id;
                                 const stroke = isReserved ? "#E10600" : zoneColor;
                                 const strokeWidth = isZoneActive ? 3 : 2;
-                                const textFill = isReserved ? "#E10600" : (isZoneActive ? zoneColor : null);
                                 return (
                                     <g
                                         key={t.id}
                                         data-testid={`fs-table-${t.id}`}
-                                        onClick={() => { if (!isReserved) { setSelected(t); setModalOpen(true); setFullscreen(false); } }}
+                                        onClick={() => {
+                                            if (isReserved) return;
+                                            setPulseId(t.id);
+                                            setTimeout(() => {
+                                                setSelected(t);
+                                                setModalOpen(true);
+                                                setFullscreen(false);
+                                                setPulseId(null);
+                                            }, 380);
+                                        }}
                                         style={{ cursor: isReserved ? "not-allowed" : "pointer" }}
                                     >
                                         {/* Hit-box invisibile ingrandita per touch */}
                                         <rect x={t.x - CELL_W / 2 - 6} y={t.y - CELL_H / 2 - 6} width={CELL_W + 12} height={CELL_H + 12} fill="transparent" />
-                                        {/* Contorno visibile = dimensione della label PNG */}
+                                        {/* Contorno visibile: solo attorno al quadrato del tavolo */}
                                         <rect
                                             x={t.x - LABEL_W / 2}
                                             y={t.y - LABEL_H / 2}
@@ -339,11 +397,17 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                             stroke={stroke}
                                             strokeWidth={strokeWidth}
                                             pointerEvents="none"
-                                        />
-                                        {/* Illumina solo il testo del tavolo con il colore della zona */}
-                                        {textFill && !isReserved && (
-                                            <text x={t.x} y={t.y + 7} textAnchor="middle" fill={textFill} fontSize="22" fontWeight="900" pointerEvents="none" style={{ paintOrder: "stroke", stroke: "#0a0a0a", strokeWidth: 0.6 }}>{t.id}</text>
-                                        )}
+                                        >
+                                            {isPulsing && (
+                                                <>
+                                                    <animate attributeName="stroke-width" values={`${strokeWidth};${strokeWidth * 3};${strokeWidth}`} dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="width" values={`${LABEL_W};${LABEL_W * 2};${LABEL_W}`} dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="height" values={`${LABEL_H};${LABEL_H * 2};${LABEL_H}`} dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="x" values={`${t.x - LABEL_W / 2};${t.x - LABEL_W};${t.x - LABEL_W / 2}`} dur="0.38s" repeatCount="1" />
+                                                    <animate attributeName="y" values={`${t.y - LABEL_H / 2};${t.y - LABEL_H};${t.y - LABEL_H / 2}`} dur="0.38s" repeatCount="1" />
+                                                </>
+                                            )}
+                                        </rect>
                                         {isReserved && (
                                             <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#E10600" fontSize="22" fontWeight="900" pointerEvents="none">×</text>
                                         )}

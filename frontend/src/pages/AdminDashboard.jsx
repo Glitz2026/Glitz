@@ -1464,7 +1464,58 @@ export default function AdminDashboard() {
                                     <input data-testid="pf-badge" className={input} placeholder="Badge (opzionale)" value={editProduct.badge || ""} onChange={(e) => setEditProduct({ ...editProduct, badge: e.target.value })} />
                                 </div>
                                 <input data-testid="pf-image" className={input} placeholder="URL immagine principale" value={editProduct.image} onChange={(e) => setEditProduct({ ...editProduct, image: e.target.value })} />
+                                <div className="flex items-center gap-3 -mt-2">
+                                    {editProduct.image ? (
+                                        <img src={editProduct.image.startsWith("http") ? editProduct.image : `${process.env.REACT_APP_BACKEND_URL}${editProduct.image}`} alt="preview" className="w-16 h-16 rounded object-cover border border-white/10" />
+                                    ) : (
+                                        <div className="w-16 h-16 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px]">Nessuna</div>
+                                    )}
+                                    <label data-testid="upload-product-image" className="btn-ghost !px-3 !py-1.5 !text-xs cursor-pointer inline-flex">
+                                        <Upload className="w-3 h-3" /> Carica immagine
+                                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                            const f = e.target.files?.[0]; if (!f) return;
+                                            try {
+                                                const fd = new FormData();
+                                                fd.append("file", f);
+                                                fd.append("category", "products");
+                                                const r = await api.post("/admin/media", fd);
+                                                setEditProduct({ ...editProduct, image: r.data.url });
+                                                toast.success("Immagine caricata");
+                                            } catch { toast.error("Errore upload"); }
+                                        }} />
+                                    </label>
+                                </div>
                                 <textarea data-testid="pf-gallery" className={input} rows={2} placeholder="Gallery (URL separati da virgola)" value={editProduct.gallery} onChange={(e) => setEditProduct({ ...editProduct, gallery: e.target.value })} />
+                                <div className="flex items-start gap-2 -mt-2 flex-wrap">
+                                    <label data-testid="upload-product-gallery" className="btn-ghost !px-3 !py-1.5 !text-xs cursor-pointer inline-flex">
+                                        <Upload className="w-3 h-3" /> Aggiungi a gallery
+                                        <input type="file" accept="image/*" multiple className="hidden" onChange={async (e) => {
+                                            const files = Array.from(e.target.files || []); if (!files.length) return;
+                                            try {
+                                                const urls = [];
+                                                for (const f of files) {
+                                                    const fd = new FormData();
+                                                    fd.append("file", f);
+                                                    fd.append("category", "products");
+                                                    const r = await api.post("/admin/media", fd);
+                                                    urls.push(r.data.url);
+                                                }
+                                                const existing = typeof editProduct.gallery === "string" ? editProduct.gallery.split(",").map((s) => s.trim()).filter(Boolean) : (editProduct.gallery || []);
+                                                setEditProduct({ ...editProduct, gallery: [...existing, ...urls].join(", ") });
+                                                toast.success(`${urls.length} foto caricata/e`);
+                                            } catch { toast.error("Errore upload"); }
+                                        }} />
+                                    </label>
+                                    {typeof editProduct.gallery === "string" && editProduct.gallery && editProduct.gallery.split(",").map((u, i) => u.trim() && (
+                                        <div key={i} className="relative group">
+                                            <img src={u.trim().startsWith("http") ? u.trim() : `${process.env.REACT_APP_BACKEND_URL}${u.trim()}`} alt="" className="w-12 h-12 rounded object-cover border border-white/10" />
+                                            <button type="button" onClick={() => {
+                                                const list = editProduct.gallery.split(",").map((s) => s.trim()).filter((_, j) => j !== i);
+                                                setEditProduct({ ...editProduct, gallery: list.join(", ") });
+                                            }} className="absolute -top-1 -right-1 w-4 h-4 bg-lava rounded-full text-white text-[10px] opacity-0 group-hover:opacity-100 transition">×</button>
+                                        </div>
+                                    ))}
+                                </div>
                                 <textarea data-testid="pf-description" className={input} rows={4} placeholder="Descrizione" value={editProduct.description} onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })} />
                                 <textarea data-testid="pf-details" className={input} rows={4} placeholder="Dettagli (uno per riga)" value={editProduct.details} onChange={(e) => setEditProduct({ ...editProduct, details: e.target.value })} />
                                 <input data-testid="pf-sizes" className={input} placeholder="Taglie (es. XS,S,M,L,XL) — vuoto se non serve" value={editProduct.sizes} onChange={(e) => setEditProduct({ ...editProduct, sizes: e.target.value })} />
