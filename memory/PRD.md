@@ -29,6 +29,10 @@ La mia serata · Ordina · A.I. · Amici · Aiuto. Big buttons, night-legible, e
 - 5-tab app: Serata (my-night hero, quick actions, events carousel, QR tickets), Ordina (menu), A.I. (hub → ENTRA IN A.I.), Amici (create/join groups), Aiuto (SOS types + zone + requests, safety info).
 - Events calendar + event detail + buy ticket (QR). Tables: zone list + request. Profile: edit + photo upload + logout.
 - Tested: backend 35/35, all frontend flows pass.
+### 2026-06 (turn 3)
+- Ordina tab is now a full table-service screen: "Chiama il cameriere" (acqua/ghiaccio/mixer/nuovo ordine/pulizia/assistenza) with live status (inviata → presa in carico); cart with quantity steppers over the full menu incl. an expanded BOTTIGLIE section; "Ordina" submits and orders track live status (ricevuto → in preparazione → pronto, time-based).
+- Brand: app icon / splash / favicon and in-app wordmark rebuilt from the client's logo showing only "GLITZ" (CLUB removed).
+- Tested: backend 11/11, frontend flow pass.
 
 ## Personas
 - Guest (primary): organises the night, buys ticket, meets friends, plays with A.I., asks for help.

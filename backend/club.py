@@ -85,6 +85,10 @@ SEED_MENU = [
         "items": [
             {"id": "m-05", "name": "Vodka premium", "price": 120, "desc": "Con mixer inclusi", "alcoholic": True},
             {"id": "m-06", "name": "Champagne", "price": 160, "desc": "Brut, secchiello e ghiaccio", "alcoholic": True},
+            {"id": "m-07", "name": "Gin premium", "price": 130, "desc": "Con toniche e guarnizioni", "alcoholic": True},
+            {"id": "m-08", "name": "Rum invecchiato", "price": 125, "desc": "Con mixer e agrumi", "alcoholic": True},
+            {"id": "m-09", "name": "Tequila reposado", "price": 140, "desc": "Con lime e sale", "alcoholic": True},
+            {"id": "m-10", "name": "Prosecco", "price": 90, "desc": "Secchiello e ghiaccio", "alcoholic": True},
         ],
     },
 ]
@@ -290,6 +294,99 @@ async def my_night(current=Depends(get_current_user)):
     table = await db.table_requests.find_one({"user_id": current["user_id"]}, {"_id": 0}, sort=[("created_at", -1)])
     group = await db.groups.find_one({"members.user_id": current["user_id"]}, {"_id": 0}, sort=[("created_at", -1)])
     return {"next_ticket": next_ticket, "table": table, "group": group, "spend": 0}
+
+
+# --- Waiter calls & orders (table service) --------------------------------
+def _elapsed_seconds(iso: str) -> float:
+    try:
+        t = datetime.fromisoformat(iso)
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - t).total_seconds()
+    except Exception:
+        return 0.0
+
+
+def _order_status(created_at: str) -> str:
+    e = _elapsed_seconds(created_at)
+    if e < 25:
+        return "received"
+    if e < 75:
+        return "preparing"
+    return "ready"
+
+
+def _call_status(created_at: str) -> str:
+    return "sent" if _elapsed_seconds(created_at) < 12 else "taken_in_charge"
+
+
+WAITER_TYPES = ["acqua", "ghiaccio", "mixer", "nuovo_ordine", "pulizia", "assistenza"]
+
+
+class WaiterCallReq(BaseModel):
+    type: str
+    zone: str | None = None
+
+
+@router.post("/waiter-calls")
+async def create_waiter_call(req: WaiterCallReq, current=Depends(get_current_user)):
+    if req.type not in WAITER_TYPES:
+        raise HTTPException(status_code=400, detail="Tipo non valido")
+    call = {
+        "id": f"wc-{uuid.uuid4().hex[:10]}",
+        "user_id": current["user_id"],
+        "type": req.type,
+        "zone": req.zone,
+        "created_at": now_iso(),
+    }
+    await db.waiter_calls.insert_one({**call})
+    return {"call": {**call, "status": _call_status(call["created_at"])}}
+
+
+@router.get("/waiter-calls")
+async def my_waiter_calls(current=Depends(get_current_user)):
+    calls = await db.waiter_calls.find({"user_id": current["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    for c in calls:
+        c["status"] = _call_status(c["created_at"])
+    return {"calls": calls}
+
+
+class OrderItem(BaseModel):
+    id: str
+    name: str
+    price: float
+    qty: int
+
+
+class CreateOrderReq(BaseModel):
+    items: list[OrderItem]
+    zone: str | None = None
+
+
+@router.post("/orders")
+async def create_order(req: CreateOrderReq, current=Depends(get_current_user)):
+    items = [i.model_dump() for i in req.items if i.qty > 0]
+    if not items:
+        raise HTTPException(status_code=400, detail="Carrello vuoto")
+    total = round(sum(i["price"] * i["qty"] for i in items), 2)
+    order = {
+        "id": f"or-{uuid.uuid4().hex[:10]}",
+        "user_id": current["user_id"],
+        "items": items,
+        "total": total,
+        "zone": req.zone,
+        "created_at": now_iso(),
+    }
+    await db.orders.insert_one({**order})
+    return {"order": {**order, "status": _order_status(order["created_at"])}}
+
+
+@router.get("/orders")
+async def my_orders(current=Depends(get_current_user)):
+    orders = await db.orders.find({"user_id": current["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    for o in orders:
+        o["status"] = _order_status(o["created_at"])
+    return {"orders": orders}
 
 
 # --- Media (profile photos) ------------------------------------------------

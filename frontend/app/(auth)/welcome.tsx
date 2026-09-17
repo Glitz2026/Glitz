@@ -35,7 +35,11 @@ export default function Welcome() {
       <View style={[styles.content, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 28 }]}>
         <View style={styles.brandRow}>
           <Pulse style={styles.dot} min={0.35} max={1} duration={900} />
-          <Text style={styles.kicker}>GLITZ</Text>
+          <Image
+            source={require("../../assets/images/glitz-logo.png")}
+            style={styles.logo}
+            contentFit="contain"
+          />
         </View>
         <Text style={styles.title}>A.I.{"\n"}ATTENZIONE{"\n"}INSTABILE</Text>
         <Text style={styles.tag}>
@@ -69,6 +73,7 @@ const useStyles = makeStyles((colors) => ({
   content: { flex: 1, paddingHorizontal: 24, justifyContent: "flex-end" },
   brandRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
   dot: { width: 10, height: 10, borderRadius: 999, backgroundColor: colors.brandPrimary },
+  logo: { width: 120, height: 40 },
   kicker: { color: colors.brandSecondary, fontSize: 14, letterSpacing: 6, fontWeight: "800", fontFamily: MONO },
   title: { color: colors.onSurface, fontSize: 46, fontWeight: "900", lineHeight: 48, letterSpacing: 1 },
   tag: { color: colors.brandSecondary, fontSize: 14, lineHeight: 21, marginTop: 16, marginBottom: 28 },

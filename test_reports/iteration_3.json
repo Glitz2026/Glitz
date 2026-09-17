@@ -1,0 +1,43 @@
+{
+  "summary": "Iteration 3 — Table service (Chiama il cameriere + Ordina al cameriere) + expanded BOTTIGLIE menu + GLITZ-only wordmark logo. Backend: 11/11 pytest passed (auth-gating 401 on POST/GET /api/waiter-calls & /api/orders; POST /api/waiter-calls returns status 'sent', invalid type -> 400, all 6 valid types accepted, and after ~13s status auto-advances to 'taken_in_charge'; POST /api/orders rejects empty cart (400) and cart with all qty==0 (400), computes total (12*2 + 160 = 184), returns status 'received', persists via GET, orders isolated per user; GET /api/menu now exposes BOTTIGLIE with Vodka premium, Champagne, Gin premium, Rum invecchiato, Tequila reposado, Prosecco). Frontend (390x844 mobile viewport): welcome-screen loads and the GLITZ wordmark logo (glitz-logo.png, 3178x1118, no CLUB text) renders inside the brandRow without any require-asset crash; registered a fresh test_<uuid>@glitz.test user, reached serata-screen, navigated into ordina-screen via tab bar; zone-chip-PRIVÉ tap works; waiter-acqua tap posts a waiter call and the call row (with INVIATA pill) appears; plus-m-01 x2 + plus-m-06 x1 stepper builds a cart, cart-bar shows '3 articoli · PRIVÉ  €184.00'; submit-order posts and one order row (with RICEVUTO pill) shows under I MIEI ORDINI, cart clears (cart-bar disappears). No red screen. Deprecated packages detected: NONE. Only known warning: 'shadow*' style prop deprecation from React Native Web (pre-existing, cosmetic).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "global (web)", "issues": ["Pre-existing console warning: 'shadow*' style props deprecated on RN Web; consider style.boxShadow (unchanged since iter 2)."]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_table_service.py",
+    "/app/backend/tests/test_glitz_app.py",
+    "/app/backend/tests/test_show_backend.py",
+    "/app/backend/tests/conftest.py",
+    "/app/test_reports/pytest/pytest_table_service.xml"
+  ],
+  "action_items": [
+    "(Optional) Silence 'shadow*' RN Web deprecation by migrating to style.boxShadow — cosmetic only.",
+    "(Optional) Consider adding an 'auto refresh' hint on the Ordina screen so users see status change from RICEVUTO → IN PREPARAZIONE → PRONTO (current 5s refetchInterval already handles it; UX is fine)."
+  ],
+  "critical_code_review_comments": [
+    "club.py: WAITER_TYPES whitelist enforced at POST time (400 on invalid) — good input validation.",
+    "club.py: _order_status/_call_status compute status server-side from created_at each GET — stateless & correct; no background jobs needed.",
+    "club.py: CreateOrderReq uses OrderItem Pydantic model (id/name/price/qty); qty<=0 items filtered out before total, and 400 raised if resulting list is empty — good.",
+    "club.py: totals rounded to 2 decimals; per-user isolation via user_id filter in Mongo query — verified in tests.",
+    "ordina.tsx: react-query with refetchInterval:5000 on /api/orders and /api/waiter-calls keeps status pills fresh without manual refresh — good.",
+    "ordina.tsx: cart state is a local Record<string,number>; itemIndex memoized from menu categories so cart items resolve name/price correctly for POST.",
+    "welcome.tsx: uses static require('../../assets/images/glitz-logo.png') via expo-image — resolved by Metro (asset URL /assets/?unstable_path=.%2Fassets%2Fimages/glitz-logo.png, 3178x1118) without runtime error."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_table_service.py",
+    "/app/test_reports/iteration_3.json",
+    "/app/test_reports/pytest/pytest_table_service.xml"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Test users created dynamically per-run with prefix 'tabl_<uuid>@glitz.test' and 'test_<uuid>@glitz.test' (frontend). Waiter-calls, orders created & verified via GET; user isolation asserted.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "New endpoints added in /app/backend/club.py: POST/GET /api/waiter-calls (types: acqua, ghiaccio, mixer, nuovo_ordine, pulizia, assistenza; status is time-derived: 'sent' <12s then 'taken_in_charge'); POST/GET /api/orders (items OrderItem[id,name,price,qty], zone; status time-derived: 'received' <25s, 'preparing' <75s, 'ready' after). Menu BOTTIGLIE expanded to 6 items (m-05..m-10). Frontend Ordina tab (/app/frontend/app/(tabs)/ordina.tsx) exposes testIDs: ordina-screen, zone-chip-{TAVOLO,PRIVÉ,BAR,PISTA}, waiter-{acqua,ghiaccio,mixer,nuovo_ordine,pulizia,assistenza}, call-<id>, menu-item-<mid>, plus-<mid>, minus-<mid>, cart-bar, submit-order, order-<oid>. Because tabs stay mounted, use .first when selecting testIDs shared across screens. GLITZ wordmark asset lives at /app/frontend/assets/images/glitz-logo.png and is required directly from welcome.tsx.",
+  "rca_of_issue": "N/A — no failures observed. Note: the automated logo-detection heuristic checked img.src.includes('glitz-logo') which returned false because Metro's web asset URL is /assets/?unstable_path=... (path is inside the query string, not the pathname). A follow-up inspection confirmed the actual PNG (3178x1118) loaded and rendered."
+}
