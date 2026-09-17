@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { Ticket, MessageCircle, MapPin, Calendar, ArrowLeft, Users } from "lucide-react";
 import { api } from "../lib/api";
 import { formatItalianDateTime } from "../lib/constants";
@@ -10,6 +10,7 @@ import BookingModal from "../components/BookingModal";
 
 export default function EventDetail() {
     const { id } = useParams();
+    const location = useLocation();
     const [ev, setEv] = useState(null);
     const [error, setError] = useState(false);
     const [bookingOpen, setBookingOpen] = useState(false);
@@ -17,6 +18,16 @@ export default function EventDetail() {
     useEffect(() => {
         api.get(`/events/${id}`).then((r) => setEv(r.data)).catch(() => setError(true));
     }, [id]);
+
+    // Scroll to floorplan when URL hash is #floorplan
+    useEffect(() => {
+        if (!ev || location.hash !== "#floorplan") return;
+        const t = setTimeout(() => {
+            const el = document.querySelector('[data-testid="floorplan-section"]');
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 250);
+        return () => clearTimeout(t);
+    }, [ev, location.hash]);
 
     if (error) return <div className="max-w-4xl mx-auto px-4 py-32 text-center text-white/60">Evento non trovato. <Link to="/eventi" className="text-lava underline">Torna agli eventi</Link></div>;
     if (!ev) return <div className="max-w-4xl mx-auto px-4 py-32 text-center text-white/40">Caricamento...</div>;

@@ -152,9 +152,15 @@ export default function Home() {
                                 <Ticket className="w-4 h-4" /> Vedi Eventi
                             </Link>
                         )}
-                    <button onClick={() => setBookingOpen(true)} data-testid="hero-table-btn" className="btn-ghost">
+                    {upcoming?.id ? (
+                        <Link to={`/eventi/${upcoming.id}#floorplan`} data-testid="hero-table-btn" className="btn-ghost">
+                            <MapPin className="w-4 h-4" /> Prenota Tavolo
+                        </Link>
+                    ) : (
+                        <button onClick={() => setBookingOpen(true)} data-testid="hero-table-btn" className="btn-ghost">
                             <MessageCircle className="w-4 h-4" /> Prenota Tavolo
                         </button>
+                    )}
                     </div>
                 </motion.div>
                 <button
