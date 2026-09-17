@@ -14,17 +14,20 @@ function resolveUrl(m) {
 export default function Gallery() {
     const [items, setItems] = useState([]);
     const [selected, setSelected] = useState(null);
+    const [settings, setSettings] = useState({});
 
     useEffect(() => {
         api.get("/media", { params: { category: "gallery" } }).then((r) => setItems(r.data)).catch(() => {});
+        api.get("/settings").then((r) => setSettings(r.data || {})).catch(() => {});
     }, []);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-            <Seo title="Gallery" description="Foto delle serate al Glitz Club: DJ, folla, arco a LED, tramonti sul mare della Calabria." />
+            <Seo title={settings.gallery_page_title || "Gallery"} description={settings.gallery_description || "Foto delle serate al Glitz Club: DJ, folla, arco a LED, tramonti sul mare della Calabria."} />
             <div className="mb-12 space-y-3">
-                <span className="overline-tag">Momenti</span>
-                <h1 className="section-title">Gallery</h1>
+                <span className="overline-tag">{settings.gallery_kicker || "Momenti"}</span>
+                <h1 className="section-title">{settings.gallery_page_title || "Gallery"}</h1>
+                {settings.gallery_description && <p className="text-white/60 max-w-2xl">{settings.gallery_description}</p>}
             </div>
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
                 {items.map((m, i) => (

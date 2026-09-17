@@ -9,7 +9,6 @@ import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
 import InstagramFeed from "../components/InstagramFeed";
 import BookingModal from "../components/BookingModal";
-import { PRODUCTS } from "./Shop";
 
 const HERO_IMG_FALLBACK = "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
 const DRONE_IMG = "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
@@ -29,6 +28,7 @@ export default function Home() {
     const [settings, setSettings] = useState(null);
     const [bookingOpen, setBookingOpen] = useState(false);
     const [galleryPreview, setGalleryPreview] = useState([]);
+    const [products, setProducts] = useState([]);
 
     useEffect(() => {
         api.get("/events/upcoming").then((r) => setUpcoming(r.data)).catch(() => {});
@@ -36,6 +36,7 @@ export default function Home() {
         api.get("/posts").then((r) => setPosts(r.data.slice(0, 3))).catch(() => {});
         api.get("/events").then((r) => setEvents(r.data.slice(0, 3))).catch(() => {});
         api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
+        api.get("/products").then((r) => setProducts(r.data.slice(0, 3))).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -321,10 +322,10 @@ export default function Home() {
                     </Link>
                 </div>
                 <div className="grid gap-8 md:grid-cols-3">
-                    {PRODUCTS.slice(0, 3).map((p, i) => (
+                    {products.map((p, i) => (
                         <Link
                             key={p.id}
-                            to={`/shop/${p.id}`}
+                            to={`/shop/${p.slug}`}
                             data-testid={`shop-preview-card-${i}`}
                             className="group block rounded-2xl overflow-hidden bg-surface border border-white/10 hover:border-lava/40 transition"
                         >

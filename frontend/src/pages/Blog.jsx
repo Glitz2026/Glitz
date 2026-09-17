@@ -6,17 +6,20 @@ import Seo from "../components/Seo";
 
 export default function Blog() {
     const [posts, setPosts] = useState([]);
+    const [settings, setSettings] = useState({});
 
     useEffect(() => {
         api.get("/posts").then((r) => setPosts(r.data)).catch(() => {});
+        api.get("/settings").then((r) => setSettings(r.data || {})).catch(() => {});
     }, []);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-            <Seo title="News" description="Storie, guide, dietro le quinte e recap eventi del Glitz Club." />
+            <Seo title={settings.blog_title || "News"} description={settings.blog_description || "Storie, guide, dietro le quinte e recap eventi del Glitz Club."} />
             <div className="mb-12 space-y-3">
-                <span className="overline-tag">Magazine</span>
-                <h1 className="section-title">News & Stories</h1>
+                <span className="overline-tag">{settings.blog_kicker || "Magazine"}</span>
+                <h1 className="section-title">{settings.blog_title || "News & Stories"}</h1>
+                {settings.blog_description && <p className="text-white/60 max-w-2xl">{settings.blog_description}</p>}
             </div>
             {posts.length === 0 && <p className="text-white/60">Nessun articolo ancora pubblicato.</p>}
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

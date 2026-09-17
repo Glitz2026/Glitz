@@ -41,9 +41,11 @@ function derivePoster(ev) {
 
 export default function Events() {
     const [events, setEvents] = useState([]);
+    const [settings, setSettings] = useState({});
 
     useEffect(() => {
         api.get("/events").then((r) => setEvents(r.data)).catch(() => {});
+        api.get("/settings").then((r) => setSettings(r.data || {})).catch(() => {});
     }, []);
 
     return (
@@ -51,8 +53,8 @@ export default function Events() {
             <Seo title="Eventi" description="Line-up completa della stagione al Glitz Club San Nicola Arcella. Serate, DJ ospiti, biglietti online." />
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
                 <div className="space-y-3">
-                    <span className="overline-tag">Line-up 2027</span>
-                    <h1 className="section-title">EVENTI 2027</h1>
+                    <span className="overline-tag">{settings.events_kicker || "Line-up 2027"}</span>
+                    <h1 className="section-title">{settings.events_title || "EVENTI 2027"}</h1>
                 </div>
                 <div className="flex items-center gap-2">
                     <Link to="/eventi/passati" data-testid="past-events-link" className="btn-ghost !text-xs">
@@ -61,7 +63,7 @@ export default function Events() {
                 </div>
             </div>
             {events.length === 0 && (
-                <p className="text-white/60">Nessun evento in calendario al momento. Torna presto.</p>
+                <p className="text-white/60">{settings.events_empty || "Nessun evento in calendario al momento. Torna presto."}</p>
             )}
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {events.map((ev, i) => {

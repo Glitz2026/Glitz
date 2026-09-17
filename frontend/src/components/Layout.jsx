@@ -12,7 +12,7 @@ function resolveUrl(url) {
     return `${process.env.REACT_APP_BACKEND_URL}${url}`;
 }
 
-const NAV = [
+const DEFAULT_NAV = [
     { to: "/", label: "Home" },
     { to: "/eventi", label: "Eventi" },
     { to: "/il-club", label: "Il Club" },
@@ -27,17 +27,24 @@ export default function Layout({ children }) {
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [logoUrl, setLogoUrl] = useState("");
+    const [settings, setSettings] = useState({});
     const loc = useLocation();
     const { user, loginWithGoogle, logout } = useAuth();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", onScroll);
-        api.get("/settings").then((r) => setLogoUrl(resolveUrl(r.data?.logo_url || ""))).catch(() => {});
+        api.get("/settings").then((r) => {
+            setLogoUrl(resolveUrl(r.data?.logo_url || ""));
+            setSettings(r.data || {});
+        }).catch(() => {});
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
     useEffect(() => { setOpen(false); window.scrollTo(0, 0); }, [loc.pathname]);
+
+    const NAV = ((settings.nav_items && settings.nav_items.length ? settings.nav_items : DEFAULT_NAV))
+        .filter((n) => !n.hidden);
 
     return (
         <div className="min-h-screen bg-obsidian text-white">
@@ -223,7 +230,7 @@ export default function Layout({ children }) {
                         <Newsletter />
                     </div>
                     <div className="space-y-3 text-sm">
-                        <h4 className="uppercase tracking-widest text-lava text-xs font-bold">Contatti</h4>
+                        <h4 className="uppercase tracking-widest text-lava text-xs font-bold">{settings.footer_contact_title || "Contatti"}</h4>
                         <a href={`mailto:${EMAIL}`} data-testid="footer-email" className="flex items-center gap-2 text-white/70 hover:text-white transition">
                             <Mail className="w-4 h-4" /> {EMAIL}
                         </a>
@@ -235,7 +242,7 @@ export default function Layout({ children }) {
                         </p>
                     </div>
                     <div className="space-y-3 text-sm">
-                        <h4 className="uppercase tracking-widest text-lava text-xs font-bold">Social</h4>
+                        <h4 className="uppercase tracking-widest text-lava text-xs font-bold">{settings.footer_social_title || "Social"}</h4>
                         <div className="flex items-center gap-3">
                             <a href={INSTAGRAM} target="_blank" rel="noreferrer" aria-label="Instagram" data-testid="footer-instagram" className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-lava transition">
                                 <Instagram className="w-4 h-4" />
@@ -244,10 +251,13 @@ export default function Layout({ children }) {
                                 <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden><path d="M19.5 6.5a5.9 5.9 0 0 1-4-1.5V15a5 5 0 1 1-5-5v3a2 2 0 1 0 2 2V2h3a4 4 0 0 0 4 4v.5z"/></svg>
                             </a>
                         </div>
+                        {settings.footer_tagline && (
+                            <p className="text-white/50 text-xs pt-2 leading-relaxed">{settings.footer_tagline}</p>
+                        )}
                     </div>
                 </div>
                 <div className="border-t border-white/5 py-6 text-center text-xs text-white/40">
-                    © {new Date().getFullYear()} Glitz Club — Contrada Dino, San Nicola Arcella. Tutti i diritti riservati.
+                    © {new Date().getFullYear()} {settings.footer_copyright || "Glitz Club — Contrada Dino, San Nicola Arcella. Tutti i diritti riservati."}
                 </div>
             </footer>
         </div>

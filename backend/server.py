@@ -288,6 +288,27 @@ class NewsletterIn(BaseModel):
     email: EmailStr
 
 
+class ProductIn(BaseModel):
+    slug: str
+    name: str
+    subtitle: str = ""
+    price: float = 0
+    image: str = ""
+    gallery: List[str] = []
+    description: str = ""
+    details: List[str] = []
+    color: str = ""
+    badge: Optional[str] = None
+    sizes: List[str] = []
+    active: bool = True
+    order: int = 0
+
+
+class ProductOut(ProductIn):
+    id: str
+    created_at: str
+
+
 class SettingsIn(BaseModel):
     hero_video_url: str = ""
     hero_image_url: str = ""
@@ -342,6 +363,54 @@ class SettingsIn(BaseModel):
     # --- Floorplan zones with prices/bottles ---
     floorplan_zones: List[dict] = []
     floorplan_table_overrides: dict = {}
+    # --- Navigation menu (order/rename/hide) ---
+    nav_items: List[dict] = []
+    # --- Footer copy ---
+    footer_tagline: str = ""
+    footer_copyright: str = "Glitz Club — Contrada Dino, San Nicola Arcella. Tutti i diritti riservati."
+    footer_contact_title: str = "Contatti"
+    footer_social_title: str = "Social"
+    # --- Shop page copy ---
+    shop_kicker: str = "Capsule Collection 2027"
+    shop_title: str = "Glitz Shop"
+    shop_description: str = "Il merchandise ufficiale del Glitz Club — pensato per l'estate, il mare e le tue serate. Pagamento sicuro con carta, spedizione in tutta Italia."
+    shop_chips: List[str] = ["Stripe checkout", "Spedizione 24-48h", "Ritiro in club"]
+    shop_howto_kicker: str = "Come Ordinare"
+    shop_howto_title: str = "3 step. Fatta."
+    shop_howto_steps: List[dict] = []
+    # --- Eventi Privati page ---
+    private_kicker: str = "Eventi Privati"
+    private_hero_line1: str = "Prenota il tuo"
+    private_hero_line2: str = "Evento"
+    private_hero_subtitle: str = "Il Glitz Club apre le sue quattro zone per il tuo evento privato. Compleanni, matrimoni, aziendali, lanci prodotto — con vista sull'Isola di Dino e la nostra macchina organizzativa. Fino a 2000 ospiti."
+    private_areas: List[dict] = []
+    private_occasions: List[str] = []
+    private_why_us: List[dict] = []
+    private_success_title: str = "Richiesta ricevuta!"
+    private_success_body: str = "Il nostro event manager ti risponderà entro 24h con disponibilità, preventivo dettagliato e possibilità di sopralluogo."
+    # --- Blog / Gallery / Past events page copy ---
+    blog_kicker: str = "Magazine"
+    blog_title: str = "News & Stories"
+    blog_description: str = ""
+    gallery_kicker: str = "Momenti"
+    gallery_page_title: str = "Gallery"
+    gallery_description: str = ""
+    past_kicker: str = "Archivio"
+    past_title: str = "Eventi Passati"
+    past_description: str = "Tutte le serate che hanno segnato la storia del Glitz. Ospiti, DJ set, party series — dal 2025 in poi."
+    events_kicker: str = "Line-up 2027"
+    events_title: str = "EVENTI 2027"
+    events_empty: str = "Nessun evento in calendario al momento. Torna presto."
+    # --- Poster frame ---
+    poster_club_name: str = "GLITZ"
+    poster_club_label: str = "CLUB"
+    poster_location: str = "SAN NICOLA ARCELLA"
+    poster_sponsors: List[str] = ["TicketSms", "Organics by Red Bull", "Campari", "Bulldog Gin"]
+    # --- SEO defaults ---
+    seo_site_name: str = "Glitz Club"
+    seo_default_title: str = "Glitz Club — Open-Air Club Calabria"
+    seo_default_description: str = "Open-air club a San Nicola Arcella (CS). 2000 posti, vista Isola di Dino, l'arco a LED più iconico del sud Italia. Stagione estiva Giugno–Settembre."
+    seo_default_og_image: str = ""
 
 
 class BookingIn(BaseModel):
@@ -509,6 +578,71 @@ DEFAULT_SETTINGS = {
         },
     ],
     "floorplan_table_overrides": {},
+    # --- Navigation ---
+    "nav_items": [
+        {"to": "/", "label": "Home", "hidden": False},
+        {"to": "/eventi", "label": "Eventi", "hidden": False},
+        {"to": "/il-club", "label": "Il Club", "hidden": False},
+        {"to": "/eventi/passati", "label": "Archivio", "hidden": False},
+        {"to": "/news", "label": "News", "hidden": False},
+        {"to": "/shop", "label": "Shop", "hidden": False},
+        {"to": "/prenota-evento", "label": "Eventi Privati", "hidden": False},
+        {"to": "/contatti", "label": "Contatti", "hidden": False},
+    ],
+    "footer_tagline": "",
+    "footer_copyright": "Glitz Club — Contrada Dino, San Nicola Arcella. Tutti i diritti riservati.",
+    "footer_contact_title": "Contatti",
+    "footer_social_title": "Social",
+    "shop_kicker": "Capsule Collection 2027",
+    "shop_title": "Glitz Shop",
+    "shop_description": "Il merchandise ufficiale del Glitz Club — pensato per l'estate, il mare e le tue serate. Pagamento sicuro con carta, spedizione in tutta Italia.",
+    "shop_chips": ["Stripe checkout", "Spedizione 24-48h", "Ritiro in club"],
+    "shop_howto_kicker": "Come Ordinare",
+    "shop_howto_title": "3 step. Fatta.",
+    "shop_howto_steps": [
+        {"n": "01", "title": "Scegli il prodotto", "body": "Apri la pagina prodotto, seleziona taglia e quantità."},
+        {"n": "02", "title": "Paga con Stripe", "body": "Checkout sicuro con carta di credito. O ordina via WhatsApp."},
+        {"n": "03", "title": "Ricevi o ritira", "body": "Spedizione 24-48h in Italia o ritiro in club."},
+    ],
+    "private_kicker": "Eventi Privati",
+    "private_hero_line1": "Prenota il tuo",
+    "private_hero_line2": "Evento",
+    "private_hero_subtitle": "Il Glitz Club apre le sue quattro zone per il tuo evento privato. Compleanni, matrimoni, aziendali, lanci prodotto — con vista sull'Isola di Dino e la nostra macchina organizzativa. Fino a 2000 ospiti.",
+    "private_areas": [
+        {"id": "full", "label": "Tutto il club", "subtitle": "Fino a 2000 persone · esclusiva totale", "icon": "sparkles"},
+        {"id": "riva-deck", "label": "Riva Deck", "subtitle": "Fino a 200 persone · vista mare", "icon": "mappin"},
+        {"id": "back-stage", "label": "Back the Stage", "subtitle": "Fino a 300 persone · privé filo pista", "icon": "users"},
+        {"id": "glitz-bar", "label": "Glitz Bar", "subtitle": "Fino a 150 persone · zona lounge", "icon": "wine"},
+        {"id": "custom", "label": "Da concordare", "subtitle": "Setup su misura per il tuo evento", "icon": "calendar"},
+    ],
+    "private_occasions": ["Compleanno", "Addio al celibato/nubilato", "Matrimonio / after-party", "Aziendale / corporate", "Lancio prodotto", "Cena privata", "Altro"],
+    "private_why_us": [
+        {"n": "01", "title": "Location cinematografica", "body": "Open-air sul Belvedere con vista Isola di Dino. Arco LED iconico, tramonto sul Tirreno."},
+        {"n": "02", "title": "Macchina già rodata", "body": "Event manager dedicato, staff formato, sound & light system professionale, catering partner premium."},
+        {"n": "03", "title": "Flessibilità totale", "body": "Da 50 a 2000 ospiti. Una zona, più zone o tutto il club in esclusiva. Personalizziamo tutto."},
+    ],
+    "private_success_title": "Richiesta ricevuta!",
+    "private_success_body": "Il nostro event manager ti risponderà entro 24h con disponibilità, preventivo dettagliato e possibilità di sopralluogo.",
+    "blog_kicker": "Magazine",
+    "blog_title": "News & Stories",
+    "blog_description": "",
+    "gallery_kicker": "Momenti",
+    "gallery_page_title": "Gallery",
+    "gallery_description": "",
+    "past_kicker": "Archivio",
+    "past_title": "Eventi Passati",
+    "past_description": "Tutte le serate che hanno segnato la storia del Glitz. Ospiti, DJ set, party series — dal 2025 in poi.",
+    "events_kicker": "Line-up 2027",
+    "events_title": "EVENTI 2027",
+    "events_empty": "Nessun evento in calendario al momento. Torna presto.",
+    "poster_club_name": "GLITZ",
+    "poster_club_label": "CLUB",
+    "poster_location": "SAN NICOLA ARCELLA",
+    "poster_sponsors": ["TicketSms", "Organics by Red Bull", "Campari", "Bulldog Gin"],
+    "seo_site_name": "Glitz Club",
+    "seo_default_title": "Glitz Club — Open-Air Club Calabria",
+    "seo_default_description": "Open-air club a San Nicola Arcella (CS). 2000 posti, vista Isola di Dino, l'arco a LED più iconico del sud Italia. Stagione estiva Giugno–Settembre.",
+    "seo_default_og_image": "",
 }
 
 
@@ -957,6 +1091,53 @@ async def delete_faq(faq_id: str, admin=Depends(get_admin)):
     return {"deleted": r.deleted_count}
 
 
+# --- Products / Shop ---
+@api.get("/products", response_model=List[ProductOut])
+async def list_products(active_only: bool = True):
+    q = {"active": True} if active_only else {}
+    return await db.products.find(q, {"_id": 0}).sort("order", 1).to_list(1000)
+
+
+@api.get("/products/{slug}", response_model=ProductOut)
+async def get_product(slug: str):
+    p = await db.products.find_one({"slug": slug}, {"_id": 0})
+    if not p:
+        raise HTTPException(status_code=404, detail="Prodotto non trovato")
+    return p
+
+
+@api.post("/admin/products", response_model=ProductOut)
+async def create_product(data: ProductIn, admin=Depends(get_admin)):
+    doc = data.model_dump()
+    doc["id"] = str(uuid.uuid4())
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.products.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api.put("/admin/products/{product_id}", response_model=ProductOut)
+async def update_product(product_id: str, data: ProductIn, admin=Depends(get_admin)):
+    res = await db.products.find_one_and_update(
+        {"id": product_id}, {"$set": data.model_dump()},
+        return_document=True, projection={"_id": 0}
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Prodotto non trovato")
+    return res
+
+
+@api.delete("/admin/products/{product_id}")
+async def delete_product(product_id: str, admin=Depends(get_admin)):
+    r = await db.products.delete_one({"id": product_id})
+    return {"deleted": r.deleted_count}
+
+
+@api.get("/admin/newsletter/subscribers")
+async def list_newsletter_subscribers(admin=Depends(get_admin)):
+    return await db.newsletter.find({}, {"_id": 0}).sort("created_at", -1).to_list(5000)
+
+
 # --- Media / Gallery ---
 @api.get("/media", response_model=List[MediaOut])
 async def list_media(category: Optional[str] = None, event_id: Optional[str] = None):
@@ -1214,8 +1395,9 @@ async def startup():
         if not existing.get("instagram_posts") or any("unsplash" in (p.get("image","")) for p in existing.get("instagram_posts", [])):
             patch["instagram_posts"] = DEFAULT_SETTINGS["instagram_posts"]
         # Backfill any newly-added copy/content keys that don't exist yet in the doc
+        _prefixes = ("home_", "about_", "contact_", "floorplan_", "nav_", "footer_", "shop_", "private_", "blog_", "gallery_", "past_", "events_", "poster_", "seo_")
         for key, default in DEFAULT_SETTINGS.items():
-            if key.startswith("home_") or key.startswith("about_") or key.startswith("contact_") or key.startswith("floorplan_"):
+            if key.startswith(_prefixes):
                 if existing.get(key) in (None, "", []):
                     patch[key] = default
         if patch:
@@ -1274,6 +1456,55 @@ async def startup():
                 "created_at": datetime.now(timezone.utc).isoformat(),
             })
         logging.info("Seeded gallery")
+
+
+    # Seed Products (initial catalogue from Shop.jsx)
+    if await db.products.count_documents({}) == 0:
+        _assets = "https://customer-assets-gfyr7b9c.emergentagent.net/job_glitz-nightclub/artifacts"
+        _seed_products = [
+            {"slug": "gift-card", "name": "Gift Card Glitz", "subtitle": "Buono regalo digitale €50", "price": 50,
+             "image": "/glitz-logo-black.png",
+             "gallery": ["/glitz-logo-black.png", f"{_assets}/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg", f"{_assets}/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg", f"{_assets}/ppzjzi3q_PHOTO-2025-09-16-12-45-39%202.jpg"],
+             "description": "Il regalo perfetto per chi ama il Glitz. Buono digitale del valore di €50 utilizzabile su tutto lo shop e i tavoli durante le serate. Consegnato via email in PDF con codice univoco entro 5 minuti.",
+             "details": ["Valore €50", "Consegna via email in 5 min", "Codice univoco a PDF", "Valido 12 mesi", "Utilizzabile online e in club"],
+             "color": "Digitale", "badge": "Ideale come regalo", "sizes": [], "active": True, "order": 0},
+            {"slug": "beach-towel", "name": "Beach Towel Glitz", "subtitle": "Telo mare nero oversize", "price": 45,
+             "image": f"{_assets}/tgeqp1vr_IMG_5513.webp",
+             "gallery": [f"{_assets}/tgeqp1vr_IMG_5513.webp", f"{_assets}/ppzjzi3q_PHOTO-2025-09-16-12-45-39%202.jpg", f"{_assets}/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg", f"{_assets}/d6h58zck_PHOTO-2025-09-16-19-11-42.webp"],
+             "description": "Telo mare oversize in cotone spugna 100%. Logo Glitz Club in bianco stampato sul retro. Perfetto per la spiaggia, la piscina o come cape al tramonto.",
+             "details": ["100% cotone spugna 400gsm", "Formato 90×180 cm", "Logo bianco stampato", "Lavabile a 30°", "Made in Portugal"],
+             "color": "Nero", "badge": "Bestseller", "sizes": [], "active": True, "order": 1},
+            {"slug": "paper-fan", "name": "Ventaglio Glitz", "subtitle": "Ventaglio in carta e bambù", "price": 15,
+             "image": f"{_assets}/91p089k4_IMG_8679.webp",
+             "gallery": [f"{_assets}/91p089k4_IMG_8679.webp", f"{_assets}/qdkmd1ir_b5e6a2ee-7a76-43f3-bb62-de43dc8d7909.webp", f"{_assets}/6lina1we_PHOTO-2025-09-16-12-45-39.jpg", f"{_assets}/xsttrroy_PHOTO-2025-09-16-12-45-38%204.jpg"],
+             "description": "Ventaglio pieghevole in carta e bambù, incisione laser Glitz sul manico. Essenziale per le serate estive più calde.",
+             "details": ["Manico in legno di bambù", "Carta pieghevole avorio", "Incisione laser", "Lunghezza aperto 42 cm", "Custodia inclusa"],
+             "color": "Avorio / Bambù", "badge": None, "sizes": [], "active": True, "order": 2},
+            {"slug": "lip-balm", "name": "Lip Balm Glitz", "subtitle": "Balsamo labbra idratante", "price": 12,
+             "image": f"{_assets}/qdkmd1ir_b5e6a2ee-7a76-43f3-bb62-de43dc8d7909.webp",
+             "gallery": [f"{_assets}/qdkmd1ir_b5e6a2ee-7a76-43f3-bb62-de43dc8d7909.webp", f"{_assets}/1kevf5m4_PHOTO-2025-09-16-12-54-45.jpg", f"{_assets}/97nlxf8c_PHOTO-2025-09-16-12-45-38%203.jpg", f"{_assets}/dpisg1l4_PHOTO-2025-09-16-13-07-48.jpg"],
+             "description": "Balsamo labbra nutriente al burro di karité e vitamina E. Confezione nera minimal con logo Glitz. Idrata e ripara le labbra dopo sole e salsedine.",
+             "details": ["Burro di karité + Vit. E", "Formato tascabile 4.5g", "Cruelty free", "Vegano certificato", "Made in Italy"],
+             "color": "Nero", "badge": "Nuovo", "sizes": [], "active": True, "order": 3},
+            {"slug": "tshirt-vibes", "name": "T-Shirt Glitz Vibes Only", "subtitle": "T-shirt oversize bianca", "price": 55,
+             "image": f"{_assets}/okhlpgww_4e29f9e2-0a06-4857-b78f-29a811aee8bc.webp",
+             "gallery": [f"{_assets}/okhlpgww_4e29f9e2-0a06-4857-b78f-29a811aee8bc.webp", f"{_assets}/tzd5z52p_PHOTO-2025-09-16-12-45-38.jpg", f"{_assets}/26s9g2vp_PHOTO-2025-09-16-12-45-39%202.jpg", f"{_assets}/9c0lj4wr_PHOTO-2025-09-16-12-45-38%202.jpg"],
+             "description": "T-shirt oversize in cotone pesante 240g/m². Logo GLITZ Room piccolo sul fronte + stampa circolare GLITZ VIBES ONLY rossa sul retro. Vestibilità unisex.",
+             "details": ["100% cotone pesante 240g", "Vestibilità oversize unisex", "Stampa serigrafica", "Taglie XS-XXL", "Made in Portugal"],
+             "color": "Bianco / Rosso", "badge": "Limited", "sizes": ["XS", "S", "M", "L", "XL", "XXL"], "active": True, "order": 4},
+            {"slug": "beach-bag", "name": "Beach Bag Glitz", "subtitle": "Borsa mare in canvas", "price": 65,
+             "image": f"{_assets}/sfw9hba6_9df1fbf9-7ffd-44ed-9ff1-d7a27d206760.webp",
+             "gallery": [f"{_assets}/sfw9hba6_9df1fbf9-7ffd-44ed-9ff1-d7a27d206760.webp", f"{_assets}/ppzjzi3q_PHOTO-2025-09-16-12-45-39%202.jpg", f"{_assets}/dpisg1l4_PHOTO-2025-09-16-13-07-48.jpg", f"{_assets}/97nlxf8c_PHOTO-2025-09-16-12-45-38%203.jpg"],
+             "description": "Borsa mare grande in canvas naturale con manici neri. Logo Glitz Club ricamato sul fronte. Capiente, resistente e minimal — pensata per portarti tutto il beach essentials.",
+             "details": ["Canvas naturale 340g/m²", "Manici in cotone rinforzati", "Logo ricamato", "Formato 48×36×14 cm", "Interno con tasca zip"],
+             "color": "Ecru / Nero", "badge": None, "sizes": [], "active": True, "order": 5},
+        ]
+        _now = datetime.now(timezone.utc).isoformat()
+        for _p in _seed_products:
+            _p["id"] = str(uuid.uuid4())
+            _p["created_at"] = _now
+            await db.products.insert_one(_p)
+        logging.info("Seeded products")
 
 
 @app.on_event("shutdown")

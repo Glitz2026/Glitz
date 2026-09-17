@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, API } from "../lib/api";
 import { toast } from "sonner";
-import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays, ArrowUp, ArrowDown } from "lucide-react";
+import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays, ArrowUp, ArrowDown, ShoppingBag, Download } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 
 function resolveMediaUrl(m) {
@@ -15,6 +15,7 @@ function resolveMediaUrl(m) {
 const emptyEvent = { title: "", date: "", lineup: "", description: "", poster_url: "", artist_photo_url: "", ticket_url: "https://www.ticketsms.it/", location: "Contrada Dino, San Nicola Arcella (CS)", published: true, floorplan_enabled: false };
 const emptyPost = { title: "", slug: "", excerpt: "", cover_url: "", body: "", tags: "", published: true };
 const emptyFaq = { question: "", answer: "", order: 0 };
+const emptyProduct = { slug: "", name: "", subtitle: "", price: 0, image: "", gallery: [], description: "", details: [], color: "", badge: "", sizes: [], active: true, order: 99 };
 
 export default function AdminDashboard() {
     const nav = useNavigate();
@@ -32,6 +33,9 @@ export default function AdminDashboard() {
     const [bookings, setBookings] = useState([]);
     const [privateEvents, setPrivateEvents] = useState([]);
     const [stats, setStats] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [editProduct, setEditProduct] = useState(null);
+    const [subscribers, setSubscribers] = useState([]);
 
     const email = localStorage.getItem("glitz_admin_email");
 
@@ -107,6 +111,41 @@ export default function AdminDashboard() {
         } catch (err) { toast.error("Errore"); }
     };
     const delFaq = async (id) => { if (!window.confirm("Eliminare?")) return; await api.delete(`/admin/faqs/${id}`); load(); };
+
+    // Products
+    const saveProduct = async () => {
+        try {
+            const payload = {
+                ...editProduct,
+                price: parseFloat(editProduct.price) || 0,
+                order: parseInt(editProduct.order, 10) || 0,
+                gallery: typeof editProduct.gallery === "string" ? editProduct.gallery.split(",").map((s) => s.trim()).filter(Boolean) : editProduct.gallery,
+                details: typeof editProduct.details === "string" ? editProduct.details.split("\n").map((s) => s.trim()).filter(Boolean) : editProduct.details,
+                sizes: typeof editProduct.sizes === "string" ? editProduct.sizes.split(",").map((s) => s.trim()).filter(Boolean) : editProduct.sizes,
+                badge: editProduct.badge || null,
+            };
+            if (editProduct.id) await api.put(`/admin/products/${editProduct.id}`, payload);
+            else await api.post("/admin/products", payload);
+            toast.success("Prodotto salvato");
+            setEditProduct(null);
+            const r = await api.get("/products", { params: { active_only: false } });
+            setProducts(r.data);
+        } catch (err) { toast.error("Errore salvataggio prodotto"); }
+    };
+    const delProduct = async (id) => {
+        if (!window.confirm("Eliminare prodotto?")) return;
+        await api.delete(`/admin/products/${id}`);
+        const r = await api.get("/products", { params: { active_only: false } });
+        setProducts(r.data);
+    };
+    const exportSubscribersCsv = () => {
+        const rows = ["email,created_at", ...subscribers.map((s) => `${s.email},${s.created_at}`)].join("\n");
+        const blob = new Blob([rows], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "glitz-newsletter-subscribers.csv"; a.click();
+        URL.revokeObjectURL(url);
+    };
 
     // Media
     const uploadMedia = async (file, category = "gallery") => {
@@ -344,15 +383,17 @@ export default function AdminDashboard() {
             )}
 
             <Tabs value={tab} onValueChange={setTab}>
-                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-8 h-auto p-1">
+                <TabsList className="bg-surface border border-white/10 grid grid-cols-2 lg:grid-cols-10 h-auto p-1">
                     <TabsTrigger value="events" data-testid="tab-events" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><CalIcon className="w-4 h-4" /> Eventi</TabsTrigger>
                     <TabsTrigger value="posts" data-testid="tab-posts" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><FileText className="w-4 h-4" /> Blog</TabsTrigger>
                     <TabsTrigger value="faqs" data-testid="tab-faqs" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><HelpCircle className="w-4 h-4" /> FAQ</TabsTrigger>
                     <TabsTrigger value="media" data-testid="tab-media" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><ImgIcon className="w-4 h-4" /> Media</TabsTrigger>
+                    <TabsTrigger value="products" data-testid="tab-products" onClick={() => api.get("/products", { params: { active_only: false } }).then((r) => setProducts(r.data)).catch(() => {})} className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><ShoppingBag className="w-4 h-4" /> Prodotti</TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-bookings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><Users className="w-4 h-4" /> Prenotazioni</TabsTrigger>
                     <TabsTrigger value="private" data-testid="tab-private" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2" onClick={() => api.get("/private-events").then((r) => setPrivateEvents(r.data)).catch(() => {})}>
                         <Users className="w-4 h-4" /> Eventi Privati
                     </TabsTrigger>
+                    <TabsTrigger value="newsletter" data-testid="tab-newsletter" onClick={() => api.get("/admin/newsletter/subscribers").then((r) => setSubscribers(r.data)).catch(() => {})} className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><MailIcon className="w-4 h-4" /> Newsletter</TabsTrigger>
                     <TabsTrigger value="content" data-testid="tab-content" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><PenLine className="w-4 h-4" /> Contenuti</TabsTrigger>
                     <TabsTrigger value="settings" data-testid="tab-settings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><SettingsIcon className="w-4 h-4" /> Config</TabsTrigger>
                 </TabsList>
@@ -1045,6 +1086,156 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
+                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                                <summary className="cursor-pointer font-bold text-lg">Menu di navigazione</summary>
+                                <p className="text-xs text-white/50">Rinomina, nascondi o riordina le voci del menu. Non aggiungere voci nuove: il routing è fisso.</p>
+                                <div className="space-y-2">
+                                    {(settings.nav_items || []).map((n, i) => (
+                                        <div key={i} className="flex items-center gap-2">
+                                            <span className="text-xs text-white/40 w-32 truncate">{n.to}</span>
+                                            <input data-testid={`nav-label-${i}`} className={`${input} !py-2 flex-1`} placeholder="Etichetta" value={n.label || ""} onChange={(e) => {
+                                                const list = [...settings.nav_items]; list[i] = { ...list[i], label: e.target.value };
+                                                setSettings({ ...settings, nav_items: list });
+                                            }} />
+                                            <label className="flex items-center gap-1.5 text-xs text-white/60">
+                                                <input type="checkbox" checked={!n.hidden} onChange={(e) => {
+                                                    const list = [...settings.nav_items]; list[i] = { ...list[i], hidden: !e.target.checked };
+                                                    setSettings({ ...settings, nav_items: list });
+                                                }} /> Visibile
+                                            </label>
+                                            <button type="button" onClick={() => {
+                                                if (i === 0) return;
+                                                const list = [...settings.nav_items];
+                                                [list[i - 1], list[i]] = [list[i], list[i - 1]];
+                                                setSettings({ ...settings, nav_items: list });
+                                            }} className="btn-ghost !px-2 !py-1 !text-xs"><ArrowUp className="w-3 h-3" /></button>
+                                            <button type="button" onClick={() => {
+                                                if (i === (settings.nav_items || []).length - 1) return;
+                                                const list = [...settings.nav_items];
+                                                [list[i + 1], list[i]] = [list[i], list[i + 1]];
+                                                setSettings({ ...settings, nav_items: list });
+                                            }} className="btn-ghost !px-2 !py-1 !text-xs"><ArrowDown className="w-3 h-3" /></button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </details>
+
+                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                                <summary className="cursor-pointer font-bold text-lg">Footer</summary>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input data-testid="footer-contact-title" className={input} placeholder="Titolo Contatti" value={settings.footer_contact_title || ""} onChange={(e) => setSettings({ ...settings, footer_contact_title: e.target.value })} />
+                                    <input data-testid="footer-social-title" className={input} placeholder="Titolo Social" value={settings.footer_social_title || ""} onChange={(e) => setSettings({ ...settings, footer_social_title: e.target.value })} />
+                                </div>
+                                <textarea data-testid="footer-tagline" className={input} rows="2" placeholder="Tagline sotto i social (opzionale)" value={settings.footer_tagline || ""} onChange={(e) => setSettings({ ...settings, footer_tagline: e.target.value })} />
+                                <input data-testid="footer-copyright" className={input} placeholder="Testo copyright (senza anno)" value={settings.footer_copyright || ""} onChange={(e) => setSettings({ ...settings, footer_copyright: e.target.value })} />
+                            </details>
+
+                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                                <summary className="cursor-pointer font-bold text-lg">Pagina Shop</summary>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input data-testid="shop-kicker" className={input} placeholder="Kicker" value={settings.shop_kicker || ""} onChange={(e) => setSettings({ ...settings, shop_kicker: e.target.value })} />
+                                    <input data-testid="shop-title" className={input} placeholder="Titolo" value={settings.shop_title || ""} onChange={(e) => setSettings({ ...settings, shop_title: e.target.value })} />
+                                </div>
+                                <textarea data-testid="shop-description" className={input} rows="3" placeholder="Descrizione" value={settings.shop_description || ""} onChange={(e) => setSettings({ ...settings, shop_description: e.target.value })} />
+                                <input data-testid="shop-chips" className={input} placeholder="Chips (separate da virgola)" value={(settings.shop_chips || []).join(", ")} onChange={(e) => setSettings({ ...settings, shop_chips: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} />
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input data-testid="shop-howto-kicker" className={input} placeholder="Kicker come ordinare" value={settings.shop_howto_kicker || ""} onChange={(e) => setSettings({ ...settings, shop_howto_kicker: e.target.value })} />
+                                    <input data-testid="shop-howto-title" className={input} placeholder="Titolo come ordinare" value={settings.shop_howto_title || ""} onChange={(e) => setSettings({ ...settings, shop_howto_title: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    {(settings.shop_howto_steps || []).map((s, i) => (
+                                        <div key={i} className="grid gap-2 sm:grid-cols-[70px_1fr_2fr]">
+                                            <input className={`${input} !py-2`} placeholder="Nr" value={s.n || ""} onChange={(e) => { const l = [...settings.shop_howto_steps]; l[i] = { ...l[i], n: e.target.value }; setSettings({ ...settings, shop_howto_steps: l }); }} />
+                                            <input className={`${input} !py-2`} placeholder="Titolo step" value={s.title || ""} onChange={(e) => { const l = [...settings.shop_howto_steps]; l[i] = { ...l[i], title: e.target.value }; setSettings({ ...settings, shop_howto_steps: l }); }} />
+                                            <input className={`${input} !py-2`} placeholder="Descrizione" value={s.body || ""} onChange={(e) => { const l = [...settings.shop_howto_steps]; l[i] = { ...l[i], body: e.target.value }; setSettings({ ...settings, shop_howto_steps: l }); }} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </details>
+
+                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                                <summary className="cursor-pointer font-bold text-lg">Pagina Eventi Privati</summary>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <input data-testid="private-kicker" className={input} placeholder="Kicker" value={settings.private_kicker || ""} onChange={(e) => setSettings({ ...settings, private_kicker: e.target.value })} />
+                                    <input data-testid="private-line1" className={input} placeholder="Titolo riga 1" value={settings.private_hero_line1 || ""} onChange={(e) => setSettings({ ...settings, private_hero_line1: e.target.value })} />
+                                    <input data-testid="private-line2" className={input} placeholder="Titolo riga 2 (colorato)" value={settings.private_hero_line2 || ""} onChange={(e) => setSettings({ ...settings, private_hero_line2: e.target.value })} />
+                                </div>
+                                <textarea data-testid="private-subtitle" className={input} rows="3" placeholder="Sottotitolo" value={settings.private_hero_subtitle || ""} onChange={(e) => setSettings({ ...settings, private_hero_subtitle: e.target.value })} />
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Aree selezionabili (id · label · sottotitolo · icona: sparkles/mappin/users/wine/calendar)</label>
+                                    {(settings.private_areas || []).map((a, i) => (
+                                        <div key={i} className="grid gap-2 sm:grid-cols-[100px_120px_1fr_110px_50px] mb-2 items-center">
+                                            <input className={`${input} !py-2 !text-xs`} placeholder="id" value={a.id || ""} onChange={(e) => { const l = [...settings.private_areas]; l[i] = { ...l[i], id: e.target.value }; setSettings({ ...settings, private_areas: l }); }} />
+                                            <input className={`${input} !py-2 !text-xs`} placeholder="label" value={a.label || ""} onChange={(e) => { const l = [...settings.private_areas]; l[i] = { ...l[i], label: e.target.value }; setSettings({ ...settings, private_areas: l }); }} />
+                                            <input className={`${input} !py-2 !text-xs`} placeholder="sottotitolo" value={a.subtitle || ""} onChange={(e) => { const l = [...settings.private_areas]; l[i] = { ...l[i], subtitle: e.target.value }; setSettings({ ...settings, private_areas: l }); }} />
+                                            <select className={`${input} !py-2 !text-xs`} value={a.icon || "sparkles"} onChange={(e) => { const l = [...settings.private_areas]; l[i] = { ...l[i], icon: e.target.value }; setSettings({ ...settings, private_areas: l }); }}>
+                                                {["sparkles","mappin","users","wine","calendar"].map((ic) => <option key={ic} value={ic} className="bg-obsidian">{ic}</option>)}
+                                            </select>
+                                            <button type="button" onClick={() => { const l = [...settings.private_areas]; l.splice(i, 1); setSettings({ ...settings, private_areas: l }); }} className="btn-ghost !px-2 !py-1 !text-xs !text-lava"><Trash2 className="w-3 h-3" /></button>
+                                        </div>
+                                    ))}
+                                    <button type="button" onClick={() => setSettings({ ...settings, private_areas: [...(settings.private_areas || []), { id: "new", label: "Nuova area", subtitle: "", icon: "sparkles" }] })} className="btn-ghost !text-xs"><Plus className="w-3 h-3" /> Aggiungi area</button>
+                                </div>
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Occasioni (una per riga)</label>
+                                    <textarea className={input} rows="4" value={(settings.private_occasions || []).join("\n")} onChange={(e) => setSettings({ ...settings, private_occasions: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) })} />
+                                </div>
+                                <div>
+                                    <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Perché noi (3 blocchi)</label>
+                                    {(settings.private_why_us || []).map((w, i) => (
+                                        <div key={i} className="grid gap-2 sm:grid-cols-[50px_1fr_2fr] mb-2">
+                                            <input className={`${input} !py-2 !text-xs`} placeholder="Nr" value={w.n || ""} onChange={(e) => { const l = [...settings.private_why_us]; l[i] = { ...l[i], n: e.target.value }; setSettings({ ...settings, private_why_us: l }); }} />
+                                            <input className={`${input} !py-2 !text-xs`} placeholder="Titolo" value={w.title || ""} onChange={(e) => { const l = [...settings.private_why_us]; l[i] = { ...l[i], title: e.target.value }; setSettings({ ...settings, private_why_us: l }); }} />
+                                            <input className={`${input} !py-2 !text-xs`} placeholder="Descrizione" value={w.body || ""} onChange={(e) => { const l = [...settings.private_why_us]; l[i] = { ...l[i], body: e.target.value }; setSettings({ ...settings, private_why_us: l }); }} />
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input className={input} placeholder="Titolo conferma invio" value={settings.private_success_title || ""} onChange={(e) => setSettings({ ...settings, private_success_title: e.target.value })} />
+                                    <input className={input} placeholder="Testo conferma invio" value={settings.private_success_body || ""} onChange={(e) => setSettings({ ...settings, private_success_body: e.target.value })} />
+                                </div>
+                            </details>
+
+                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                                <summary className="cursor-pointer font-bold text-lg">Titoli sezioni (Blog / Gallery / Eventi passati / Eventi)</summary>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <input className={input} placeholder="Blog kicker" value={settings.blog_kicker || ""} onChange={(e) => setSettings({ ...settings, blog_kicker: e.target.value })} />
+                                    <input className={input} placeholder="Blog titolo" value={settings.blog_title || ""} onChange={(e) => setSettings({ ...settings, blog_title: e.target.value })} />
+                                    <input className={input} placeholder="Blog descrizione (opz.)" value={settings.blog_description || ""} onChange={(e) => setSettings({ ...settings, blog_description: e.target.value })} />
+                                </div>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <input className={input} placeholder="Gallery kicker" value={settings.gallery_kicker || ""} onChange={(e) => setSettings({ ...settings, gallery_kicker: e.target.value })} />
+                                    <input className={input} placeholder="Gallery titolo" value={settings.gallery_page_title || ""} onChange={(e) => setSettings({ ...settings, gallery_page_title: e.target.value })} />
+                                    <input className={input} placeholder="Gallery descrizione" value={settings.gallery_description || ""} onChange={(e) => setSettings({ ...settings, gallery_description: e.target.value })} />
+                                </div>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <input className={input} placeholder="Past events kicker" value={settings.past_kicker || ""} onChange={(e) => setSettings({ ...settings, past_kicker: e.target.value })} />
+                                    <input className={input} placeholder="Past events titolo" value={settings.past_title || ""} onChange={(e) => setSettings({ ...settings, past_title: e.target.value })} />
+                                    <input className={input} placeholder="Past events descrizione" value={settings.past_description || ""} onChange={(e) => setSettings({ ...settings, past_description: e.target.value })} />
+                                </div>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <input className={input} placeholder="Eventi kicker" value={settings.events_kicker || ""} onChange={(e) => setSettings({ ...settings, events_kicker: e.target.value })} />
+                                    <input className={input} placeholder="Eventi titolo" value={settings.events_title || ""} onChange={(e) => setSettings({ ...settings, events_title: e.target.value })} />
+                                    <input className={input} placeholder="Messaggio vuoto" value={settings.events_empty || ""} onChange={(e) => setSettings({ ...settings, events_empty: e.target.value })} />
+                                </div>
+                            </details>
+
+                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                                <summary className="cursor-pointer font-bold text-lg">Poster & SEO</summary>
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <input className={input} placeholder="Poster: nome club (es. GLITZ)" value={settings.poster_club_name || ""} onChange={(e) => setSettings({ ...settings, poster_club_name: e.target.value })} />
+                                    <input className={input} placeholder="Poster: label (CLUB)" value={settings.poster_club_label || ""} onChange={(e) => setSettings({ ...settings, poster_club_label: e.target.value })} />
+                                    <input className={input} placeholder="Poster: location" value={settings.poster_location || ""} onChange={(e) => setSettings({ ...settings, poster_location: e.target.value })} />
+                                </div>
+                                <input className={input} placeholder="Poster: sponsors (virgola)" value={(settings.poster_sponsors || []).join(", ")} onChange={(e) => setSettings({ ...settings, poster_sponsors: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} />
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input className={input} placeholder="SEO: nome sito" value={settings.seo_site_name || ""} onChange={(e) => setSettings({ ...settings, seo_site_name: e.target.value })} />
+                                    <input className={input} placeholder="SEO: titolo di default" value={settings.seo_default_title || ""} onChange={(e) => setSettings({ ...settings, seo_default_title: e.target.value })} />
+                                </div>
+                                <textarea className={input} rows="2" placeholder="SEO: descrizione di default" value={settings.seo_default_description || ""} onChange={(e) => setSettings({ ...settings, seo_default_description: e.target.value })} />
+                                <input className={input} placeholder="SEO: og:image URL" value={settings.seo_default_og_image || ""} onChange={(e) => setSettings({ ...settings, seo_default_og_image: e.target.value })} />
+                            </details>
+
                             <button
                                 data-testid="save-content-btn"
                                 onClick={saveSettings}
@@ -1055,6 +1246,97 @@ export default function AdminDashboard() {
                             </button>
                         </div>
                     )}
+                </TabsContent>
+
+                {/* PRODUCTS */}
+                <TabsContent value="products" className="mt-6 space-y-4">
+                    <button data-testid="new-product-btn" onClick={() => setEditProduct({ ...emptyProduct })} className="btn-lava !px-5 !py-2.5 !text-xs">
+                        <Plus className="w-4 h-4" /> Nuovo Prodotto
+                    </button>
+                    <div className="grid gap-3">
+                        {products.map((p) => (
+                            <div key={p.id} data-testid={`product-row-${p.slug}`} className="glass-card rounded-xl p-4 flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 min-w-0">
+                                    {p.image && <img src={p.image} alt={p.name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />}
+                                    <div className="min-w-0">
+                                        <div className="font-bold truncate">{p.name} {!p.active && <span className="text-xs text-white/40 ml-2">(nascosto)</span>}</div>
+                                        <div className="text-xs text-white/50 truncate">{p.subtitle} · € {p.price} · /{p.slug}</div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 flex-shrink-0">
+                                    <button data-testid={`edit-product-${p.slug}`} onClick={() => setEditProduct({ ...p, gallery: (p.gallery || []).join(", "), details: (p.details || []).join("\n"), sizes: (p.sizes || []).join(", ") })} className="btn-ghost !px-3 !py-1.5 !text-xs"><Edit className="w-3 h-3" /></button>
+                                    <button data-testid={`del-product-${p.slug}`} onClick={() => delProduct(p.id)} className="btn-ghost !px-3 !py-1.5 !text-xs !text-lava"><Trash2 className="w-3 h-3" /></button>
+                                </div>
+                            </div>
+                        ))}
+                        {!products.length && <p className="text-white/50 text-sm">Nessun prodotto. Clicca "Nuovo Prodotto".</p>}
+                    </div>
+                    {editProduct && (
+                        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={() => setEditProduct(null)}>
+                            <div className="bg-obsidian border border-white/10 rounded-2xl p-6 max-w-2xl w-full space-y-3 my-8" onClick={(e) => e.stopPropagation()}>
+                                <h3 className="text-xl font-bold">{editProduct.id ? "Modifica" : "Nuovo"} Prodotto</h3>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input data-testid="pf-slug" className={input} placeholder="slug (es. tshirt-vibes)" value={editProduct.slug} onChange={(e) => setEditProduct({ ...editProduct, slug: e.target.value })} />
+                                    <input data-testid="pf-name" className={input} placeholder="Nome" value={editProduct.name} onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })} />
+                                </div>
+                                <input data-testid="pf-subtitle" className={input} placeholder="Sottotitolo" value={editProduct.subtitle} onChange={(e) => setEditProduct({ ...editProduct, subtitle: e.target.value })} />
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <input data-testid="pf-price" type="number" step="0.01" className={input} placeholder="Prezzo €" value={editProduct.price} onChange={(e) => setEditProduct({ ...editProduct, price: e.target.value })} />
+                                    <input data-testid="pf-color" className={input} placeholder="Colore/variante" value={editProduct.color} onChange={(e) => setEditProduct({ ...editProduct, color: e.target.value })} />
+                                    <input data-testid="pf-badge" className={input} placeholder="Badge (opzionale)" value={editProduct.badge || ""} onChange={(e) => setEditProduct({ ...editProduct, badge: e.target.value })} />
+                                </div>
+                                <input data-testid="pf-image" className={input} placeholder="URL immagine principale" value={editProduct.image} onChange={(e) => setEditProduct({ ...editProduct, image: e.target.value })} />
+                                <textarea data-testid="pf-gallery" className={input} rows={2} placeholder="Gallery (URL separati da virgola)" value={editProduct.gallery} onChange={(e) => setEditProduct({ ...editProduct, gallery: e.target.value })} />
+                                <textarea data-testid="pf-description" className={input} rows={4} placeholder="Descrizione" value={editProduct.description} onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })} />
+                                <textarea data-testid="pf-details" className={input} rows={4} placeholder="Dettagli (uno per riga)" value={editProduct.details} onChange={(e) => setEditProduct({ ...editProduct, details: e.target.value })} />
+                                <input data-testid="pf-sizes" className={input} placeholder="Taglie (es. XS,S,M,L,XL) — vuoto se non serve" value={editProduct.sizes} onChange={(e) => setEditProduct({ ...editProduct, sizes: e.target.value })} />
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <input data-testid="pf-order" type="number" className={input} placeholder="Ordine (0=primo)" value={editProduct.order} onChange={(e) => setEditProduct({ ...editProduct, order: e.target.value })} />
+                                    <label className="flex items-center gap-2 text-sm text-white/70">
+                                        <input type="checkbox" checked={editProduct.active} onChange={(e) => setEditProduct({ ...editProduct, active: e.target.checked })} /> Attivo (visibile nello shop)
+                                    </label>
+                                </div>
+                                <div className="flex gap-2 justify-end pt-3 border-t border-white/10">
+                                    <button onClick={() => setEditProduct(null)} className="btn-ghost !text-xs">Annulla</button>
+                                    <button data-testid="save-product-btn" onClick={saveProduct} className="btn-lava !text-xs">Salva</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </TabsContent>
+
+                {/* NEWSLETTER */}
+                <TabsContent value="newsletter" className="mt-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="font-bold text-lg">Iscritti newsletter</h3>
+                            <p className="text-xs text-white/50">Totale: {subscribers.length} iscritti</p>
+                        </div>
+                        <button data-testid="export-newsletter-csv" onClick={exportSubscribersCsv} disabled={!subscribers.length} className="btn-ghost !text-xs disabled:opacity-40">
+                            <Download className="w-3 h-3" /> Esporta CSV
+                        </button>
+                    </div>
+                    <div className="glass-card rounded-2xl overflow-hidden">
+                        <div className="max-h-[600px] overflow-y-auto">
+                            <table className="w-full text-sm">
+                                <thead className="bg-white/5 sticky top-0">
+                                    <tr>
+                                        <th className="text-left px-4 py-2 text-xs uppercase text-white/60">Email</th>
+                                        <th className="text-left px-4 py-2 text-xs uppercase text-white/60">Iscritto il</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {subscribers.map((s) => (
+                                        <tr key={s.id || s.email} className="border-t border-white/5">
+                                            <td className="px-4 py-2 text-white/90">{s.email}</td>
+                                            <td className="px-4 py-2 text-white/50 text-xs">{s.created_at?.slice(0, 16).replace("T", " ")}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {!subscribers.length && <p className="text-white/50 text-sm p-4">Nessun iscritto ancora.</p>}
+                        </div>
+                    </div>
                 </TabsContent>
 
                 {/* SETTINGS */}

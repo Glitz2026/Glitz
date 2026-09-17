@@ -14,12 +14,14 @@ function formatPast(iso) {
 export default function PastEvents() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [settings, setSettings] = useState({});
 
     useEffect(() => {
         api.get("/past-events")
             .then((r) => setEvents(r.data))
             .catch(() => {})
             .finally(() => setLoading(false));
+        api.get("/settings").then((r) => setSettings(r.data || {})).catch(() => {});
     }, []);
 
     // Group by year
@@ -32,17 +34,17 @@ export default function PastEvents() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-            <Seo title="Eventi Passati" description="L'archivio delle serate al Glitz Club: Ludwig, Mamacita, Damante, Ludovica Pagani, Goodboys, Cristian Marchi e tanti altri ospiti internazionali." />
+            <Seo title={settings.past_title || "Eventi Passati"} description={settings.past_description || "L'archivio delle serate al Glitz Club."} />
 
             <Link to="/eventi" data-testid="back-to-events" className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm uppercase tracking-widest mb-6">
                 <ArrowLeft className="w-4 h-4" /> Prossimi eventi
             </Link>
 
             <div className="mb-12 space-y-3">
-                <span className="overline-tag">Archivio</span>
-                <h1 className="section-title">Eventi Passati</h1>
+                <span className="overline-tag">{settings.past_kicker || "Archivio"}</span>
+                <h1 className="section-title">{settings.past_title || "Eventi Passati"}</h1>
                 <p className="text-white/60 max-w-2xl">
-                    Tutte le serate che hanno segnato la storia del Glitz. Ospiti, DJ set, party series — dal 2025 in poi.
+                    {settings.past_description || "Tutte le serate che hanno segnato la storia del Glitz. Ospiti, DJ set, party series — dal 2025 in poi."}
                 </p>
             </div>
 

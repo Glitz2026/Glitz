@@ -34,6 +34,10 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
 - **[17 Feb 2026]** Floorplan v2: contorno tavoli ridotto a `LABEL_W×LABEL_H` (46×42) coincidente col quadratino della PNG; rimosso il fill colorato → solo bordo + overlay `<text>` colorato che "illumina" numero/lettera del tavolo. Hit-box invisibile 54×40 (52×58 fullscreen) mantenuta per tap facile. Stesso comportamento in fullscreen.
 - **[17 Feb 2026]** Home hero: bottone "Prenota Tavolo" → ora è un `<Link>` che punta a `/eventi/{upcoming.id}#floorplan`. EventDetail.jsx legge `location.hash` e scrolla automaticamente alla sezione Floorplan con `scrollIntoView`. Fallback: se non c'è upcoming, apre BookingModal come prima.
 - **[17 Feb 2026]** Events page: H1 "Eventi & Serate" → "EVENTI 2027". Rimosso toggle Vista AI/Template + state `useTemplate` + import `PosterFrame` non più usato.
+- **[17 Feb 2026]** Back molto più funzionale & front completamente CMS-editable:
+  - Backend: `SettingsIn` esteso con 41 nuovi campi (nav_items, footer_*, shop_*, private_*, blog_/gallery_/past_/events_titles, poster_*, seo_*). Aggiunto model `Product` con endpoints `GET /api/products`, `GET /api/products/{slug}`, `POST|PUT|DELETE /api/admin/products/*` + seed di 6 prodotti iniziali. Aggiunto `GET /api/admin/newsletter/subscribers` per viewer iscritti. Startup patcher esteso con tutti i nuovi prefissi.
+  - Frontend consumers: `Layout` legge nav_items+footer da settings, `Shop` fetch da API+usa shop_*, `ProductDetail` fetch `/products/{slug}` (rimosso import PRODUCTS statico), `PrivateEvents` usa private_areas/occasions/why_us/testi, `Blog/Gallery/PastEvents/Events` usano rispettivi kicker/title/description da settings. `Home.jsx` fetch prodotti API per anteprima.
+  - Admin: 2 nuovi tab `Prodotti` (CRUD completo con modal edit) e `Newsletter` (tabella iscritti + export CSV). Contenuti tab: 6 nuovi accordion (Menu di navigazione con rename/hide/riordino, Footer, Pagina Shop, Pagina Eventi Privati con lista aree/occasions/why_us editabile, Titoli sezioni, Poster & SEO).
 
 ## Pending
 - **Deploy in produzione** — utente ancora indeciso (ask_human aperto)
