@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { BackHeader } from "@/src/components/back-header";
-import { apiGet, apiPost } from "@/src/lib/api";
+import { apiGet, apiPost, coverUrl } from "@/src/lib/api";
 import { MONO } from "@/src/lib/fonts";
 import { formatEventDate } from "@/src/lib/format";
 import { makeStyles, useTheme } from "@/src/theme";
@@ -65,7 +65,7 @@ export default function EventDetail() {
     <View style={styles.root} testID="event-screen">
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
-          <Image source={{ uri: ev.cover }} style={styles.heroBg} contentFit="cover" />
+          <Image source={{ uri: coverUrl(ev.cover) }} style={styles.heroBg} contentFit="cover" />
           <LinearGradient colors={["rgba(0,0,0,0.2)", "rgba(0,0,0,0.85)", "#000000"]} style={styles.heroBg} />
           <View style={styles.backAbs}>
             <BackHeader />

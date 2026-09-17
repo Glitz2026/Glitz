@@ -3,11 +3,12 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { FloorPlan, type Table } from "@/src/components/floor-plan";
+import { LogoHeader } from "@/src/components/logo-header";
 import { apiGet, apiPost } from "@/src/lib/api";
 import { MONO } from "@/src/lib/fonts";
 import { makeStyles, useTheme } from "@/src/theme";
 
-const ZONES = ["TAVOLO", "PRIVÉ", "BAR", "PISTA"];
 const WAITER = [
   { id: "acqua", label: "Acqua" },
   { id: "ghiaccio", label: "Ghiaccio" },
@@ -29,10 +30,12 @@ export default function Ordina() {
   const insets = useSafeAreaInsets();
   const qc = useQueryClient();
 
-  const [zone, setZone] = useState("TAVOLO");
+  const [table, setTable] = useState<Table | null>(null);
   const [cart, setCart] = useState<Record<string, number>>({});
+  const zone = table?.name ?? null;
 
   const menu = useQuery({ queryKey: ["menu"], queryFn: () => apiGet("/api/menu") });
+  const zones = useQuery({ queryKey: ["zones"], queryFn: () => apiGet("/api/tables/zones") });
   const orders = useQuery({ queryKey: ["orders"], queryFn: () => apiGet("/api/orders"), refetchInterval: 5000 });
   const calls = useQuery({ queryKey: ["waiter-calls"], queryFn: () => apiGet("/api/waiter-calls"), refetchInterval: 5000 });
 
@@ -66,10 +69,13 @@ export default function Ordina() {
 
   const orderList = orders.data?.orders ?? [];
   const callList = calls.data?.calls ?? [];
+  const zoneList: Table[] = zones.data?.zones ?? [];
+  const needTable = !table;
 
   return (
     <View style={styles.root} testID="ordina-screen">
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+        <LogoHeader />
         <Text style={styles.kicker}>SERVIZIO AL TAVOLO</Text>
         <Text style={styles.title}>Ordina</Text>
       </View>
@@ -78,24 +84,26 @@ export default function Ordina() {
         contentContainerStyle={[styles.content, { paddingBottom: (cartCount > 0 ? 96 : 24) + insets.bottom }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Zone selector */}
-        <Text style={styles.section}>DOVE SEI</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-          {ZONES.map((z) => {
-            const active = zone === z;
-            return (
-              <Pressable key={z} testID={`zone-chip-${z}`} style={[styles.chip, active && styles.chipActive]} onPress={() => setZone(z)}>
-                <Text style={[styles.chipText, active && styles.chipTextActive]}>{z}</Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+        {/* Piantina tavoli */}
+        <Text style={styles.section}>IL TUO TAVOLO · PIANTINA</Text>
+        <FloorPlan tables={zoneList} selectedId={table?.id ?? null} onSelect={setTable} />
+        <View style={[styles.selBanner, table ? styles.selBannerOk : null]}>
+          <Text style={styles.selText}>
+            {table ? `Sei al ${table.name} · ${table.area}` : "Tocca il tuo tavolo sulla piantina"}
+          </Text>
+        </View>
 
         {/* Chiama il cameriere */}
         <Text style={styles.section}>CHIAMA IL CAMERIERE</Text>
-        <View style={styles.waiterGrid}>
+        <View style={[styles.waiterGrid, needTable && styles.disabled]}>
           {WAITER.map((w) => (
-            <Pressable key={w.id} testID={`waiter-${w.id}`} style={styles.waiterBtn} onPress={() => callMut.mutate(w.id)}>
+            <Pressable
+              key={w.id}
+              testID={`waiter-${w.id}`}
+              style={styles.waiterBtn}
+              disabled={needTable}
+              onPress={() => callMut.mutate(w.id)}
+            >
               <Text style={styles.waiterText}>{w.label}</Text>
             </Pressable>
           ))}
@@ -172,12 +180,19 @@ export default function Ordina() {
 
       {cartCount > 0 ? (
         <View style={[styles.cartBar, { bottom: 16 }]} testID="cart-bar">
-          <View>
-            <Text style={styles.cartCount}>{cartCount} articoli · {zone}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cartCount} numberOfLines={1}>
+              {cartCount} articoli · {zone ?? "nessun tavolo"}
+            </Text>
             <Text style={styles.cartTotal}>€{cartTotal.toFixed(2)}</Text>
           </View>
-          <Pressable testID="submit-order" style={styles.cartBtn} onPress={() => orderMut.mutate(cartItems)} disabled={orderMut.isPending}>
-            <Text style={styles.cartBtnText}>ORDINA</Text>
+          <Pressable
+            testID="submit-order"
+            style={[styles.cartBtn, needTable && styles.disabled]}
+            onPress={() => !needTable && orderMut.mutate(cartItems)}
+            disabled={orderMut.isPending || needTable}
+          >
+            <Text style={styles.cartBtnText}>{needTable ? "TAVOLO?" : "ORDINA"}</Text>
           </Pressable>
         </View>
       ) : null}
@@ -192,6 +207,10 @@ const useStyles = makeStyles((colors) => ({
   title: { color: colors.onSurface, fontSize: 30, fontWeight: "900", marginTop: 4 },
   content: { paddingHorizontal: 20 },
   section: { color: colors.muted, fontSize: 12, letterSpacing: 3, fontWeight: "700", fontFamily: MONO, marginTop: 24, marginBottom: 14 },
+  selBanner: { marginTop: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceTertiary, paddingHorizontal: 14, paddingVertical: 12 },
+  selBannerOk: { borderColor: colors.brandPrimary, backgroundColor: colors.brandTertiary },
+  selText: { color: colors.onSurface, fontSize: 13, fontWeight: "700" },
+  disabled: { opacity: 0.4 },
   chipRow: { gap: 10, paddingRight: 8 },
   chip: { flexShrink: 0, height: 36, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceSecondary, alignItems: "center", justifyContent: "center" },
   chipActive: { borderColor: colors.brandPrimary, backgroundColor: colors.brandPrimary },

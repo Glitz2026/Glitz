@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 
 import { BackHeader } from "@/src/components/back-header";
-import { apiGet } from "@/src/lib/api";
+import { apiGet, coverUrl } from "@/src/lib/api";
 import { MONO } from "@/src/lib/fonts";
 import { formatEventDate } from "@/src/lib/format";
 import { makeStyles } from "@/src/theme";
@@ -23,7 +23,7 @@ export default function Events() {
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
         {list.map((ev: any) => (
           <Pressable key={ev.id} testID={`events-item-${ev.id}`} style={styles.card} onPress={() => router.push(`/event/${ev.id}`)}>
-            <Image source={{ uri: ev.cover }} style={styles.cover} contentFit="cover" />
+            <Image source={{ uri: coverUrl(ev.cover) }} style={styles.cover} contentFit="cover" />
             <View style={styles.body}>
               <Text style={styles.date}>{formatEventDate(ev.date)}</Text>
               <Text style={styles.title}>{ev.title}</Text>

@@ -21,6 +21,14 @@ export function mediaUrl(path: string | null | undefined): string | undefined {
   return `${HTTP_BASE}${path}`;
 }
 
+/** Event covers live on the Glitz site which blocks cross-origin reads on web
+ *  (CORP). Route external images through our backend proxy so they always load. */
+export function coverUrl(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith("http")) return `${HTTP_BASE}/api/img?u=${encodeURIComponent(url)}`;
+  return `${HTTP_BASE}${url}`;
+}
+
 function buildHeaders(extra?: Record<string, string>): Record<string, string> {
   return {
     ...(extra || {}),

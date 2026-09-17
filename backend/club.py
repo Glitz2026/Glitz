@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
+import requests
 from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
@@ -13,56 +14,80 @@ router = APIRouter(prefix="/api")
 _IMG_A = "https://images.unsplash.com/photo-1545128485-c400e7702796?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjh8MHwxfHNlYXJjaHwxfHxyZWQlMjBuZW9uJTIwbmlnaHRjbHViJTIwbGlnaHRzJTIwZGFya3xlbnwwfHx8fDE3ODk2NjI2NzN8MA&ixlib=rb-4.1.0&q=85"
 _IMG_B = "https://images.unsplash.com/photo-1559999831-7deaf136d4a9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMHJlZCUyMGdsaXRjaCUyMGFydCUyMGRhcmt8ZW58MHx8fHwxNzg5NjYyNjczfDA&ixlib=rb-4.1.0&q=85"
 
+_SITE = "https://glitz-nightclub.preview.emergentagent.com"
+
 SEED_EVENTS = [
     {
-        "id": "ev-01",
-        "title": "GLITZ x A.I. — OPENING NIGHT",
-        "date": "2026-06-27T23:00:00",
-        "guest": "DJ VELVETA · live set",
-        "genre": "House / Reggaeton",
-        "cover": _IMG_A,
-        "price_from": 20,
-        "description": "La notte in cui il club ti riconosce. A.I. accende voto musicale, NON PREMERE e IL POTERE.",
-        "formulas": [
-            {"id": "std", "label": "Ingresso", "price": 20, "includes": "Accesso pista"},
-            {"id": "drink", "label": "Ingresso + Drink", "price": 30, "includes": "Accesso + 1 consumazione"},
-        ],
-    },
-    {
-        "id": "ev-02",
-        "title": "CHAOS — REGGAETON EDITION",
-        "date": "2026-07-04T23:30:00",
-        "guest": "GALA b2b NINA",
-        "genre": "Reggaeton / Latin",
-        "cover": _IMG_B,
+        "id": "ev-damante",
+        "title": "DAMANTE — Opening Season 2027",
+        "date": "2027-06-26T23:00:00",
+        "guest": "Andrea Damante • Resident DJs Glitz",
+        "genre": "House / Commercial",
+        "cover": f"{_SITE}/events/opening-damante.png",
         "price_from": 25,
-        "description": "Dieci minuti di reggaeton non bastano mai. Sfide tra tavoli e dediche live.",
+        "description": "L'opening della stagione 2027 sotto l'arco a LED, vista Isola di Dino. Damante in consolle.",
         "formulas": [
-            {"id": "std", "label": "Ingresso", "price": 25, "includes": "Accesso pista"},
+            {"id": "std", "label": "Ingresso", "price": 25, "includes": "Accesso al club"},
             {"id": "drink", "label": "Ingresso + Drink", "price": 35, "includes": "Accesso + 1 consumazione"},
         ],
     },
     {
-        "id": "ev-03",
-        "title": "BACK TO 2000",
-        "date": "2026-07-11T23:00:00",
-        "guest": "GIGI D'AGOSTINO tribute",
-        "genre": "2000s / Dance",
-        "cover": _IMG_A,
+        "id": "ev-giada",
+        "title": "GIADA BRINCE — Melodic Techno Night",
+        "date": "2027-07-03T23:30:00",
+        "guest": "Giada Brince • Support: Loris Tramontana",
+        "genre": "Melodic Techno",
+        "cover": f"{_SITE}/events/giada-brince.png",
         "price_from": 20,
-        "description": "Un salto negli anni Duemila. Le hit che canti a memoria, luci e visual coordinati.",
+        "description": "Una notte melodic techno sul mare della Calabria. Laser, bassi profondi e tramonto tirrenico.",
         "formulas": [
-            {"id": "std", "label": "Ingresso", "price": 20, "includes": "Accesso pista"},
+            {"id": "std", "label": "Ingresso", "price": 20, "includes": "Accesso al club"},
+            {"id": "drink", "label": "Ingresso + Drink", "price": 30, "includes": "Accesso + 1 consumazione"},
+        ],
+    },
+    {
+        "id": "ev-raul",
+        "title": "RAUL DUMITRAS — Tech House Session",
+        "date": "2027-07-10T23:30:00",
+        "guest": "Raul Dumitras • Warm-up: Riccardo Lena",
+        "genre": "Tech House",
+        "cover": f"{_SITE}/events/raul-dumitras.png",
+        "price_from": 20,
+        "description": "Tech house session sotto le stelle di San Nicola Arcella. Riva Deck in pieno groove.",
+        "formulas": [
+            {"id": "std", "label": "Ingresso", "price": 20, "includes": "Accesso al club"},
             {"id": "drink", "label": "Ingresso + Drink", "price": 30, "includes": "Accesso + 1 consumazione"},
         ],
     },
 ]
 
+SEED_EVENT_IDS = [e["id"] for e in SEED_EVENTS]
+
+CLUB_INFO = {
+    "name": "GLITZ CLUB",
+    "tagline": "Beyond the Night",
+    "about": "Duemila posti all'aperto, l'arco a LED più iconico del sud Italia, i laser e la vista sull'Isola di Dino.",
+    "address": "Contrada Dino, 87020 San Nicola Arcella (CS)",
+    "hours": "Aperto dalle 23:00 · Stagione estiva 2027",
+    "instagram": "glitzclubofficial",
+    "areas": [
+        {"id": "arco", "name": "L'Arco Iconico", "desc": "Il simbolo del Glitz"},
+        {"id": "back", "name": "Back the Stage", "desc": "I privé dietro la consolle"},
+        {"id": "riva", "name": "Riva Deck", "desc": "Il cuore del club"},
+        {"id": "seat", "name": "Seat View", "desc": "Il panorama sull'Isola di Dino"},
+    ],
+}
+
+# Tables carry map coordinates (x,y in % of the floor-plan box) for the piantina.
 SEED_ZONES = [
-    {"id": "z-venere", "name": "TAVOLO VENERE", "area": "Privé centrale", "seats": 8, "price": 400, "bottles": 2, "available": True},
-    {"id": "z-chaos", "name": "TAVOLO CHAOS", "area": "Balconata pista", "seats": 6, "price": 300, "bottles": 1, "available": True},
-    {"id": "z-luna", "name": "TAVOLO LUNA", "area": "Angolo lounge", "seats": 10, "price": 550, "bottles": 3, "available": True},
-    {"id": "z-nova", "name": "TAVOLO NOVA", "area": "Fronte consolle", "seats": 4, "price": 250, "bottles": 1, "available": False},
+    {"id": "z-back-1", "name": "PRIVÉ BACKSTAGE", "area": "Back the Stage", "seats": 8, "price": 600, "bottles": 3, "available": True, "x": 50, "y": 13},
+    {"id": "z-arco-1", "name": "ARCO 1", "area": "L'Arco Iconico", "seats": 6, "price": 450, "bottles": 2, "available": True, "x": 26, "y": 28},
+    {"id": "z-arco-2", "name": "ARCO 2", "area": "L'Arco Iconico", "seats": 6, "price": 450, "bottles": 2, "available": False, "x": 74, "y": 28},
+    {"id": "z-riva-1", "name": "RIVA 1", "area": "Riva Deck", "seats": 8, "price": 400, "bottles": 2, "available": True, "x": 30, "y": 52},
+    {"id": "z-riva-2", "name": "RIVA 2", "area": "Riva Deck", "seats": 8, "price": 400, "bottles": 2, "available": True, "x": 70, "y": 52},
+    {"id": "z-riva-3", "name": "RIVA 3", "area": "Riva Deck", "seats": 10, "price": 500, "bottles": 3, "available": True, "x": 50, "y": 63},
+    {"id": "z-seat-1", "name": "SEAT VIEW 1", "area": "Seat View", "seats": 4, "price": 300, "bottles": 1, "available": True, "x": 20, "y": 82},
+    {"id": "z-seat-2", "name": "SEAT VIEW 2", "area": "Seat View", "seats": 4, "price": 300, "bottles": 1, "available": True, "x": 80, "y": 82},
 ]
 
 SEED_MENU = [
@@ -95,8 +120,9 @@ SEED_MENU = [
 
 
 async def seed_club() -> None:
-    if await db.events.count_documents({}) == 0:
-        await db.events.insert_many([{**e} for e in SEED_EVENTS])
+    # upsert so updated seed data (real Glitz events) always applies
+    for e in SEED_EVENTS:
+        await db.events.replace_one({"id": e["id"]}, {**e}, upsert=True)
 
 
 def _clean(doc: dict) -> dict:
@@ -104,10 +130,33 @@ def _clean(doc: dict) -> dict:
     return doc
 
 
+# --- Club info -------------------------------------------------------------
+@router.get("/img")
+async def proxy_img(u: str):
+    if not u.startswith("http"):
+        raise HTTPException(status_code=400, detail="URL non valido")
+
+    def fetch():
+        r = requests.get(u, timeout=20)
+        r.raise_for_status()
+        return r.content, r.headers.get("Content-Type", "image/jpeg")
+
+    try:
+        content, ct = await run_in_threadpool(fetch)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Immagine non trovata")
+    return Response(content=content, media_type=ct, headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.get("/club-info")
+async def club_info(current=Depends(get_current_user)):
+    return {"club": CLUB_INFO}
+
+
 # --- Events ----------------------------------------------------------------
 @router.get("/events")
 async def list_events(current=Depends(get_current_user)):
-    events = await db.events.find({}, {"_id": 0}).sort("date", 1).to_list(100)
+    events = await db.events.find({"id": {"$in": SEED_EVENT_IDS}}, {"_id": 0}).sort("date", 1).to_list(100)
     return {"events": events}
 
 

@@ -6,7 +6,8 @@ import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { apiGet, mediaUrl } from "@/src/lib/api";
+import { apiGet, coverUrl, mediaUrl } from "@/src/lib/api";
+import { LogoHeader } from "@/src/components/logo-header";
 import { MONO } from "@/src/lib/fonts";
 import { formatEventDate } from "@/src/lib/format";
 import { useAuth } from "@/src/lib/auth-context";
@@ -38,17 +39,20 @@ export default function Serata() {
   return (
     <View style={styles.root} testID="serata-screen">
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <View>
-          <Text style={styles.kicker}>LA MIA SERATA</Text>
-          <Text style={styles.hi}>Ciao, {user?.name?.split(" ")[0] ?? "ospite"}</Text>
+        <LogoHeader />
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.kicker}>LA MIA SERATA</Text>
+            <Text style={styles.hi}>Ciao, {user?.name?.split(" ")[0] ?? "ospite"}</Text>
+          </View>
+          <Pressable testID="open-profile" style={styles.avatar} onPress={() => router.push("/profile")}>
+            {user?.photo_url ? (
+              <Image source={{ uri: mediaUrl(user.photo_url) }} style={styles.avatarImg} contentFit="cover" />
+            ) : (
+              <Text style={styles.avatarText}>{(user?.name?.[0] ?? "G").toUpperCase()}</Text>
+            )}
+          </Pressable>
         </View>
-        <Pressable testID="open-profile" style={styles.avatar} onPress={() => router.push("/profile")}>
-          {user?.photo_url ? (
-            <Image source={{ uri: mediaUrl(user.photo_url) }} style={styles.avatarImg} contentFit="cover" />
-          ) : (
-            <Text style={styles.avatarText}>{(user?.name?.[0] ?? "G").toUpperCase()}</Text>
-          )}
-        </Pressable>
       </View>
 
       <ScrollView
@@ -98,7 +102,7 @@ export default function Serata() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventsRow}>
           {eventList.map((ev: any) => (
             <Pressable key={ev.id} testID={`event-${ev.id}`} style={styles.eventCard} onPress={() => router.push(`/event/${ev.id}`)}>
-              <Image source={{ uri: ev.cover }} style={styles.eventCover} contentFit="cover" />
+              <Image source={{ uri: coverUrl(ev.cover) }} style={styles.eventCover} contentFit="cover" />
               <View style={styles.eventBody}>
                 <Text style={styles.eventDate}>{formatEventDate(ev.date)}</Text>
                 <Text style={styles.eventTitle} numberOfLines={2}>{ev.title}</Text>
@@ -137,6 +141,9 @@ const useStyles = makeStyles((colors) => ({
   header: {
     paddingHorizontal: 20,
     paddingBottom: 14,
+    gap: 10,
+  },
+  headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
