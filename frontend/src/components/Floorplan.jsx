@@ -34,8 +34,10 @@ const TABLES = [
     { id: "G7", x: 370, y: 1036, zone: "BAR" }, { id: "G6", x: 262, y: 1069, zone: "BAR" },
 ];
 
-const CELL_W = 54;
+const CELL_W = 54; // hit-box tap area (invisibile)
 const CELL_H = 40;
+const LABEL_W = 46; // contorno visibile, corrispondente al quadratino della PNG con la lettera/numero del tavolo
+const LABEL_H = 42;
 const FLOORPLAN_URL = "/floorplan-official.png";
 
 // Anchor per etichette on-map + posizione dei rettangoli che coprono le scritte originali sulla PNG (1254×1254).
@@ -183,20 +185,13 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                             const isHover = hoveredId === t.id && !isReserved;
                             const zoneColor = getZone(t.zone).color;
                             const isZoneActive = activeZone === t.zone && !isReserved;
-                            let fill = "transparent", stroke = "transparent", strokeWidth = 0;
-                            if (isReserved) {
-                                fill = "rgba(225,6,0,0.28)";
-                                stroke = "#E10600";
-                                strokeWidth = 1.5;
-                            } else if (isHover) {
-                                fill = `${zoneColor}66`;
-                                stroke = zoneColor;
-                                strokeWidth = 2.5;
-                            } else if (isZoneActive) {
-                                fill = `${zoneColor}55`;
-                                stroke = zoneColor;
-                                strokeWidth = 2;
-                            }
+                            const showOutline = isReserved || isHover || isZoneActive;
+                            let stroke = "transparent";
+                            let strokeWidth = 0;
+                            if (isReserved) { stroke = "#E10600"; strokeWidth = 2; }
+                            else if (isHover) { stroke = zoneColor; strokeWidth = 2.5; }
+                            else if (isZoneActive) { stroke = zoneColor; strokeWidth = 2; }
+                            const textFill = isReserved ? "#E10600" : (isZoneActive || isHover ? zoneColor : null);
                             return (
                                 <g
                                     key={t.id}
@@ -207,19 +202,35 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                                     onMouseLeave={() => setHoveredId(null)}
                                     className={isReserved ? "cursor-not-allowed" : "cursor-pointer"}
                                 >
+                                    {/* Hit-box invisibile per facilitare il tap */}
                                     <rect
                                         x={t.x - CELL_W / 2}
                                         y={t.y - CELL_H / 2}
                                         width={CELL_W}
                                         height={CELL_H}
-                                        rx="4"
-                                        fill={fill}
-                                        stroke={stroke}
-                                        strokeWidth={strokeWidth}
-                                        style={{ transition: "fill 0.15s, stroke 0.15s" }}
+                                        fill="transparent"
                                     />
+                                    {/* Contorno visibile, dimensione = quadratino etichetta della PNG */}
+                                    {showOutline && (
+                                        <rect
+                                            x={t.x - LABEL_W / 2}
+                                            y={t.y - LABEL_H / 2}
+                                            width={LABEL_W}
+                                            height={LABEL_H}
+                                            rx="4"
+                                            fill="none"
+                                            stroke={stroke}
+                                            strokeWidth={strokeWidth}
+                                            style={{ transition: "stroke 0.15s" }}
+                                            pointerEvents="none"
+                                        />
+                                    )}
+                                    {/* Illuminazione: sovrapposizione del solo testo colorato (ID tavolo / × per prenotato) */}
+                                    {textFill && !isReserved && (
+                                        <text x={t.x} y={t.y + 7} textAnchor="middle" fill={textFill} fontSize="22" fontWeight="900" pointerEvents="none" style={{ paintOrder: "stroke", stroke: "#0a0a0a", strokeWidth: 0.5 }}>{t.id}</text>
+                                    )}
                                     {isReserved && (
-                                        <text x={t.x} y={t.y + 4} textAnchor="middle" fill="#E10600" fontSize="14" fontWeight="900">×</text>
+                                        <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#E10600" fontSize="22" fontWeight="900" pointerEvents="none">×</text>
                                     )}
                                 </g>
                             );
@@ -301,9 +312,9 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                                 const isReserved = status === "reserved" || status === "booked";
                                 const zoneColor = getZone(t.zone).color;
                                 const isZoneActive = activeZone === t.zone && !isReserved;
-                                let fill = `${zoneColor}22`, stroke = zoneColor, strokeWidth = 2;
-                                if (isZoneActive) { fill = `${zoneColor}66`; strokeWidth = 3; }
-                                if (isReserved) { fill = "rgba(225,6,0,0.35)"; stroke = "#E10600"; strokeWidth = 2; }
+                                const stroke = isReserved ? "#E10600" : zoneColor;
+                                const strokeWidth = isZoneActive ? 3 : 2;
+                                const textFill = isReserved ? "#E10600" : (isZoneActive ? zoneColor : null);
                                 return (
                                     <g
                                         key={t.id}
@@ -311,9 +322,26 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                                         onClick={() => { if (!isReserved) { setSelected(t); setModalOpen(true); setFullscreen(false); } }}
                                         style={{ cursor: isReserved ? "not-allowed" : "pointer" }}
                                     >
-                                        <rect x={t.x - CELL_W / 2 - 4} y={t.y - CELL_H / 2 - 4} width={CELL_W + 8} height={CELL_H + 8} rx="6" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+                                        {/* Hit-box invisibile ingrandita per touch */}
+                                        <rect x={t.x - CELL_W / 2 - 6} y={t.y - CELL_H / 2 - 6} width={CELL_W + 12} height={CELL_H + 12} fill="transparent" />
+                                        {/* Contorno visibile = dimensione della label PNG */}
+                                        <rect
+                                            x={t.x - LABEL_W / 2}
+                                            y={t.y - LABEL_H / 2}
+                                            width={LABEL_W}
+                                            height={LABEL_H}
+                                            rx="4"
+                                            fill="none"
+                                            stroke={stroke}
+                                            strokeWidth={strokeWidth}
+                                            pointerEvents="none"
+                                        />
+                                        {/* Illumina solo il testo del tavolo con il colore della zona */}
+                                        {textFill && !isReserved && (
+                                            <text x={t.x} y={t.y + 7} textAnchor="middle" fill={textFill} fontSize="22" fontWeight="900" pointerEvents="none" style={{ paintOrder: "stroke", stroke: "#0a0a0a", strokeWidth: 0.6 }}>{t.id}</text>
+                                        )}
                                         {isReserved && (
-                                            <text x={t.x} y={t.y + 6} textAnchor="middle" fill="#E10600" fontSize="18" fontWeight="900">×</text>
+                                            <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#E10600" fontSize="22" fontWeight="900" pointerEvents="none">×</text>
                                         )}
                                     </g>
                                 );
