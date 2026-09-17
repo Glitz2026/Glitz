@@ -38,6 +38,14 @@ const CELL_W = 54;
 const CELL_H = 40;
 const FLOORPLAN_URL = "/floorplan-official.png";
 
+// Anchor per etichette on-map + posizione dei rettangoli che coprono le scritte originali sulla PNG (1254×1254).
+// Coordinate ricavate tramite scansione dei connected-components della PNG.
+const ZONE_ANCHORS = {
+    STAGE: { cover: { x: 92, y: 678, w: 200, h: 40 }, label: { x: 192, y: 705 }, fontSize: 22 },
+    RIVA: { cover: { x: 840, y: 368, w: 165, h: 40 }, label: { x: 922, y: 396 }, fontSize: 20 },
+    BAR: { cover: { x: 198, y: 938, w: 145, h: 40 }, label: { x: 270, y: 965 }, fontSize: 20 },
+};
+
 export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) {
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -45,6 +53,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
     const [zonesData, setZonesData] = useState({});
     const [tableOverrides, setTableOverrides] = useState({});
     const [fullscreen, setFullscreen] = useState(false);
+    const [activeZone, setActiveZone] = useState(null);
 
     useEffect(() => {
         api.get("/settings").then((r) => {
@@ -90,15 +99,24 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                     </p>
                 </div>
 
-                {/* Zone info cards con prezzi & bottiglie */}
+                {/* Zone info cards con prezzi & bottiglie — cliccabili per evidenziare la zona in piantina */}
                 <div data-testid="floorplan-zone-cards" className="grid gap-3 sm:grid-cols-3 mb-6">
                     {["STAGE", "RIVA", "BAR"].map((zid) => {
                         const z = getZone(zid);
+                        const isActive = activeZone === zid;
                         return (
-                            <div key={zid} data-testid={`floorplan-zone-card-${zid}`} className="glass-card rounded-xl p-4 space-y-2 border-l-4" style={{ borderLeftColor: z.color }}>
+                            <button
+                                type="button"
+                                key={zid}
+                                data-testid={`floorplan-zone-card-${zid}`}
+                                aria-pressed={isActive}
+                                onClick={() => setActiveZone(isActive ? null : zid)}
+                                className={`text-left glass-card rounded-xl p-4 space-y-2 border-l-4 transition-all duration-200 hover:-translate-y-[2px] focus:outline-none focus-visible:ring-2 focus-visible:ring-lava ${isActive ? "ring-2 ring-offset-2 ring-offset-obsidian shadow-[0_0_25px_rgba(255,255,255,0.15)]" : "hover:bg-white/[0.04]"}`}
+                                style={{ borderLeftColor: z.color, boxShadow: isActive ? `0 0 0 2px ${z.color}, 0 0 30px ${z.color}55` : undefined }}
+                            >
                                 <div className="flex items-center justify-between">
                                     <div className="text-sm font-black uppercase tracking-wide text-white">{z.label}</div>
-                                    <span className="w-3 h-3 rounded-sm" style={{ background: z.color }} />
+                                    <span className={`w-3 h-3 rounded-sm ${isActive ? "animate-pulse" : ""}`} style={{ background: z.color }} />
                                 </div>
                                 {z.price_from && (
                                     <div className="flex items-center gap-2 text-xs text-white/80">
@@ -113,7 +131,10 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                                     </div>
                                 )}
                                 {z.description && <p className="text-[11px] text-white/50 pt-1 leading-relaxed">{z.description}</p>}
-                            </div>
+                                <div className={`text-[10px] uppercase tracking-[0.25em] font-bold pt-1 transition-opacity ${isActive ? "opacity-100" : "opacity-40"}`} style={{ color: z.color }}>
+                                    {isActive ? "Zona evidenziata · Tocca per deselezionare" : "Tocca per evidenziare in piantina"}
+                                </div>
+                            </button>
                         );
                     })}
                 </div>
@@ -143,20 +164,38 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                         preserveAspectRatio="xMidYMid meet"
                     >
                         <image href={FLOORPLAN_URL} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                        {/* Copertura scritte originali della PNG + label cliccabili delle zone */}
+                        {["STAGE", "RIVA", "BAR"].map((zid) => {
+                            const a = ZONE_ANCHORS[zid];
+                            const z = getZone(zid);
+                            const isActive = activeZone === zid;
+                            return (
+                                <g key={`zone-label-${zid}`} data-testid={`floorplan-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
+                                    <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} fill="#0a0a0a" />
+                                    <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} strokeDasharray={isActive ? "0" : "4 3"} style={{ transition: "fill 0.2s, stroke-width 0.2s" }} />
+                                    <text x={a.label.x} y={a.label.y} textAnchor="middle" fill={z.color} fontSize={a.fontSize} fontWeight="900" letterSpacing="2" style={{ textTransform: "uppercase" }}>{(z.label || zid).toUpperCase()}</text>
+                                </g>
+                            );
+                        })}
                         {TABLES.map((t) => {
                             const status = reservedTables[t.id];
                             const isReserved = status === "reserved" || status === "booked";
                             const isHover = hoveredId === t.id && !isReserved;
                             const zoneColor = getZone(t.zone).color;
+                            const isZoneActive = activeZone === t.zone && !isReserved;
                             let fill = "transparent", stroke = "transparent", strokeWidth = 0;
                             if (isReserved) {
                                 fill = "rgba(225,6,0,0.28)";
                                 stroke = "#E10600";
                                 strokeWidth = 1.5;
                             } else if (isHover) {
-                                fill = `${zoneColor}44`;
+                                fill = `${zoneColor}66`;
                                 stroke = zoneColor;
                                 strokeWidth = 2.5;
+                            } else if (isZoneActive) {
+                                fill = `${zoneColor}55`;
+                                stroke = zoneColor;
+                                strokeWidth = 2;
                             }
                             return (
                                 <g
@@ -244,11 +283,26 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                             preserveAspectRatio="xMidYMid meet"
                         >
                             <image href={FLOORPLAN_URL} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                            {/* Copertura scritte + label cliccabili anche in fullscreen */}
+                            {["STAGE", "RIVA", "BAR"].map((zid) => {
+                                const a = ZONE_ANCHORS[zid];
+                                const z = getZone(zid);
+                                const isActive = activeZone === zid;
+                                return (
+                                    <g key={`fs-zone-label-${zid}`} data-testid={`fs-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
+                                        <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} fill="#0a0a0a" />
+                                        <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} strokeDasharray={isActive ? "0" : "4 3"} />
+                                        <text x={a.label.x} y={a.label.y} textAnchor="middle" fill={z.color} fontSize={a.fontSize} fontWeight="900" letterSpacing="2">{(z.label || zid).toUpperCase()}</text>
+                                    </g>
+                                );
+                            })}
                             {TABLES.map((t) => {
                                 const status = reservedTables[t.id];
                                 const isReserved = status === "reserved" || status === "booked";
                                 const zoneColor = getZone(t.zone).color;
+                                const isZoneActive = activeZone === t.zone && !isReserved;
                                 let fill = `${zoneColor}22`, stroke = zoneColor, strokeWidth = 2;
+                                if (isZoneActive) { fill = `${zoneColor}66`; strokeWidth = 3; }
                                 if (isReserved) { fill = "rgba(225,6,0,0.35)"; stroke = "#E10600"; strokeWidth = 2; }
                                 return (
                                     <g

@@ -30,6 +30,7 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
 - **[16 Feb 2026]** Backend: `floorplan_table_overrides: dict` in SettingsIn
 - **[16 Feb 2026]** Floorplan.jsx: usa override quando presente, altrimenti prezzo di zona
 - **[16 Feb 2026]** Mobile: tasto rosso "VEDI A SCHERMO INTERO" (lg:hidden) apre overlay fullscreen con SVG a 150vw (scroll orizzontale) e hitbox tavolo ingrandita. Testing 100%.
+- **[17 Feb 2026]** Floorplan: 3 card privé (STAGE/RIVA/BAR) rese cliccabili → evidenziano i tavoli della zona con colore. Rimosse scritte originali della PNG (BACK THE STAGE, RIVA DECK, GLITZ BAR) via rect di copertura #0a0a0a tra B8-B15, R10-R11, G4-G8. Aggiunti label SVG cliccabili (ZONE_ANCHORS con coord estratte via connected-components) che replicano il toggle della card. Funziona anche in fullscreen mobile.
 
 ## Pending
 - **Deploy in produzione** — utente ancora indeciso (ask_human aperto)
