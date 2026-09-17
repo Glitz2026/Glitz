@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, API } from "../lib/api";
 import { toast } from "sonner";
@@ -58,6 +58,17 @@ export default function AdminDashboard() {
     const [products, setProducts] = useState([]);
     const [editProduct, setEditProduct] = useState(null);
     const [subscribers, setSubscribers] = useState([]);
+    const [dragTarget, setDragTarget] = useState(null); // { type: "table"|"label", id/zid }
+    const previewSvgRef = useRef(null);
+
+    // Converte le coordinate del puntatore (clientX, clientY) in coordinate SVG del preview
+    const clientToSvg = (clientX, clientY) => {
+        const svg = previewSvgRef.current; if (!svg) return null;
+        const pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
+        const ctm = svg.getScreenCTM(); if (!ctm) return null;
+        const p = pt.matrixTransform(ctm.inverse());
+        return { x: Math.round(p.x), y: Math.round(p.y) };
+    };
 
     const email = localStorage.getItem("glitz_admin_email");
 
@@ -1213,32 +1224,74 @@ export default function AdminDashboard() {
                                                 <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-emerald-400 font-black mb-2">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Preview live piantina
                                                 </div>
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" preserveAspectRatio="xMidYMid meet" className="w-full max-w-[600px] mx-auto block bg-obsidian" style={{ aspectRatio: "1 / 1" }} data-testid="fp-live-preview">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 1254 1254"
+                                                    preserveAspectRatio="xMidYMid meet"
+                                                    className="w-full max-w-[600px] mx-auto block bg-obsidian select-none"
+                                                    style={{ aspectRatio: "1 / 1", touchAction: "none" }}
+                                                    ref={previewSvgRef}
+                                                    onPointerMove={(e) => {
+                                                        if (!dragTarget) return;
+                                                        const p = clientToSvg(e.clientX, e.clientY); if (!p) return;
+                                                        if (dragTarget.type === "table") {
+                                                            const list = [...(settings.floorplan_tables || [])];
+                                                            const i = list.findIndex((t) => t.id === dragTarget.id);
+                                                            if (i < 0) {
+                                                                // popola con default poi trova
+                                                                return;
+                                                            }
+                                                            list[i] = { ...list[i], x: p.x, y: p.y };
+                                                            setSettings({ ...settings, floorplan_tables: list });
+                                                        } else if (dragTarget.type === "label") {
+                                                            const anchors = { ...(settings.floorplan_anchors || {}) };
+                                                            const zid = dragTarget.id;
+                                                            const defaults = { STAGE: { cover_x: 85, cover_y: 660, cover_w: 210, cover_h: 40, label_x: 190, label_y: 686, font_size: 18 }, RIVA: { cover_x: 842, cover_y: 360, cover_w: 165, cover_h: 40, label_x: 924, label_y: 388, font_size: 20 }, BAR: { cover_x: 205, cover_y: 940, cover_w: 145, cover_h: 40, label_x: 278, label_y: 967, font_size: 20 } };
+                                                            const cur = { ...(defaults[zid] || { cover_x: 500, cover_y: 500, cover_w: 150, cover_h: 40, label_x: 575, label_y: 528, font_size: 20 }), ...(anchors[zid] || {}) };
+                                                            const dx = p.x - cur.label_x; const dy = p.y - cur.label_y;
+                                                            anchors[zid] = { ...cur, label_x: p.x, label_y: p.y, cover_x: cur.cover_x + dx, cover_y: cur.cover_y + dy };
+                                                            setSettings({ ...settings, floorplan_anchors: anchors });
+                                                        }
+                                                    }}
+                                                    onPointerUp={() => setDragTarget(null)}
+                                                    onPointerLeave={() => setDragTarget(null)}
+                                                    data-testid="fp-live-preview"
+                                                >
                                                     <image xmlns="http://www.w3.org/2000/svg" href="/floorplan-official.png" xlinkHref="/floorplan-official.png" x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                                                     {allZoneIds.map((zid) => {
                                                         const a = { ...(defAnchors[zid] || { cover_x: 500, cover_y: 500, cover_w: 150, cover_h: 40, label_x: 575, label_y: 528, font_size: 20 }), ...(anchorsMap[zid] || {}) };
                                                         const extra = extras.find((e) => e.id === zid);
                                                         const color = zoneColors[zid] || (extra && extra.color) || "#8B5CF6";
                                                         const label = zoneLabels[zid] || (extra && extra.label) || zid;
+                                                        const isDragging = dragTarget && dragTarget.type === "label" && dragTarget.id === zid;
                                                         return (
-                                                            <g key={zid}>
+                                                            <g key={zid} onPointerDown={(e) => { e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId); setDragTarget({ type: "label", id: zid }); }} style={{ cursor: "grab" }} data-testid={`fp-preview-label-${zid}`}>
                                                                 <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} fill="#0a0a0a" />
-                                                                <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} rx="8" fill={`${color}22`} stroke={color} strokeWidth={2} />
-                                                                <text x={a.label_x} y={a.label_y} textAnchor="middle" fill={color} fontSize={a.font_size} fontWeight="900" letterSpacing="2">{label.toUpperCase()}</text>
+                                                                <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} rx="8" fill={`${color}${isDragging ? "44" : "22"}`} stroke={color} strokeWidth={isDragging ? 4 : 2} />
+                                                                <text x={a.label_x} y={a.label_y} textAnchor="middle" fill={color} fontSize={a.font_size} fontWeight="900" letterSpacing="2" pointerEvents="none">{label.toUpperCase()}</text>
                                                             </g>
                                                         );
                                                     })}
                                                     {tables.map((t) => {
                                                         const color = zoneColors[t.zone] || "#8B5CF6";
+                                                        const isDragging = dragTarget && dragTarget.type === "table" && dragTarget.id === t.id;
                                                         return (
-                                                            <g key={t.id}>
-                                                                <rect x={t.x - 23} y={t.y - 21} width="46" height="42" rx="4" fill="none" stroke={color} strokeWidth={2} />
-                                                                <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#fff" fontSize="18" fontWeight="900">{t.id}</text>
+                                                            <g key={t.id} onPointerDown={(e) => {
+                                                                e.stopPropagation();
+                                                                e.currentTarget.setPointerCapture(e.pointerId);
+                                                                // Se floorplan_tables è vuoto, popola con default per permettere il drag
+                                                                if (!(settings.floorplan_tables && settings.floorplan_tables.length)) {
+                                                                    setSettings({ ...settings, floorplan_tables: tables });
+                                                                }
+                                                                setDragTarget({ type: "table", id: t.id });
+                                                            }} style={{ cursor: "grab" }} data-testid={`fp-preview-table-${t.id}`}>
+                                                                <rect x={t.x - 23} y={t.y - 21} width="46" height="42" rx="4" fill={isDragging ? `${color}33` : "none"} stroke={color} strokeWidth={isDragging ? 4 : 2} />
+                                                                <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#fff" fontSize="18" fontWeight="900" pointerEvents="none">{t.id}</text>
                                                             </g>
                                                         );
                                                     })}
                                                 </svg>
-                                                <p className="text-[10px] text-white/40 text-center mt-2">Aggiornamento istantaneo. Il preview mostra tutte le zone + tavoli con le coordinate correnti.</p>
+                                                <p className="text-[10px] text-white/40 text-center mt-2"><b className="text-emerald-400">Drag & drop</b> attivo — trascina tavoli o etichette con il mouse per riposizionarli, poi clicca "Salva".</p>
                                             </div>
                                         );
                                     })()}

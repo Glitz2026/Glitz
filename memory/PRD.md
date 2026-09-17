@@ -37,7 +37,13 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
 - **[17 Feb 2026]** Admin Contenuti: aggiunta sticky sub-nav a pillole con 10 bottoni (Home, Il Club, Contatti, Piantina, Menu, Footer, Shop, Eventi Privati, Titoli sezioni, Poster & SEO) che scrollano direttamente alla sezione corrispondente. `scroll-mt-28` per evitare che l'header sticky copra il target. Tutte le `<details>` aprono di default. Il tab menu principale resta compatto (10 tab).
 - **[17 Feb 2026]** Piantina per Evento: campo `floorplan_image_url` aggiunto a `EventIn`. `Floorplan.jsx` accetta prop `customImageUrl` che sovrascrive la PNG di default quando presente. `EventDetail.jsx` passa `ev.floorplan_image_url`. Admin: upload/URL di piantina custom visibile solo quando la piantina interattiva è attiva.
 - **[17 Feb 2026]** Anteprima Live Contenuti: componente riutilizzabile `SectionPreview` (con badge verde pulsante "Anteprima live" + link "Apri pagina") inserito in ogni sezione del tab Contenuti (Menu = navbar reale, Footer, Shop, Eventi Privati con chip aree, Titoli sezioni con 4 preview parallele, Poster + SEO SERP-like). Aggiornamento in real-time mentre si digita, prima del salvataggio.
-- **[17 Feb 2026]** Floorplan v7: 
+- **[17 Feb 2026]** Floorplan v8 (drag & drop tavoli + label):
+  - Aggiunto `previewSvgRef` + helper `clientToSvg()` che converte coordinate del puntatore in coord SVG via `getScreenCTM().inverse()`
+  - State `dragTarget: { type: "table"|"label", id }` centralizzato
+  - Handler `onPointerDown` su ogni `<g>` di tavolo/label con `setPointerCapture(pointerId)` per drag continuo
+  - `onPointerMove` sull'SVG: se sto trascinando un tavolo → aggiorna `settings.floorplan_tables[i].x/y`; se sto trascinando una label → sposta `label_x/y` E applica lo stesso delta a `cover_x/y` per mantenere il testo centrato nel rettangolo
+  - Feedback visuale: durante il drag, contorno tavolo/label diventa spesso 4px e riempie di colore semitrasparente
+  - Se `floorplan_tables` è vuoto e l'utente trascina un tavolo default, la lista viene popolata automaticamente
   - BACK THE STAGE ricentrato in modo definitivo — cover_x=85 cover_y=660 cover_w=210 cover_h=40 label_x=190 label_y=686 font_size=18 → label posizionata sopra B11 senza sovrapposizioni con nessun tavolo circostante (B8/B9/B10/B11/B15)
   - Preview Live SVG nel Admin → Contenuti → Piantina: rende la floorplan-official.png completa con tutti i 40 tavoli e le 3+ label pulsante che seguono le coordinate correnti (settings) in real-time. Aggiunto `xmlns` esplicito su `<svg>` e `<image>` con `xlinkHref` per compatibilità cross-browser. Aspect ratio 1:1 forzato.
   - Animazione contorno invertita: quando una zona è attiva, i tavoli hanno stroke normale (2px). SOLO il tavolo cliccato entra in `isPulsing` → stroke raddoppia (5px) + `<animate>` che raddoppia le dimensioni per 380ms
