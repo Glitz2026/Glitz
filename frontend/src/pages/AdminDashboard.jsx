@@ -645,6 +645,35 @@ export default function AdminDashboard() {
                     {!settings && <p className="text-white/60">Caricamento...</p>}
                     {settings && (
                         <div className="space-y-6">
+                            {/* Quick-jump sub-menu: ogni sezione dei Contenuti ha il suo bottone */}
+                            <div data-testid="content-submenu" className="sticky top-0 z-10 -mx-4 sm:-mx-6 lg:-mx-8 bg-obsidian/95 backdrop-blur border-b border-white/10 px-4 sm:px-6 lg:px-8 py-3">
+                                <div className="flex flex-wrap gap-2">
+                                    {[
+                                        { id: "csec-home", label: "Home" },
+                                        { id: "csec-about", label: "Il Club" },
+                                        { id: "csec-contact", label: "Contatti" },
+                                        { id: "csec-floorplan", label: "Piantina" },
+                                        { id: "csec-nav", label: "Menu" },
+                                        { id: "csec-footer", label: "Footer" },
+                                        { id: "csec-shop", label: "Shop" },
+                                        { id: "csec-private", label: "Eventi Privati" },
+                                        { id: "csec-titles", label: "Titoli sezioni" },
+                                        { id: "csec-poster", label: "Poster & SEO" },
+                                    ].map((s) => (
+                                        <button
+                                            key={s.id}
+                                            type="button"
+                                            data-testid={`csub-${s.id}`}
+                                            onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                                            className="px-3 py-1.5 rounded-full text-xs uppercase tracking-widest font-bold bg-white/5 border border-white/10 text-white/70 hover:bg-lava hover:text-white hover:border-lava transition"
+                                        >
+                                            {s.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div id="csec-home" className="scroll-mt-28">
                             <div className="glass-card rounded-2xl p-6 space-y-4">
                                 <div>
                                     <h3 className="font-bold text-lg">Titolo Hero (2 righe)</h3>
@@ -724,6 +753,8 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* ================ PAGINA IL CLUB ================ */}
+                            </div>
+                            <div id="csec-about" className="scroll-mt-28">
                             <div className="pt-6 border-t border-white/10 space-y-6" data-testid="about-editor">
                                 <div>
                                     <h2 className="text-2xl font-black uppercase tracking-tight text-lava">Pagina "Il Club"</h2>
@@ -908,6 +939,8 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* ================ PAGINA CONTATTI ================ */}
+                            </div>
+                            <div id="csec-contact" className="scroll-mt-28">
                             <div className="pt-6 border-t border-white/10 space-y-6" data-testid="contact-editor">
                                 <div>
                                     <h2 className="text-2xl font-black uppercase tracking-tight text-lava">Pagina "Contatti"</h2>
@@ -970,6 +1003,8 @@ export default function AdminDashboard() {
                             </div>
 
                             {/* ================ FLOORPLAN — Prezzi & Bottiglie ================ */}
+                            </div>
+                            <div id="csec-floorplan" className="scroll-mt-28">
                             <div className="pt-6 border-t border-white/10 space-y-6" data-testid="floorplan-editor">
                                 <div>
                                     <h2 className="text-2xl font-black uppercase tracking-tight text-lava">Piantina — Prezzi & Bottiglie</h2>
@@ -1086,7 +1121,8 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
-                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                            </div>
+                            <details id="csec-nav" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
                                 <summary className="cursor-pointer font-bold text-lg">Menu di navigazione</summary>
                                 <p className="text-xs text-white/50">Rinomina, nascondi o riordina le voci del menu. Non aggiungere voci nuove: il routing è fisso.</p>
                                 <div className="space-y-2">
@@ -1120,7 +1156,7 @@ export default function AdminDashboard() {
                                 </div>
                             </details>
 
-                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                            <details id="csec-footer" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
                                 <summary className="cursor-pointer font-bold text-lg">Footer</summary>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <input data-testid="footer-contact-title" className={input} placeholder="Titolo Contatti" value={settings.footer_contact_title || ""} onChange={(e) => setSettings({ ...settings, footer_contact_title: e.target.value })} />
@@ -1130,7 +1166,7 @@ export default function AdminDashboard() {
                                 <input data-testid="footer-copyright" className={input} placeholder="Testo copyright (senza anno)" value={settings.footer_copyright || ""} onChange={(e) => setSettings({ ...settings, footer_copyright: e.target.value })} />
                             </details>
 
-                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                            <details id="csec-shop" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
                                 <summary className="cursor-pointer font-bold text-lg">Pagina Shop</summary>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <input data-testid="shop-kicker" className={input} placeholder="Kicker" value={settings.shop_kicker || ""} onChange={(e) => setSettings({ ...settings, shop_kicker: e.target.value })} />
@@ -1153,7 +1189,7 @@ export default function AdminDashboard() {
                                 </div>
                             </details>
 
-                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                            <details id="csec-private" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
                                 <summary className="cursor-pointer font-bold text-lg">Pagina Eventi Privati</summary>
                                 <div className="grid gap-3 sm:grid-cols-3">
                                     <input data-testid="private-kicker" className={input} placeholder="Kicker" value={settings.private_kicker || ""} onChange={(e) => setSettings({ ...settings, private_kicker: e.target.value })} />
@@ -1196,7 +1232,7 @@ export default function AdminDashboard() {
                                 </div>
                             </details>
 
-                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                            <details id="csec-titles" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
                                 <summary className="cursor-pointer font-bold text-lg">Titoli sezioni (Blog / Gallery / Eventi passati / Eventi)</summary>
                                 <div className="grid gap-3 sm:grid-cols-3">
                                     <input className={input} placeholder="Blog kicker" value={settings.blog_kicker || ""} onChange={(e) => setSettings({ ...settings, blog_kicker: e.target.value })} />
@@ -1220,7 +1256,7 @@ export default function AdminDashboard() {
                                 </div>
                             </details>
 
-                            <details className="glass-card rounded-2xl p-6 space-y-4">
+                            <details id="csec-poster" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
                                 <summary className="cursor-pointer font-bold text-lg">Poster & SEO</summary>
                                 <div className="grid gap-3 sm:grid-cols-3">
                                     <input className={input} placeholder="Poster: nome club (es. GLITZ)" value={settings.poster_club_name || ""} onChange={(e) => setSettings({ ...settings, poster_club_name: e.target.value })} />
