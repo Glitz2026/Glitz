@@ -48,7 +48,7 @@ const ZONE_ANCHORS = {
     BAR: { cover: { x: 198, y: 938, w: 145, h: 40 }, label: { x: 270, y: 965 }, fontSize: 20 },
 };
 
-export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) {
+export default function Floorplan({ eventTitle, eventId, reservedTables = {}, customImageUrl = "" }) {
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [hoveredId, setHoveredId] = useState(null);
@@ -56,6 +56,10 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
     const [tableOverrides, setTableOverrides] = useState({});
     const [fullscreen, setFullscreen] = useState(false);
     const [activeZone, setActiveZone] = useState(null);
+
+    const floorplanUrl = customImageUrl
+        ? (customImageUrl.startsWith("http") ? customImageUrl : `${process.env.REACT_APP_BACKEND_URL}${customImageUrl}`)
+        : FLOORPLAN_URL;
 
     useEffect(() => {
         api.get("/settings").then((r) => {
@@ -165,7 +169,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                         aria-label="Piantina Glitz Club"
                         preserveAspectRatio="xMidYMid meet"
                     >
-                        <image href={FLOORPLAN_URL} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                        <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                         {/* Copertura scritte originali della PNG + label cliccabili delle zone */}
                         {["STAGE", "RIVA", "BAR"].map((zid) => {
                             const a = ZONE_ANCHORS[zid];
@@ -293,7 +297,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {} }) 
                             style={{ minWidth: "150vw", maxWidth: "none" }}
                             preserveAspectRatio="xMidYMid meet"
                         >
-                            <image href={FLOORPLAN_URL} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                            <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                             {/* Copertura scritte + label cliccabili anche in fullscreen */}
                             {["STAGE", "RIVA", "BAR"].map((zid) => {
                                 const a = ZONE_ANCHORS[zid];

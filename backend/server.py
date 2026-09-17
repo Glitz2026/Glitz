@@ -239,6 +239,7 @@ class EventIn(BaseModel):
     location: str = "Contrada Dino, San Nicola Arcella (CS)"
     published: bool = True
     floorplan_enabled: bool = False
+    floorplan_image_url: str = ""
     reserved_tables: dict = {}
 
 

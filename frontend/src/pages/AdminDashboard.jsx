@@ -12,10 +12,32 @@ function resolveMediaUrl(m) {
     return `${base}${m.url}`;
 }
 
-const emptyEvent = { title: "", date: "", lineup: "", description: "", poster_url: "", artist_photo_url: "", ticket_url: "https://www.ticketsms.it/", location: "Contrada Dino, San Nicola Arcella (CS)", published: true, floorplan_enabled: false };
+const emptyEvent = { title: "", date: "", lineup: "", description: "", poster_url: "", artist_photo_url: "", ticket_url: "https://www.ticketsms.it/", location: "Contrada Dino, San Nicola Arcella (CS)", published: true, floorplan_enabled: false, floorplan_image_url: "" };
 const emptyPost = { title: "", slug: "", excerpt: "", cover_url: "", body: "", tags: "", published: true };
 const emptyFaq = { question: "", answer: "", order: 0 };
 const emptyProduct = { slug: "", name: "", subtitle: "", price: 0, image: "", gallery: [], description: "", details: [], color: "", badge: "", sizes: [], active: true, order: 99 };
+
+// Preview card renderizzata inline sotto ogni sezione dei Contenuti — mostra come apparirà H1/kicker/descrizione con lo stato corrente (non ancora salvato)
+function SectionPreview({ kicker, title, description, extra, url, label = "Anteprima live" }) {
+    return (
+        <div data-testid="section-preview" className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5 space-y-2">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-emerald-400 font-black">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {label}
+                </div>
+                {url && (
+                    <a href={url} target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-white/60 hover:text-white underline">
+                        Apri pagina →
+                    </a>
+                )}
+            </div>
+            {kicker && <div className="text-[10px] uppercase tracking-[0.35em] text-lava font-bold">{kicker}</div>}
+            {title && <div className="text-2xl sm:text-3xl font-black uppercase tracking-tight leading-tight text-white whitespace-pre-line">{title}</div>}
+            {description && <p className="text-sm text-white/60 leading-relaxed line-clamp-3">{description}</p>}
+            {extra}
+        </div>
+    );
+}
 
 export default function AdminDashboard() {
     const nav = useNavigate();
@@ -485,6 +507,43 @@ export default function AdminDashboard() {
                                 <input type="checkbox" checked={editEvent.floorplan_enabled} onChange={(e) => setEditEvent({ ...editEvent, floorplan_enabled: e.target.checked })} />
                                 Piantina interattiva attiva per questo evento (Fase 2)
                             </label>
+                            {editEvent.floorplan_enabled && (
+                                <div className="rounded-xl border border-lava/30 bg-lava/5 p-3 space-y-2" data-testid="event-floorplan-custom">
+                                    <label className="text-xs uppercase tracking-widest text-lava font-bold block">Piantina custom per questa serata (opzionale)</label>
+                                    <p className="text-[11px] text-white/50">Lascia vuoto per usare la piantina di default. Utile per setup speciali (es. compleanni, matrimoni). Le zone e i tavoli restano gli stessi.</p>
+                                    <div className="flex items-center gap-3">
+                                        {editEvent.floorplan_image_url ? (
+                                            <img src={editEvent.floorplan_image_url.startsWith("http") ? editEvent.floorplan_image_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.floorplan_image_url}`} alt="floorplan" className="w-20 h-20 rounded object-cover border border-white/10 bg-black" />
+                                        ) : (
+                                            <div className="w-20 h-20 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px] bg-black">Default</div>
+                                        )}
+                                        <div className="flex-1 space-y-2">
+                                            <input data-testid="event-floorplan-url" className={input} placeholder="Oppure incolla URL PNG piantina" value={editEvent.floorplan_image_url || ""} onChange={(e) => setEditEvent({ ...editEvent, floorplan_image_url: e.target.value })} />
+                                            <div className="flex gap-2">
+                                                <label data-testid="upload-event-floorplan" className="btn-ghost !px-3 !py-1.5 !text-xs cursor-pointer inline-flex">
+                                                    <Upload className="w-3 h-3" /> Carica piantina
+                                                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                                                        const f = e.target.files?.[0]; if (!f) return;
+                                                        try {
+                                                            const fd = new FormData();
+                                                            fd.append("file", f);
+                                                            fd.append("category", "event-floorplan");
+                                                            const r = await api.post("/admin/media", fd);
+                                                            setEditEvent({ ...editEvent, floorplan_image_url: r.data.url });
+                                                            toast.success("Piantina caricata");
+                                                        } catch { toast.error("Errore upload"); }
+                                                    }} />
+                                                </label>
+                                                {editEvent.floorplan_image_url && (
+                                                    <button type="button" onClick={() => setEditEvent({ ...editEvent, floorplan_image_url: "" })} className="btn-ghost !px-3 !py-1.5 !text-xs !text-lava">
+                                                        <Trash2 className="w-3 h-3" /> Rimuovi
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             <label className="flex items-center gap-2 text-sm text-white/70">
                                 <input type="checkbox" checked={editEvent.published} onChange={(e) => setEditEvent({ ...editEvent, published: e.target.checked })} />
                                 Pubblicato
@@ -1154,6 +1213,16 @@ export default function AdminDashboard() {
                                         </div>
                                     ))}
                                 </div>
+                                <SectionPreview
+                                    label="Anteprima Navbar"
+                                    extra={
+                                        <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
+                                            {(settings.nav_items || []).filter((n) => !n.hidden).map((n, i) => (
+                                                <span key={i} className="text-xs uppercase tracking-widest text-white/80 font-bold hover:text-lava cursor-default">{n.label}</span>
+                                            ))}
+                                        </div>
+                                    }
+                                />
                             </details>
 
                             <details id="csec-footer" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
@@ -1164,6 +1233,22 @@ export default function AdminDashboard() {
                                 </div>
                                 <textarea data-testid="footer-tagline" className={input} rows="2" placeholder="Tagline sotto i social (opzionale)" value={settings.footer_tagline || ""} onChange={(e) => setSettings({ ...settings, footer_tagline: e.target.value })} />
                                 <input data-testid="footer-copyright" className={input} placeholder="Testo copyright (senza anno)" value={settings.footer_copyright || ""} onChange={(e) => setSettings({ ...settings, footer_copyright: e.target.value })} />
+                                <SectionPreview
+                                    label="Anteprima footer"
+                                    extra={
+                                        <div className="grid gap-4 sm:grid-cols-2 pt-3">
+                                            <div>
+                                                <div className="text-[10px] uppercase tracking-widest text-lava font-black mb-1">{settings.footer_contact_title}</div>
+                                                <div className="text-xs text-white/70">glitzclubofficial@gmail.com<br/>344 4289232</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] uppercase tracking-widest text-lava font-black mb-1">{settings.footer_social_title}</div>
+                                                {settings.footer_tagline && <p className="text-[11px] text-white/50 leading-relaxed">{settings.footer_tagline}</p>}
+                                            </div>
+                                            <div className="col-span-full text-center text-[10px] text-white/40 pt-2 border-t border-white/5">© {new Date().getFullYear()} {settings.footer_copyright}</div>
+                                        </div>
+                                    }
+                                />
                             </details>
 
                             <details id="csec-shop" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
@@ -1187,6 +1272,19 @@ export default function AdminDashboard() {
                                         </div>
                                     ))}
                                 </div>
+                                <SectionPreview
+                                    url="/shop"
+                                    kicker={settings.shop_kicker}
+                                    title={settings.shop_title}
+                                    description={settings.shop_description}
+                                    extra={(settings.shop_chips || []).length > 0 && (
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {(settings.shop_chips || []).map((c, i) => (
+                                                <span key={i} className="text-[10px] uppercase tracking-widest text-white/60 border border-white/15 rounded-full px-2.5 py-1">{c}</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                />
                             </details>
 
                             <details id="csec-private" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
@@ -1230,6 +1328,19 @@ export default function AdminDashboard() {
                                     <input className={input} placeholder="Titolo conferma invio" value={settings.private_success_title || ""} onChange={(e) => setSettings({ ...settings, private_success_title: e.target.value })} />
                                     <input className={input} placeholder="Testo conferma invio" value={settings.private_success_body || ""} onChange={(e) => setSettings({ ...settings, private_success_body: e.target.value })} />
                                 </div>
+                                <SectionPreview
+                                    url="/prenota-evento"
+                                    kicker={settings.private_kicker}
+                                    title={`${settings.private_hero_line1 || ""} ${settings.private_hero_line2 || ""}`.trim()}
+                                    description={settings.private_hero_subtitle}
+                                    extra={(settings.private_areas || []).length > 0 && (
+                                        <div className="flex flex-wrap gap-2 pt-3">
+                                            {(settings.private_areas || []).map((a) => (
+                                                <span key={a.id} className="text-[10px] uppercase tracking-widest text-white/70 border border-white/15 bg-white/5 rounded-lg px-2.5 py-1">{a.label}</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                />
                             </details>
 
                             <details id="csec-titles" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
@@ -1254,6 +1365,12 @@ export default function AdminDashboard() {
                                     <input className={input} placeholder="Eventi titolo" value={settings.events_title || ""} onChange={(e) => setSettings({ ...settings, events_title: e.target.value })} />
                                     <input className={input} placeholder="Messaggio vuoto" value={settings.events_empty || ""} onChange={(e) => setSettings({ ...settings, events_empty: e.target.value })} />
                                 </div>
+                                <div className="grid gap-3 md:grid-cols-2 pt-2">
+                                    <SectionPreview label="Anteprima Blog" url="/news" kicker={settings.blog_kicker} title={settings.blog_title} description={settings.blog_description} />
+                                    <SectionPreview label="Anteprima Gallery" url="/gallery" kicker={settings.gallery_kicker} title={settings.gallery_page_title} description={settings.gallery_description} />
+                                    <SectionPreview label="Anteprima Eventi Passati" url="/eventi/passati" kicker={settings.past_kicker} title={settings.past_title} description={settings.past_description} />
+                                    <SectionPreview label="Anteprima Eventi" url="/eventi" kicker={settings.events_kicker} title={settings.events_title} description={settings.events_empty} />
+                                </div>
                             </details>
 
                             <details id="csec-poster" className="glass-card rounded-2xl p-6 space-y-4 scroll-mt-28" open>
@@ -1270,6 +1387,31 @@ export default function AdminDashboard() {
                                 </div>
                                 <textarea className={input} rows="2" placeholder="SEO: descrizione di default" value={settings.seo_default_description || ""} onChange={(e) => setSettings({ ...settings, seo_default_description: e.target.value })} />
                                 <input className={input} placeholder="SEO: og:image URL" value={settings.seo_default_og_image || ""} onChange={(e) => setSettings({ ...settings, seo_default_og_image: e.target.value })} />
+                                <div className="grid gap-3 md:grid-cols-2 pt-2">
+                                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5 space-y-2" data-testid="poster-preview">
+                                        <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-black flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Anteprima poster
+                                        </div>
+                                        <div className="aspect-[4/5] rounded-xl bg-black overflow-hidden relative flex items-center justify-center text-center p-6">
+                                            <div className="absolute top-3 left-3 text-[8px] uppercase tracking-widest text-white font-black">{settings.poster_club_name}<div className="text-[6px] text-lava tracking-[0.3em]">{settings.poster_club_label}</div></div>
+                                            <div className="absolute top-3 right-3 text-[7px] uppercase tracking-widest text-white/60">{settings.poster_location}</div>
+                                            <div className="text-white text-2xl font-black uppercase leading-tight">DAMANTE<br/><span className="text-lava">OPENING</span></div>
+                                            <div className="absolute bottom-3 left-3 right-3 text-[7px] uppercase tracking-widest text-white/40 flex flex-wrap justify-center gap-1">
+                                                {(settings.poster_sponsors || []).map((s, i) => <span key={i}>· {s}</span>)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5 space-y-2" data-testid="seo-preview">
+                                        <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-black flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Anteprima Google SERP
+                                        </div>
+                                        <div className="rounded-lg bg-white/5 p-3 space-y-1 font-sans">
+                                            <div className="text-[10px] text-white/40">glitzclub.it › /</div>
+                                            <div className="text-base text-blue-300 font-medium leading-tight">{settings.seo_default_title || settings.seo_site_name}</div>
+                                            <p className="text-[11px] text-white/60 line-clamp-2 leading-relaxed">{settings.seo_default_description}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </details>
 
                             <button
