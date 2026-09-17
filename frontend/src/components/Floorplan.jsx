@@ -41,7 +41,7 @@ const LABEL_H = 42;
 const FLOORPLAN_URL = "/floorplan-official.png";
 
 const DEFAULT_ANCHORS = {
-    STAGE: { cover_x: 65, cover_y: 670, cover_w: 275, cover_h: 42, label_x: 202, label_y: 698, font_size: 22 },
+    STAGE: { cover_x: 85, cover_y: 660, cover_w: 210, cover_h: 40, label_x: 190, label_y: 686, font_size: 18 },
     RIVA: { cover_x: 842, cover_y: 360, cover_w: 165, cover_h: 40, label_x: 924, label_y: 388, font_size: 20 },
     BAR: { cover_x: 205, cover_y: 940, cover_w: 145, cover_h: 40, label_x: 278, label_y: 967, font_size: 20 },
 };

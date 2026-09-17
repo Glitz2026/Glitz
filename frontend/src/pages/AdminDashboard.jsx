@@ -1195,12 +1195,60 @@ export default function AdminDashboard() {
                                     </div>
                                     <p className="text-[11px] text-white/50">Coordinate riferite alla PNG 1254×1254. `label_x/y` = centro testo. `cover_x/y/w/h` = rettangolo nero che copre eventuali scritte originali e fa da sfondo al pulsante.</p>
 
+                                    {/* PREVIEW LIVE PIANTINA */}
+                                    {(() => {
+                                        const anchorsMap = settings.floorplan_anchors || {};
+                                        const extras = settings.floorplan_extra_zones || [];
+                                        const tables = (settings.floorplan_tables && settings.floorplan_tables.length) ? settings.floorplan_tables : [
+                                            {id:"B0",x:78,y:193,zone:"STAGE"},{id:"B2",x:170,y:193,zone:"STAGE"},{id:"B4",x:263,y:193,zone:"STAGE"},{id:"B1",x:105,y:260,zone:"STAGE"},{id:"B3",x:206,y:260,zone:"STAGE"},{id:"B5",x:90,y:345,zone:"STAGE"},{id:"B6",x:200,y:345,zone:"STAGE"},{id:"B7",x:90,y:413,zone:"STAGE"},{id:"B8",x:75,y:625,zone:"STAGE"},{id:"B9",x:161,y:625,zone:"STAGE"},{id:"B10",x:248,y:625,zone:"STAGE"},{id:"B11",x:324,y:696,zone:"STAGE"},{id:"B12",x:399,y:716,zone:"STAGE"},{id:"B13",x:477,y:740,zone:"STAGE"},{id:"B14",x:389,y:769,zone:"STAGE"},{id:"B15",x:81,y:746,zone:"STAGE"},
+                                            {id:"R1",x:606,y:235,zone:"RIVA"},{id:"R5",x:747,y:238,zone:"RIVA"},{id:"R9",x:904,y:237,zone:"RIVA"},{id:"R13",x:1072,y:237,zone:"RIVA"},{id:"R2",x:617,y:316,zone:"RIVA"},{id:"R6",x:762,y:316,zone:"RIVA"},{id:"R10",x:915,y:316,zone:"RIVA"},{id:"R14",x:1083,y:316,zone:"RIVA"},{id:"R3",x:633,y:417,zone:"RIVA"},{id:"R7",x:771,y:440,zone:"RIVA"},{id:"R11",x:933,y:440,zone:"RIVA"},{id:"R15",x:1096,y:440,zone:"RIVA"},{id:"R4",x:645,y:506,zone:"RIVA"},{id:"R8",x:792,y:514,zone:"RIVA"},{id:"R12",x:955,y:515,zone:"RIVA"},{id:"R16",x:1112,y:512,zone:"RIVA"},
+                                            {id:"G1",x:135,y:819,zone:"BAR"},{id:"G2",x:212,y:861,zone:"BAR"},{id:"G3",x:144,y:913,zone:"BAR"},{id:"G8",x:379,y:939,zone:"BAR"},{id:"G4",x:176,y:977,zone:"BAR"},{id:"G5",x:160,y:1035,zone:"BAR"},{id:"G7",x:370,y:1036,zone:"BAR"},{id:"G6",x:262,y:1069,zone:"BAR"},
+                                        ];
+                                        const defAnchors = { STAGE: { cover_x: 85, cover_y: 660, cover_w: 210, cover_h: 40, label_x: 190, label_y: 686, font_size: 18 }, RIVA: { cover_x: 842, cover_y: 360, cover_w: 165, cover_h: 40, label_x: 924, label_y: 388, font_size: 20 }, BAR: { cover_x: 205, cover_y: 940, cover_w: 145, cover_h: 40, label_x: 278, label_y: 967, font_size: 20 } };
+                                        const zoneColors = { STAGE: "#E10600", RIVA: "#22D3EE", BAR: "#F59E0B" };
+                                        const zoneLabels = { STAGE: "BACK THE STAGE", RIVA: "RIVA DECK", BAR: "GLITZ BAR" };
+                                        const allZoneIds = ["STAGE", "RIVA", "BAR", ...extras.map((z) => z.id)];
+                                        return (
+                                            <div className="rounded-lg border border-emerald-500/20 bg-black/50 p-3">
+                                                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-emerald-400 font-black mb-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Preview live piantina
+                                                </div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" preserveAspectRatio="xMidYMid meet" className="w-full max-w-[600px] mx-auto block bg-obsidian" style={{ aspectRatio: "1 / 1" }} data-testid="fp-live-preview">
+                                                    <image xmlns="http://www.w3.org/2000/svg" href="/floorplan-official.png" xlinkHref="/floorplan-official.png" x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                                                    {allZoneIds.map((zid) => {
+                                                        const a = { ...(defAnchors[zid] || { cover_x: 500, cover_y: 500, cover_w: 150, cover_h: 40, label_x: 575, label_y: 528, font_size: 20 }), ...(anchorsMap[zid] || {}) };
+                                                        const extra = extras.find((e) => e.id === zid);
+                                                        const color = zoneColors[zid] || (extra && extra.color) || "#8B5CF6";
+                                                        const label = zoneLabels[zid] || (extra && extra.label) || zid;
+                                                        return (
+                                                            <g key={zid}>
+                                                                <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} fill="#0a0a0a" />
+                                                                <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} rx="8" fill={`${color}22`} stroke={color} strokeWidth={2} />
+                                                                <text x={a.label_x} y={a.label_y} textAnchor="middle" fill={color} fontSize={a.font_size} fontWeight="900" letterSpacing="2">{label.toUpperCase()}</text>
+                                                            </g>
+                                                        );
+                                                    })}
+                                                    {tables.map((t) => {
+                                                        const color = zoneColors[t.zone] || "#8B5CF6";
+                                                        return (
+                                                            <g key={t.id}>
+                                                                <rect x={t.x - 23} y={t.y - 21} width="46" height="42" rx="4" fill="none" stroke={color} strokeWidth={2} />
+                                                                <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#fff" fontSize="18" fontWeight="900">{t.id}</text>
+                                                            </g>
+                                                        );
+                                                    })}
+                                                </svg>
+                                                <p className="text-[10px] text-white/40 text-center mt-2">Aggiornamento istantaneo. Il preview mostra tutte le zone + tavoli con le coordinate correnti.</p>
+                                            </div>
+                                        );
+                                    })()}
+
                                     {/* Anchors editor */}
                                     <div className="space-y-2">
                                         <div className="text-xs uppercase tracking-widest text-lava font-bold">Posizione etichette (label pulsante)</div>
                                         {["STAGE", "RIVA", "BAR", ...((settings.floorplan_extra_zones || []).map((z) => z.id))].map((zid) => {
                                             const anchors = settings.floorplan_anchors || {};
-                                            const defaults = { STAGE: { cover_x: 65, cover_y: 670, cover_w: 275, cover_h: 42, label_x: 202, label_y: 698, font_size: 22 }, RIVA: { cover_x: 842, cover_y: 360, cover_w: 165, cover_h: 40, label_x: 924, label_y: 388, font_size: 20 }, BAR: { cover_x: 205, cover_y: 940, cover_w: 145, cover_h: 40, label_x: 278, label_y: 967, font_size: 20 } };
+                                            const defaults = { STAGE: { cover_x: 85, cover_y: 660, cover_w: 210, cover_h: 40, label_x: 190, label_y: 686, font_size: 18 }, RIVA: { cover_x: 842, cover_y: 360, cover_w: 165, cover_h: 40, label_x: 924, label_y: 388, font_size: 20 }, BAR: { cover_x: 205, cover_y: 940, cover_w: 145, cover_h: 40, label_x: 278, label_y: 967, font_size: 20 } };
                                             const a = { ...(defaults[zid] || { cover_x: 500, cover_y: 500, cover_w: 150, cover_h: 40, label_x: 575, label_y: 528, font_size: 20 }), ...(anchors[zid] || {}) };
                                             const setAField = (patch) => setSettings({ ...settings, floorplan_anchors: { ...(settings.floorplan_anchors || {}), [zid]: { ...a, ...patch } } });
                                             return (
