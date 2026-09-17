@@ -59,6 +59,8 @@ export default function AdminDashboard() {
     const [editProduct, setEditProduct] = useState(null);
     const [subscribers, setSubscribers] = useState([]);
     const [dragTarget, setDragTarget] = useState(null); // { type: "table"|"label", id/zid }
+    const [snapToGrid, setSnapToGrid] = useState(true);
+    const [gridSize, setGridSize] = useState(10);
     const previewSvgRef = useRef(null);
 
     // Converte le coordinate del puntatore (clientX, clientY) in coordinate SVG del preview
@@ -67,7 +69,14 @@ export default function AdminDashboard() {
         const pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
         const ctm = svg.getScreenCTM(); if (!ctm) return null;
         const p = pt.matrixTransform(ctm.inverse());
-        return { x: Math.round(p.x), y: Math.round(p.y) };
+        let x = p.x, y = p.y;
+        if (snapToGrid && gridSize > 0) {
+            x = Math.round(x / gridSize) * gridSize;
+            y = Math.round(y / gridSize) * gridSize;
+        } else {
+            x = Math.round(x); y = Math.round(y);
+        }
+        return { x, y };
     };
 
     const email = localStorage.getItem("glitz_admin_email");
@@ -1191,20 +1200,34 @@ export default function AdminDashboard() {
                                 </div>
                                 {/* ============ EDITOR PIANTINA v2 (label + tavoli + zone extra) ============ */}
                                 <div className="glass-card rounded-2xl p-5 space-y-4" data-testid="floorplan-editor-v2">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between flex-wrap gap-2">
                                         <h3 className="font-bold text-lg">Etichette privé & Tavoli</h3>
-                                        <button data-testid="save-floorplan-v2" onClick={async () => {
-                                            try {
-                                                await api.put("/admin/settings", {
-                                                    floorplan_anchors: settings.floorplan_anchors || {},
-                                                    floorplan_tables: settings.floorplan_tables || [],
-                                                    floorplan_extra_zones: settings.floorplan_extra_zones || [],
-                                                });
-                                                toast.success("Piantina salvata");
-                                            } catch { toast.error("Errore salvataggio"); }
-                                        }} className="btn-lava !px-3 !py-1.5 !text-xs"><Check className="w-3 h-3" /> Salva</button>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <label data-testid="snap-toggle" className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer text-xs font-semibold transition ${snapToGrid ? "border-emerald-400/60 bg-emerald-400/10 text-emerald-300" : "border-white/15 bg-white/5 text-white/60 hover:text-white"}`}>
+                                                <input type="checkbox" className="hidden" checked={snapToGrid} onChange={(e) => setSnapToGrid(e.target.checked)} data-testid="snap-checkbox" />
+                                                <span className={`w-3 h-3 rounded-sm border ${snapToGrid ? "bg-emerald-400 border-emerald-400" : "border-white/40"}`} />
+                                                Snap griglia
+                                            </label>
+                                            <select data-testid="snap-size" value={gridSize} onChange={(e) => setGridSize(parseInt(e.target.value, 10) || 10)} disabled={!snapToGrid} className={`text-xs rounded-lg border px-2 py-1.5 font-semibold ${snapToGrid ? "border-emerald-400/40 bg-black/40 text-emerald-300" : "border-white/10 bg-white/5 text-white/30"}`}>
+                                                <option value={5}>5 px</option>
+                                                <option value={10}>10 px</option>
+                                                <option value={20}>20 px</option>
+                                                <option value={25}>25 px</option>
+                                                <option value={50}>50 px</option>
+                                            </select>
+                                            <button data-testid="save-floorplan-v2" onClick={async () => {
+                                                try {
+                                                    await api.put("/admin/settings", {
+                                                        floorplan_anchors: settings.floorplan_anchors || {},
+                                                        floorplan_tables: settings.floorplan_tables || [],
+                                                        floorplan_extra_zones: settings.floorplan_extra_zones || [],
+                                                    });
+                                                    toast.success("Piantina salvata");
+                                                } catch { toast.error("Errore salvataggio"); }
+                                            }} className="btn-lava !px-3 !py-1.5 !text-xs"><Check className="w-3 h-3" /> Salva</button>
+                                        </div>
                                     </div>
-                                    <p className="text-[11px] text-white/50">Coordinate riferite alla PNG 1254×1254. `label_x/y` = centro testo. `cover_x/y/w/h` = rettangolo nero che copre eventuali scritte originali e fa da sfondo al pulsante.</p>
+                                    <p className="text-[11px] text-white/50">Coordinate riferite alla PNG 1254×1254. Con lo <b className="text-emerald-400">Snap griglia</b> attivo, tavoli ed etichette si allineano automaticamente ai multipli di {gridSize}px durante il drag.</p>
 
                                     {/* PREVIEW LIVE PIANTINA */}
                                     {(() => {
@@ -1257,7 +1280,19 @@ export default function AdminDashboard() {
                                                     onPointerLeave={() => setDragTarget(null)}
                                                     data-testid="fp-live-preview"
                                                 >
+                                                    <defs>
+                                                        <pattern id="fp-snap-grid" x="0" y="0" width={gridSize} height={gridSize} patternUnits="userSpaceOnUse">
+                                                            <path d={`M ${gridSize} 0 L 0 0 0 ${gridSize}`} fill="none" stroke="#10b981" strokeOpacity="0.28" strokeWidth="0.7" />
+                                                        </pattern>
+                                                        <pattern id="fp-snap-grid-major" x="0" y="0" width={gridSize * 10} height={gridSize * 10} patternUnits="userSpaceOnUse">
+                                                            <rect width={gridSize * 10} height={gridSize * 10} fill="url(#fp-snap-grid)" />
+                                                            <path d={`M ${gridSize * 10} 0 L 0 0 0 ${gridSize * 10}`} fill="none" stroke="#10b981" strokeOpacity="0.55" strokeWidth="1" />
+                                                        </pattern>
+                                                    </defs>
                                                     <image xmlns="http://www.w3.org/2000/svg" href="/floorplan-official.png" xlinkHref="/floorplan-official.png" x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
+                                                    {snapToGrid && (
+                                                        <rect data-testid="fp-grid-overlay" x="0" y="0" width="1254" height="1254" fill="url(#fp-snap-grid-major)" pointerEvents="none" />
+                                                    )}
                                                     {allZoneIds.map((zid) => {
                                                         const a = { ...(defAnchors[zid] || { cover_x: 500, cover_y: 500, cover_w: 150, cover_h: 40, label_x: 575, label_y: 528, font_size: 20 }), ...(anchorsMap[zid] || {}) };
                                                         const extra = extras.find((e) => e.id === zid);
@@ -1291,7 +1326,7 @@ export default function AdminDashboard() {
                                                         );
                                                     })}
                                                 </svg>
-                                                <p className="text-[10px] text-white/40 text-center mt-2"><b className="text-emerald-400">Drag & drop</b> attivo — trascina tavoli o etichette con il mouse per riposizionarli, poi clicca "Salva".</p>
+                                                <p className="text-[10px] text-white/40 text-center mt-2"><b className="text-emerald-400">Drag & drop</b> attivo — trascina tavoli o etichette con il mouse per riposizionarli{snapToGrid ? <>, allineati alla griglia da <b className="text-emerald-400">{gridSize}px</b></> : ""}, poi clicca "Salva".</p>
                                             </div>
                                         );
                                     })()}

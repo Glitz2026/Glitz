@@ -63,8 +63,12 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
   - Frontend consumers: `Layout` legge nav_items+footer da settings, `Shop` fetch da API+usa shop_*, `ProductDetail` fetch `/products/{slug}` (rimosso import PRODUCTS statico), `PrivateEvents` usa private_areas/occasions/why_us/testi, `Blog/Gallery/PastEvents/Events` usano rispettivi kicker/title/description da settings. `Home.jsx` fetch prodotti API per anteprima.
   - Admin: 2 nuovi tab `Prodotti` (CRUD completo con modal edit) e `Newsletter` (tabella iscritti + export CSV). Contenuti tab: 6 nuovi accordion (Menu di navigazione con rename/hide/riordino, Footer, Pagina Shop, Pagina Eventi Privati con lista aree/occasions/why_us editabile, Titoli sezioni, Poster & SEO).
 
+- **[Feb 2026]** Admin Floorplan Editor: **Snap-to-Grid** con toggle on/off e size selezionabile (5/10/20/25/50 px). Overlay griglia verde visibile in preview, snap applicato durante drag di tavoli ed etichette. `clientToSvg` applica arrotondamento a multipli di `gridSize`.
+
 ## Pending
 - **Deploy in produzione** — utente ancora indeciso (ask_human aperto)
+- **Wait-list Tavoli** (P1) — mai implementato
+- **Split server.py** (P0 refactoring) — >1900 righe
 
 ## Backlog
 - **P1** Breakdown `server.py` (>1600 righe)
