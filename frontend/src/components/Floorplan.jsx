@@ -41,23 +41,16 @@ const LABEL_H = 42;
 const FLOORPLAN_URL = "/floorplan-official.png";
 
 // Anchor per etichette on-map + posizione dei rettangoli che coprono le scritte originali sulla PNG (1254×1254).
-// Coordinate ricavate tramite scansione dei connected-components della PNG.
+// Coordinate ricentrate rispetto ai tavoli confinanti / pareti.
 const ZONE_ANCHORS = {
-    STAGE: { cover: { x: 92, y: 678, w: 200, h: 40 }, label: { x: 192, y: 705 }, fontSize: 22 },
-    RIVA: { cover: { x: 840, y: 368, w: 165, h: 40 }, label: { x: 922, y: 396 }, fontSize: 20 },
-    BAR: { cover: { x: 198, y: 938, w: 145, h: 40 }, label: { x: 270, y: 965 }, fontSize: 20 },
+    STAGE: { cover: { x: 78, y: 682, w: 195, h: 40 }, label: { x: 175, y: 709 }, fontSize: 22 },
+    RIVA: { cover: { x: 842, y: 360, w: 165, h: 40 }, label: { x: 924, y: 388 }, fontSize: 20 },
+    BAR: { cover: { x: 205, y: 940, w: 145, h: 40 }, label: { x: 278, y: 967 }, fontSize: 20 },
 };
 
-// Path SVG che ripercorre le pareti interne dei privé sulla PNG 1254×1254.
-// Ogni zona può contenere più sotto-tracciati (M ... Z M ... Z) per stanze non contigue.
-const ZONE_POLYGONS = {
-    // STAGE = due sotto-aree: cluster B0-B7 in alto + area "BACK THE STAGE" (B8-B15) in basso
-    STAGE: "M 26 180 L 350 180 L 350 450 L 26 450 Z M 26 570 L 350 570 L 620 590 L 620 650 L 540 810 L 26 810 Z",
-    // RIVA = area centrale con parete diagonale in alto-sinistra + smusso in basso-destra
-    RIVA: "M 552 190 L 1225 190 L 1225 440 L 1216 470 L 1200 500 L 1178 525 L 1150 545 L 950 555 L 820 555 L 615 540 L 552 190 Z",
-    // BAR = area in basso-sinistra
-    BAR: "M 75 800 L 432 800 L 432 1120 L 289 1120 L 289 1080 L 75 1080 Z",
-};
+// Rimosso il polygon della zona: quando è attiva, si illuminano solo i contorni dei tavoli.
+
+
 
 export default function Floorplan({ eventTitle, eventId, reservedTables = {}, customImageUrl = "" }) {
     const [selected, setSelected] = useState(null);
@@ -187,19 +180,6 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         preserveAspectRatio="xMidYMid meet"
                     >
                         <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
-                        {/* Illuminazione area zona attiva — path SVG che calca le pareti reali della zona */}
-                        {activeZone && ZONE_POLYGONS[activeZone] && (() => {
-                            const d = ZONE_POLYGONS[activeZone];
-                            const c = getZone(activeZone).color;
-                            return (
-                                <g pointerEvents="none" data-testid={`floorplan-zone-glow-${activeZone}`}>
-                                    <path d={d} fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7" strokeLinejoin="round">
-                                        <animate attributeName="stroke-width" values="6;12;6" dur="1.4s" repeatCount="indefinite" />
-                                        <animate attributeName="stroke-opacity" values="0.35;0.9;0.35" dur="1.4s" repeatCount="indefinite" />
-                                    </path>
-                                </g>
-                            );
-                        })()}
                         {/* Copertura scritte originali della PNG + label cliccabili delle zone */}
                         {["STAGE", "RIVA", "BAR"].map((zid) => {
                             const a = ZONE_ANCHORS[zid];
@@ -208,7 +188,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                             return (
                                 <g key={`zone-label-${zid}`} data-testid={`floorplan-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
                                     <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} fill="#0a0a0a" />
-                                    <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} strokeDasharray={isActive ? "0" : "4 3"} style={{ transition: "fill 0.2s, stroke-width 0.2s" }} />
+                                    <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} style={{ transition: "fill 0.2s, stroke-width 0.2s" }} />
                                     <text x={a.label.x} y={a.label.y} textAnchor="middle" fill={z.color} fontSize={a.fontSize} fontWeight="900" letterSpacing="2" style={{ textTransform: "uppercase" }}>{(z.label || zid).toUpperCase()}</text>
                                 </g>
                             );
@@ -225,7 +205,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                             let strokeWidth = 0;
                             if (isReserved) { stroke = "#E10600"; strokeWidth = 2; }
                             else if (isHover) { stroke = zoneColor; strokeWidth = 2.5; }
-                            else if (isZoneActive) { stroke = zoneColor; strokeWidth = 2; }
+                            else if (isZoneActive) { stroke = zoneColor; strokeWidth = 5; }
                             if (isPulsing) { stroke = zoneColor; }
                             return (
                                 <g
@@ -336,19 +316,6 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         >
                             <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                             {/* Copertura scritte + label cliccabili anche in fullscreen */}
-                            {/* Illuminazione area zona attiva anche in fullscreen (path reale) */}
-                            {activeZone && ZONE_POLYGONS[activeZone] && (() => {
-                                const d = ZONE_POLYGONS[activeZone];
-                                const c = getZone(activeZone).color;
-                                return (
-                                    <g pointerEvents="none">
-                                        <path d={d} fill="none" stroke={c} strokeWidth="6" strokeOpacity="0.7" strokeLinejoin="round">
-                                            <animate attributeName="stroke-width" values="6;14;6" dur="1.4s" repeatCount="indefinite" />
-                                            <animate attributeName="stroke-opacity" values="0.35;0.9;0.35" dur="1.4s" repeatCount="indefinite" />
-                                        </path>
-                                    </g>
-                                );
-                            })()}
                             {["STAGE", "RIVA", "BAR"].map((zid) => {
                                 const a = ZONE_ANCHORS[zid];
                                 const z = getZone(zid);
@@ -356,7 +323,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                 return (
                                     <g key={`fs-zone-label-${zid}`} data-testid={`fs-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
                                         <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} fill="#0a0a0a" />
-                                        <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} strokeDasharray={isActive ? "0" : "4 3"} />
+                                        <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} />
                                         <text x={a.label.x} y={a.label.y} textAnchor="middle" fill={z.color} fontSize={a.fontSize} fontWeight="900" letterSpacing="2">{(z.label || zid).toUpperCase()}</text>
                                     </g>
                                 );
@@ -368,7 +335,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                 const isZoneActive = activeZone === t.zone && !isReserved;
                                 const isPulsing = pulseId === t.id;
                                 const stroke = isReserved ? "#E10600" : zoneColor;
-                                const strokeWidth = isZoneActive ? 3 : 2;
+                                const strokeWidth = isZoneActive ? 6 : 2;
                                 return (
                                     <g
                                         key={t.id}
