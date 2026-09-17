@@ -37,7 +37,13 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
 - **[17 Feb 2026]** Admin Contenuti: aggiunta sticky sub-nav a pillole con 10 bottoni (Home, Il Club, Contatti, Piantina, Menu, Footer, Shop, Eventi Privati, Titoli sezioni, Poster & SEO) che scrollano direttamente alla sezione corrispondente. `scroll-mt-28` per evitare che l'header sticky copra il target. Tutte le `<details>` aprono di default. Il tab menu principale resta compatto (10 tab).
 - **[17 Feb 2026]** Piantina per Evento: campo `floorplan_image_url` aggiunto a `EventIn`. `Floorplan.jsx` accetta prop `customImageUrl` che sovrascrive la PNG di default quando presente. `EventDetail.jsx` passa `ev.floorplan_image_url`. Admin: upload/URL di piantina custom visibile solo quando la piantina interattiva è attiva.
 - **[17 Feb 2026]** Anteprima Live Contenuti: componente riutilizzabile `SectionPreview` (con badge verde pulsante "Anteprima live" + link "Apri pagina") inserito in ogni sezione del tab Contenuti (Menu = navbar reale, Footer, Shop, Eventi Privati con chip aree, Titoli sezioni con 4 preview parallele, Poster + SEO SERP-like). Aggiornamento in real-time mentre si digita, prima del salvataggio.
-- **[17 Feb 2026]** Floorplan v5 (revert polygon + label polish):
+- **[17 Feb 2026]** Floorplan v6 (editor completo + fix animazione):
+  - Animazione contorno invertita: quando una zona è attiva, i tavoli hanno stroke normale (2px). SOLO il tavolo cliccato entra in `isPulsing` → stroke raddoppia (5px) + `<animate>` che raddoppia le dimensioni per 380ms
+  - Ricentrata `BACK THE STAGE`: label_x=202 (centro tra B8-B10-B11-B15), cover_w=275 per non tagliare il testo
+  - Nuovo formato anchor: `cover_x/y/w/h + label_x/y + font_size` (flat) al posto di annidati
+  - Backend: `SettingsIn` estesa con `floorplan_anchors` (dict), `floorplan_tables` (list), `floorplan_extra_zones` (list)
+  - Floorplan.jsx: legge questi settings con fallback ai default, supporta un numero arbitrario di zone e tavoli extra
+  - Admin: nuovo blocco "Etichette privé & Tavoli" nel tab Contenuti → Piantina, con editor coordinate label (per ogni zona), aggiungi zona extra (id/label/color), lista tavoli editabile (importa default → sposta x/y/zona → aggiungi/rimuovi). Salvataggio dedicato via bottone "Salva".
   - Rimosso il polygon glow esterno delle zone: quando una zona è attiva, si illuminano SOLO i contorni dei tavoli (`strokeWidth` raddoppiato: 2 → 5 desktop, 3 → 6 fullscreen) così restano ben visibili
   - Rimossa `strokeDasharray` dai label privé: contorno ora continuo sia in stato attivo che passivo
   - Etichette ricentrate: `BACK THE STAGE` a x=175 (tra wall e B11), `RIVA DECK` a x=924 (tra R10 e R11), `GLITZ BAR` a (278, 967) (tra G4 e G8)

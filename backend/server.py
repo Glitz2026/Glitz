@@ -318,6 +318,10 @@ class SettingsIn(BaseModel):
     planimetria_url: str = ""
     instagram_url: str = "https://instagram.com/glitzclubofficial"
     instagram_posts: List[dict] = []
+    # --- Floorplan editor (nuovo v2) ---
+    floorplan_anchors: dict = {}
+    floorplan_tables: List[dict] = []
+    floorplan_extra_zones: List[dict] = []
     # --- Editable homepage copy ---
     home_hero_line1: str = "BEYOND"
     home_hero_line2: str = "THE NIGHT"

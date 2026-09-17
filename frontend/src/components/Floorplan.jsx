@@ -40,12 +40,10 @@ const LABEL_W = 46; // contorno visibile, corrispondente al quadratino della PNG
 const LABEL_H = 42;
 const FLOORPLAN_URL = "/floorplan-official.png";
 
-// Anchor per etichette on-map + posizione dei rettangoli che coprono le scritte originali sulla PNG (1254×1254).
-// Coordinate ricentrate rispetto ai tavoli confinanti / pareti.
-const ZONE_ANCHORS = {
-    STAGE: { cover: { x: 78, y: 682, w: 195, h: 40 }, label: { x: 175, y: 709 }, fontSize: 22 },
-    RIVA: { cover: { x: 842, y: 360, w: 165, h: 40 }, label: { x: 924, y: 388 }, fontSize: 20 },
-    BAR: { cover: { x: 205, y: 940, w: 145, h: 40 }, label: { x: 278, y: 967 }, fontSize: 20 },
+const DEFAULT_ANCHORS = {
+    STAGE: { cover_x: 65, cover_y: 670, cover_w: 275, cover_h: 42, label_x: 202, label_y: 698, font_size: 22 },
+    RIVA: { cover_x: 842, cover_y: 360, cover_w: 165, cover_h: 40, label_x: 924, label_y: 388, font_size: 20 },
+    BAR: { cover_x: 205, cover_y: 940, cover_w: 145, cover_h: 40, label_x: 278, label_y: 967, font_size: 20 },
 };
 
 // Rimosso il polygon della zona: quando è attiva, si illuminano solo i contorni dei tavoli.
@@ -61,6 +59,9 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
     const [fullscreen, setFullscreen] = useState(false);
     const [activeZone, setActiveZone] = useState(null);
     const [pulseId, setPulseId] = useState(null); // id del tavolo appena cliccato per animazione
+    const [customAnchors, setCustomAnchors] = useState(null);
+    const [customTables, setCustomTables] = useState(null);
+    const [extraZones, setExtraZones] = useState([]); // zone extra oltre le 3 default
 
     const floorplanUrl = customImageUrl
         ? (customImageUrl.startsWith("http") ? customImageUrl : `${process.env.REACT_APP_BACKEND_URL}${customImageUrl}`)
@@ -73,8 +74,20 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
             list.forEach((z) => { if (z?.id) map[z.id] = z; });
             setZonesData(map);
             setTableOverrides(r.data?.floorplan_table_overrides || {});
+            const anchors = r.data?.floorplan_anchors;
+            if (anchors && typeof anchors === "object" && Object.keys(anchors).length) setCustomAnchors(anchors);
+            const t = r.data?.floorplan_tables;
+            if (Array.isArray(t) && t.length) setCustomTables(t);
+            const ez = r.data?.floorplan_extra_zones;
+            if (Array.isArray(ez) && ez.length) setExtraZones(ez);
         }).catch(() => {});
     }, []);
+
+    // Anchor risolti (default + override admin + zone extra)
+    const ANCHORS = { ...DEFAULT_ANCHORS, ...(customAnchors || {}) };
+    extraZones.forEach((z) => { if (z.id && !ANCHORS[z.id]) ANCHORS[z.id] = z; });
+    const ZONE_IDS = Object.keys(ANCHORS);
+    const TABLES_LIST = customTables || TABLES;
 
     const getZone = (id) => ({ ...DEFAULT_ZONES[id], ...(zonesData[id] || {}) });
 
@@ -181,19 +194,19 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     >
                         <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                         {/* Copertura scritte originali della PNG + label cliccabili delle zone */}
-                        {["STAGE", "RIVA", "BAR"].map((zid) => {
-                            const a = ZONE_ANCHORS[zid];
+                        {ZONE_IDS.map((zid) => {
+                            const a = ANCHORS[zid];
                             const z = getZone(zid);
                             const isActive = activeZone === zid;
                             return (
                                 <g key={`zone-label-${zid}`} data-testid={`floorplan-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
-                                    <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} fill="#0a0a0a" />
-                                    <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} style={{ transition: "fill 0.2s, stroke-width 0.2s" }} />
-                                    <text x={a.label.x} y={a.label.y} textAnchor="middle" fill={z.color} fontSize={a.fontSize} fontWeight="900" letterSpacing="2" style={{ textTransform: "uppercase" }}>{(z.label || zid).toUpperCase()}</text>
+                                    <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} fill="#0a0a0a" />
+                                    <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} style={{ transition: "fill 0.2s, stroke-width 0.2s" }} />
+                                    <text x={a.label_x} y={a.label_y} textAnchor="middle" fill={z.color} fontSize={a.font_size} fontWeight="900" letterSpacing="2" style={{ textTransform: "uppercase" }}>{(z.label || zid).toUpperCase()}</text>
                                 </g>
                             );
                         })}
-                        {TABLES.map((t) => {
+                        {TABLES_LIST.map((t) => {
                             const status = reservedTables[t.id];
                             const isReserved = status === "reserved" || status === "booked";
                             const isHover = hoveredId === t.id && !isReserved;
@@ -205,8 +218,9 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                             let strokeWidth = 0;
                             if (isReserved) { stroke = "#E10600"; strokeWidth = 2; }
                             else if (isHover) { stroke = zoneColor; strokeWidth = 2.5; }
-                            else if (isZoneActive) { stroke = zoneColor; strokeWidth = 5; }
-                            if (isPulsing) { stroke = zoneColor; }
+                            else if (isZoneActive) { stroke = zoneColor; strokeWidth = 2; }
+                            // Quando pulsing (tavolo appena selezionato dentro una zona attiva) raddoppia il contorno
+                            if (isPulsing) { stroke = zoneColor; strokeWidth = isZoneActive ? 5 : 4; }
                             return (
                                 <g
                                     key={t.id}
@@ -258,7 +272,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         })}
                         {/* Tooltip on hover */}
                         {hoveredId && (() => {
-                            const t = TABLES.find((x) => x.id === hoveredId);
+                            const t = TABLES_LIST.find((x) => x.id === hoveredId);
                             if (!t) return null;
                             const zoneLabel = getZone(t.zone).label;
                             return (
@@ -316,26 +330,26 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         >
                             <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
                             {/* Copertura scritte + label cliccabili anche in fullscreen */}
-                            {["STAGE", "RIVA", "BAR"].map((zid) => {
-                                const a = ZONE_ANCHORS[zid];
+                            {ZONE_IDS.map((zid) => {
+                                const a = ANCHORS[zid];
                                 const z = getZone(zid);
                                 const isActive = activeZone === zid;
                                 return (
                                     <g key={`fs-zone-label-${zid}`} data-testid={`fs-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
-                                        <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} fill="#0a0a0a" />
-                                        <rect x={a.cover.x} y={a.cover.y} width={a.cover.w} height={a.cover.h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} />
-                                        <text x={a.label.x} y={a.label.y} textAnchor="middle" fill={z.color} fontSize={a.fontSize} fontWeight="900" letterSpacing="2">{(z.label || zid).toUpperCase()}</text>
+                                        <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} fill="#0a0a0a" />
+                                        <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} />
+                                        <text x={a.label_x} y={a.label_y} textAnchor="middle" fill={z.color} fontSize={a.font_size} fontWeight="900" letterSpacing="2">{(z.label || zid).toUpperCase()}</text>
                                     </g>
                                 );
                             })}
-                            {TABLES.map((t) => {
+                            {TABLES_LIST.map((t) => {
                                 const status = reservedTables[t.id];
                                 const isReserved = status === "reserved" || status === "booked";
                                 const zoneColor = getZone(t.zone).color;
                                 const isZoneActive = activeZone === t.zone && !isReserved;
                                 const isPulsing = pulseId === t.id;
                                 const stroke = isReserved ? "#E10600" : zoneColor;
-                                const strokeWidth = isZoneActive ? 6 : 2;
+                                const strokeWidth = isZoneActive ? 2 : 2;
                                 return (
                                     <g
                                         key={t.id}

@@ -1178,6 +1178,106 @@ export default function AdminDashboard() {
                                         );
                                     })}
                                 </div>
+                                {/* ============ EDITOR PIANTINA v2 (label + tavoli + zone extra) ============ */}
+                                <div className="glass-card rounded-2xl p-5 space-y-4" data-testid="floorplan-editor-v2">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-bold text-lg">Etichette privé & Tavoli</h3>
+                                        <button data-testid="save-floorplan-v2" onClick={async () => {
+                                            try {
+                                                await api.put("/admin/settings", {
+                                                    floorplan_anchors: settings.floorplan_anchors || {},
+                                                    floorplan_tables: settings.floorplan_tables || [],
+                                                    floorplan_extra_zones: settings.floorplan_extra_zones || [],
+                                                });
+                                                toast.success("Piantina salvata");
+                                            } catch { toast.error("Errore salvataggio"); }
+                                        }} className="btn-lava !px-3 !py-1.5 !text-xs"><Check className="w-3 h-3" /> Salva</button>
+                                    </div>
+                                    <p className="text-[11px] text-white/50">Coordinate riferite alla PNG 1254×1254. `label_x/y` = centro testo. `cover_x/y/w/h` = rettangolo nero che copre eventuali scritte originali e fa da sfondo al pulsante.</p>
+
+                                    {/* Anchors editor */}
+                                    <div className="space-y-2">
+                                        <div className="text-xs uppercase tracking-widest text-lava font-bold">Posizione etichette (label pulsante)</div>
+                                        {["STAGE", "RIVA", "BAR", ...((settings.floorplan_extra_zones || []).map((z) => z.id))].map((zid) => {
+                                            const anchors = settings.floorplan_anchors || {};
+                                            const defaults = { STAGE: { cover_x: 65, cover_y: 670, cover_w: 275, cover_h: 42, label_x: 202, label_y: 698, font_size: 22 }, RIVA: { cover_x: 842, cover_y: 360, cover_w: 165, cover_h: 40, label_x: 924, label_y: 388, font_size: 20 }, BAR: { cover_x: 205, cover_y: 940, cover_w: 145, cover_h: 40, label_x: 278, label_y: 967, font_size: 20 } };
+                                            const a = { ...(defaults[zid] || { cover_x: 500, cover_y: 500, cover_w: 150, cover_h: 40, label_x: 575, label_y: 528, font_size: 20 }), ...(anchors[zid] || {}) };
+                                            const setAField = (patch) => setSettings({ ...settings, floorplan_anchors: { ...(settings.floorplan_anchors || {}), [zid]: { ...a, ...patch } } });
+                                            return (
+                                                <div key={zid} className="rounded-lg border border-white/10 bg-black/30 p-3 space-y-2">
+                                                    <div className="text-xs font-bold text-white">{zid}</div>
+                                                    <div className="grid gap-2 grid-cols-2 sm:grid-cols-7">
+                                                        <input data-testid={`fa-${zid}-cx`} type="number" className={`${input} !py-1.5 !text-xs`} placeholder="cover_x" value={a.cover_x} onChange={(e) => setAField({ cover_x: parseInt(e.target.value) || 0 })} />
+                                                        <input data-testid={`fa-${zid}-cy`} type="number" className={`${input} !py-1.5 !text-xs`} placeholder="cover_y" value={a.cover_y} onChange={(e) => setAField({ cover_y: parseInt(e.target.value) || 0 })} />
+                                                        <input data-testid={`fa-${zid}-cw`} type="number" className={`${input} !py-1.5 !text-xs`} placeholder="cover_w" value={a.cover_w} onChange={(e) => setAField({ cover_w: parseInt(e.target.value) || 0 })} />
+                                                        <input data-testid={`fa-${zid}-ch`} type="number" className={`${input} !py-1.5 !text-xs`} placeholder="cover_h" value={a.cover_h} onChange={(e) => setAField({ cover_h: parseInt(e.target.value) || 0 })} />
+                                                        <input data-testid={`fa-${zid}-lx`} type="number" className={`${input} !py-1.5 !text-xs`} placeholder="label_x" value={a.label_x} onChange={(e) => setAField({ label_x: parseInt(e.target.value) || 0 })} />
+                                                        <input data-testid={`fa-${zid}-ly`} type="number" className={`${input} !py-1.5 !text-xs`} placeholder="label_y" value={a.label_y} onChange={(e) => setAField({ label_y: parseInt(e.target.value) || 0 })} />
+                                                        <input data-testid={`fa-${zid}-fs`} type="number" className={`${input} !py-1.5 !text-xs`} placeholder="font" value={a.font_size} onChange={(e) => setAField({ font_size: parseInt(e.target.value) || 20 })} />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Extra zones */}
+                                    <div className="space-y-2 pt-3 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-xs uppercase tracking-widest text-lava font-bold">Zone extra (oltre STAGE/RIVA/BAR)</div>
+                                            <button type="button" onClick={() => setSettings({ ...settings, floorplan_extra_zones: [...(settings.floorplan_extra_zones || []), { id: `Z${(settings.floorplan_extra_zones || []).length + 1}`, label: "Nuova Zona", color: "#8B5CF6", cover_x: 500, cover_y: 500, cover_w: 150, cover_h: 40, label_x: 575, label_y: 528, font_size: 20 }] })} className="btn-ghost !text-xs"><Plus className="w-3 h-3" /> Aggiungi zona</button>
+                                        </div>
+                                        {(settings.floorplan_extra_zones || []).map((z, i) => (
+                                            <div key={i} className="rounded-lg border border-white/10 bg-black/30 p-3 space-y-2">
+                                                <div className="grid gap-2 sm:grid-cols-[80px_1fr_80px_40px]">
+                                                    <input className={`${input} !py-1.5 !text-xs`} placeholder="id" value={z.id || ""} onChange={(e) => { const l = [...settings.floorplan_extra_zones]; l[i] = { ...l[i], id: e.target.value }; setSettings({ ...settings, floorplan_extra_zones: l }); }} />
+                                                    <input className={`${input} !py-1.5 !text-xs`} placeholder="label" value={z.label || ""} onChange={(e) => { const l = [...settings.floorplan_extra_zones]; l[i] = { ...l[i], label: e.target.value }; setSettings({ ...settings, floorplan_extra_zones: l }); }} />
+                                                    <input type="color" className={`${input} !py-1 !h-8`} value={z.color || "#8B5CF6"} onChange={(e) => { const l = [...settings.floorplan_extra_zones]; l[i] = { ...l[i], color: e.target.value }; setSettings({ ...settings, floorplan_extra_zones: l }); }} />
+                                                    <button type="button" onClick={() => { const l = [...settings.floorplan_extra_zones]; l.splice(i, 1); setSettings({ ...settings, floorplan_extra_zones: l }); }} className="btn-ghost !px-2 !py-1 !text-xs !text-lava"><Trash2 className="w-3 h-3" /></button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Tables editor (full) */}
+                                    <div className="space-y-2 pt-3 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-xs uppercase tracking-widest text-lava font-bold">Tavoli — sposta / aggiungi / rimuovi</div>
+                                            <div className="flex gap-2">
+                                                <button type="button" onClick={() => {
+                                                    // Popola con tavoli default se lista vuota
+                                                    if ((settings.floorplan_tables || []).length === 0) {
+                                                        const defaults = [
+                                                            {id:"B0",x:78,y:193,zone:"STAGE"},{id:"B2",x:170,y:193,zone:"STAGE"},{id:"B4",x:263,y:193,zone:"STAGE"},{id:"B1",x:105,y:260,zone:"STAGE"},{id:"B3",x:206,y:260,zone:"STAGE"},{id:"B5",x:90,y:345,zone:"STAGE"},{id:"B6",x:200,y:345,zone:"STAGE"},{id:"B7",x:90,y:413,zone:"STAGE"},{id:"B8",x:75,y:625,zone:"STAGE"},{id:"B9",x:161,y:625,zone:"STAGE"},{id:"B10",x:248,y:625,zone:"STAGE"},{id:"B11",x:324,y:696,zone:"STAGE"},{id:"B12",x:399,y:716,zone:"STAGE"},{id:"B13",x:477,y:740,zone:"STAGE"},{id:"B14",x:389,y:769,zone:"STAGE"},{id:"B15",x:81,y:746,zone:"STAGE"},
+                                                            {id:"R1",x:606,y:235,zone:"RIVA"},{id:"R5",x:747,y:238,zone:"RIVA"},{id:"R9",x:904,y:237,zone:"RIVA"},{id:"R13",x:1072,y:237,zone:"RIVA"},{id:"R2",x:617,y:316,zone:"RIVA"},{id:"R6",x:762,y:316,zone:"RIVA"},{id:"R10",x:915,y:316,zone:"RIVA"},{id:"R14",x:1083,y:316,zone:"RIVA"},{id:"R3",x:633,y:417,zone:"RIVA"},{id:"R7",x:771,y:440,zone:"RIVA"},{id:"R11",x:933,y:440,zone:"RIVA"},{id:"R15",x:1096,y:440,zone:"RIVA"},{id:"R4",x:645,y:506,zone:"RIVA"},{id:"R8",x:792,y:514,zone:"RIVA"},{id:"R12",x:955,y:515,zone:"RIVA"},{id:"R16",x:1112,y:512,zone:"RIVA"},
+                                                            {id:"G1",x:135,y:819,zone:"BAR"},{id:"G2",x:212,y:861,zone:"BAR"},{id:"G3",x:144,y:913,zone:"BAR"},{id:"G8",x:379,y:939,zone:"BAR"},{id:"G4",x:176,y:977,zone:"BAR"},{id:"G5",x:160,y:1035,zone:"BAR"},{id:"G7",x:370,y:1036,zone:"BAR"},{id:"G6",x:262,y:1069,zone:"BAR"},
+                                                        ];
+                                                        setSettings({ ...settings, floorplan_tables: defaults });
+                                                        toast.success("Tavoli di default importati — modificali qui sotto");
+                                                    }
+                                                }} className="btn-ghost !text-xs">Importa default</button>
+                                                <button type="button" onClick={() => {
+                                                    const l = [...(settings.floorplan_tables || [])];
+                                                    l.push({ id: `T${l.length + 1}`, x: 600, y: 600, zone: "STAGE" });
+                                                    setSettings({ ...settings, floorplan_tables: l });
+                                                }} className="btn-ghost !text-xs"><Plus className="w-3 h-3" /> Aggiungi tavolo</button>
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-white/40">Lascia vuoto per usare i tavoli hard-coded di default. Se popoli la lista, sostituisce tutti i tavoli.</p>
+                                        <div className="max-h-72 overflow-y-auto space-y-1 pr-2">
+                                            {(settings.floorplan_tables || []).map((t, i) => (
+                                                <div key={i} className="grid gap-2 grid-cols-[70px_70px_70px_1fr_40px] items-center">
+                                                    <input className={`${input} !py-1 !text-xs`} placeholder="ID" value={t.id || ""} onChange={(e) => { const l = [...settings.floorplan_tables]; l[i] = { ...l[i], id: e.target.value }; setSettings({ ...settings, floorplan_tables: l }); }} />
+                                                    <input type="number" className={`${input} !py-1 !text-xs`} placeholder="x" value={t.x || 0} onChange={(e) => { const l = [...settings.floorplan_tables]; l[i] = { ...l[i], x: parseInt(e.target.value) || 0 }; setSettings({ ...settings, floorplan_tables: l }); }} />
+                                                    <input type="number" className={`${input} !py-1 !text-xs`} placeholder="y" value={t.y || 0} onChange={(e) => { const l = [...settings.floorplan_tables]; l[i] = { ...l[i], y: parseInt(e.target.value) || 0 }; setSettings({ ...settings, floorplan_tables: l }); }} />
+                                                    <select className={`${input} !py-1 !text-xs`} value={t.zone || "STAGE"} onChange={(e) => { const l = [...settings.floorplan_tables]; l[i] = { ...l[i], zone: e.target.value }; setSettings({ ...settings, floorplan_tables: l }); }}>
+                                                        {["STAGE","RIVA","BAR", ...((settings.floorplan_extra_zones || []).map(z => z.id))].map((zid) => <option key={zid} value={zid} className="bg-obsidian">{zid}</option>)}
+                                                    </select>
+                                                    <button type="button" onClick={() => { const l = [...settings.floorplan_tables]; l.splice(i, 1); setSettings({ ...settings, floorplan_tables: l }); }} className="btn-ghost !px-1.5 !py-1 !text-xs !text-lava"><Trash2 className="w-3 h-3" /></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             </div>
