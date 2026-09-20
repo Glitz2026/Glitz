@@ -1,0 +1,105 @@
+{
+  "version": "5.0",
+  "layoutSource": "Pianta schematica monocromatica della venue.png",
+  "layoutAuthoritative": true,
+  "counts": {
+    "RIVA DECK": 16,
+    "BACK THE STAGE": 16,
+    "GLITZ BAR": 8
+  },
+  "furnitureSources": {
+    "riva": [
+      "DSC09561.jpeg"
+    ],
+    "back": [
+      "DSC09576.jpeg"
+    ],
+    "glitzbar": [
+      "DSC09484.jpeg",
+      "DSC09501(1).jpeg"
+    ]
+  },
+  "architectureSource": "planimetria.pdf",
+  "estimated": [
+    "furniture dimensions",
+    "seat count per table",
+    "furniture orientation not explicit in diagram",
+    "truss section and depth",
+    "fixture sizes",
+    "support plinth shapes",
+    "bar elevations and equipment details",
+    "plant morphology",
+    "arch position aligned visually; not a measured offset",
+    "rear truss span, height and depth inferred from photos",
+    "ramp profiles inferred from plan levels",
+    "logo paths traced manually from photo; original font not supplied"
+  ],
+  "inventoryConnected": false,
+  "confirmedArchDimensionsMetres": {
+    "width": 9,
+    "crownAboveSupport": 4,
+    "crownAboveDancefloor": 5,
+    "supportAboveDancefloor": 1
+  },
+  "archHeightReference": "central truss crown; sign and fixtures separate",
+  "additionalSources": [
+    "DSC09666.jpg",
+    "DSC09650.jpg",
+    "DSC09576.jpg",
+    "DSC09552.jpg",
+    "DSC09488.jpg",
+    "DSC09484.jpg",
+    "DSC09425.jpg"
+  ],
+  "masonryBenchPlanCenterlines": [
+    [
+      [
+        326,
+        888
+      ],
+      [
+        278,
+        885
+      ],
+      [
+        240,
+        660
+      ]
+    ],
+    [
+      [
+        250,
+        705
+      ],
+      [
+        317,
+        705
+      ]
+    ],
+    [
+      [
+        267,
+        801
+      ],
+      [
+        321,
+        801
+      ]
+    ],
+    [
+      [
+        472,
+        774
+      ],
+      [
+        472,
+        895
+      ],
+      [
+        410,
+        895
+      ]
+    ]
+  ],
+  "tableLayoutRefinements": "G4, G7, G8 furniture centers adjusted within same schematic areas to avoid masonry intersections; IDs and relative order preserved."
+}

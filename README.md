@@ -4,13 +4,12 @@ Versione finale 5, ricostruita dalla planimetria e dalle fotografie del club.
 
 ## Aprire il modello
 
-Scaricare `glitz-interattivo.html` e aprirlo nel browser. Il file include il codice e la piantina e funziona senza CDN. Su GitHub il file viene mostrato come codice: scaricarlo per usarlo.
+Scaricare [glitz-interattivo.html](glitz-interattivo.html) e aprirlo nel browser. Il file include il codice e la piantina e funziona senza CDN. Su GitHub viene mostrato come codice: usare Download raw file per scaricarlo.
 
-- `glitz-club.glb`: modello 3D esportato.
-- `glitz-3d-kit.zip`: pacchetto completo scaricabile.
-- `glitz-anteprima.png`, `glitz-arco.png`, `glitz-bar-dettaglio.png`: anteprime del modello.
-- `LEGGIMI.md`: dettagli, integrazione e limiti della ricostruzione.
-- `VERIFICHE.json`: verifiche eseguite.
+- [glitz-3d-kit.zip](glitz-3d-kit.zip): pacchetto completo, incluso **glitz-club.glb** (modello 3D da 46,4 MB), HTML, sorgenti e anteprime. Estrarre lo ZIP per ottenere il GLB; non è presente separatamente nella radice della repository.
+- [glitz-anteprima.png](glitz-anteprima.png), [glitz-arco.png](glitz-arco.png), [glitz-bar-dettaglio.png](glitz-bar-dettaglio.png): anteprime del modello.
+- [LEGGIMI.md](LEGGIMI.md): dettagli, integrazione e limiti della ricostruzione.
+- [VERIFICHE.json](VERIFICHE.json): verifiche eseguite.
 
 ## Sviluppo
 

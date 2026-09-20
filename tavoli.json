@@ -1,0 +1,1042 @@
+[
+  {
+    "id": "R1",
+    "zoneId": "riva",
+    "schematicPosition": [
+      605,
+      236
+    ],
+    "planPosition": [
+      578.1115,
+      284.8948
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R1",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      6.903468466454803,
+      1.9700000000000002,
+      -0.08405392081567893
+    ]
+  },
+  {
+    "id": "R2",
+    "zoneId": "riva",
+    "schematicPosition": [
+      618,
+      319
+    ],
+    "planPosition": [
+      583.5358,
+      330.8489
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R2",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      4.858129688294491,
+      1.9700000000000002,
+      0.15737244014830484
+    ]
+  },
+  {
+    "id": "R3",
+    "zoneId": "riva",
+    "schematicPosition": [
+      633,
+      418
+    ],
+    "planPosition": [
+      589.7481,
+      386.5943
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R3",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      2.3769968117055096,
+      1.9700000000000002,
+      0.43387133995409705
+    ]
+  },
+  {
+    "id": "R4",
+    "zoneId": "riva",
+    "schematicPosition": [
+      645,
+      509
+    ],
+    "planPosition": [
+      594.256,
+      438.8066
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R4",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      0.053116202860169354,
+      1.9700000000000002,
+      0.6345102966101682
+    ]
+  },
+  {
+    "id": "R5",
+    "zoneId": "riva",
+    "schematicPosition": [
+      746,
+      237
+    ],
+    "planPosition": [
+      676.429,
+      284.7854
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R5",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      6.908337674258475,
+      1.9700000000000002,
+      4.291890670021185
+    ]
+  },
+  {
+    "id": "R6",
+    "zoneId": "riva",
+    "schematicPosition": [
+      761,
+      319
+    ],
+    "planPosition": [
+      683.8613,
+      329.0998
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R6",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      4.935979152365818,
+      1.9700000000000002,
+      4.622689693414549
+    ]
+  },
+  {
+    "id": "R7",
+    "zoneId": "riva",
+    "schematicPosition": [
+      771,
+      439
+    ],
+    "planPosition": [
+      686.6616,
+      395.3518
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R7",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      1.9872153917725977,
+      1.9700000000000002,
+      4.747326280367233
+    ]
+  },
+  {
+    "id": "R8",
+    "zoneId": "riva",
+    "schematicPosition": [
+      792,
+      516
+    ],
+    "planPosition": [
+      698.6514,
+      438.284
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R8",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      0.07637623940678002,
+      1.9700000000000002,
+      5.280971871998586
+    ]
+  },
+  {
+    "id": "R9",
+    "zoneId": "riva",
+    "schematicPosition": [
+      906,
+      237
+    ],
+    "planPosition": [
+      782.6637,
+      284.0729
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R9",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      6.9400498365995755,
+      1.9700000000000002,
+      9.020216357962568
+    ]
+  },
+  {
+    "id": "R10",
+    "zoneId": "riva",
+    "schematicPosition": [
+      917,
+      318
+    ],
+    "planPosition": [
+      788.045,
+      326.7514
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R10",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      5.040502439442091,
+      1.9700000000000002,
+      9.25972886211158
+    ]
+  },
+  {
+    "id": "R11",
+    "zoneId": "riva",
+    "schematicPosition": [
+      933,
+      439
+    ],
+    "planPosition": [
+      795.9485,
+      391.693
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R11",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      2.150062352577684,
+      1.9700000000000002,
+      9.611500195533191
+    ]
+  },
+  {
+    "id": "R12",
+    "zoneId": "riva",
+    "schematicPosition": [
+      955,
+      516
+    ],
+    "planPosition": [
+      808.8624,
+      433.4353
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R12",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      0.29218362402895554,
+      1.9700000000000002,
+      10.18627590536723
+    ]
+  },
+  {
+    "id": "R13",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1073,
+      237
+    ],
+    "planPosition": [
+      887.8866,
+      283.3671
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R13",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      6.9714637933439265,
+      1.9700000000000002,
+      13.70350854996469
+    ]
+  },
+  {
+    "id": "R14",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1083,
+      318
+    ],
+    "planPosition": [
+      893.2601,
+      324.9309
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R14",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      5.121529795992231,
+      1.9700000000000002,
+      13.942673889389122
+    ]
+  },
+  {
+    "id": "R15",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1096,
+      439
+    ],
+    "planPosition": [
+      900.2273,
+      388.202
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R15",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      2.3054408209745763,
+      1.9700000000000002,
+      14.252772103372175
+    ]
+  },
+  {
+    "id": "R16",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1111,
+      516
+    ],
+    "planPosition": [
+      908.9571,
+      429.0317
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "R16",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      0.4881803652012711,
+      1.9700000000000002,
+      14.641320643449857
+    ]
+  },
+  {
+    "id": "B0",
+    "zoneId": "back",
+    "schematicPosition": [
+      80,
+      195
+    ],
+    "planPosition": [
+      233.13,
+      261.7103
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B0",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      7.935371101959745,
+      1.47,
+      -15.43859333509887
+    ]
+  },
+  {
+    "id": "B1",
+    "zoneId": "back",
+    "schematicPosition": [
+      104,
+      260
+    ],
+    "planPosition": [
+      248.25,
+      305.6414
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B1",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      5.980072610699153,
+      1.47,
+      -14.765627868997175
+    ]
+  },
+  {
+    "id": "B2",
+    "zoneId": "back",
+    "schematicPosition": [
+      171,
+      195
+    ],
+    "planPosition": [
+      290.46,
+      261.7103
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B2",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      7.935371101959745,
+      1.47,
+      -12.886932609463278
+    ]
+  },
+  {
+    "id": "B3",
+    "zoneId": "back",
+    "schematicPosition": [
+      207,
+      260
+    ],
+    "planPosition": [
+      313.14,
+      305.6414
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B3",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      5.980072610699153,
+      1.47,
+      -11.877484410310736
+    ]
+  },
+  {
+    "id": "B4",
+    "zoneId": "back",
+    "schematicPosition": [
+      262,
+      195
+    ],
+    "planPosition": [
+      347.79,
+      261.7103
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B4",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      7.935371101959745,
+      1.47,
+      -10.335271883827682
+    ]
+  },
+  {
+    "id": "B5",
+    "zoneId": "back",
+    "schematicPosition": [
+      89,
+      346
+    ],
+    "planPosition": [
+      238.8,
+      361.0123
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B5",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      3.5156080917196335,
+      1.47,
+      -15.186231285310734
+    ]
+  },
+  {
+    "id": "B6",
+    "zoneId": "back",
+    "schematicPosition": [
+      201,
+      346
+    ],
+    "planPosition": [
+      309.36,
+      361.0123
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B6",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      3.5156080917196335,
+      1.47,
+      -12.045725776836157
+    ]
+  },
+  {
+    "id": "B7",
+    "zoneId": "back",
+    "schematicPosition": [
+      88,
+      415
+    ],
+    "planPosition": [
+      238.17,
+      398.7391
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B7",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      1.8364524338806494,
+      1.47,
+      -15.214271513064974
+    ]
+  },
+  {
+    "id": "B8",
+    "zoneId": "back",
+    "schematicPosition": [
+      76,
+      626
+    ],
+    "planPosition": [
+      230.61,
+      554.2336
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B8",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -5.084343112994351,
+      1.77,
+      -15.550754246115819
+    ]
+  },
+  {
+    "id": "B9",
+    "zoneId": "back",
+    "schematicPosition": [
+      160,
+      626
+    ],
+    "planPosition": [
+      283.53,
+      554.2336
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B9",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -5.084343112994351,
+      1.77,
+      -13.195375114759887
+    ]
+  },
+  {
+    "id": "B10",
+    "zoneId": "back",
+    "schematicPosition": [
+      247,
+      626
+    ],
+    "planPosition": [
+      338.34,
+      554.2336
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B10",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -5.084343112994351,
+      1.77,
+      -10.755875300141243
+    ]
+  },
+  {
+    "id": "B11",
+    "zoneId": "back",
+    "schematicPosition": [
+      325,
+      698
+    ],
+    "planPosition": [
+      387.48,
+      595.2804
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B11",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -6.911266320268361,
+      1.77,
+      -8.568737535310733
+    ]
+  },
+  {
+    "id": "B12",
+    "zoneId": "back",
+    "schematicPosition": [
+      400,
+      718
+    ],
+    "planPosition": [
+      434.73,
+      606.6822
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B12",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -7.418741032662428,
+      1.77,
+      -6.465720453742937
+    ]
+  },
+  {
+    "id": "B13",
+    "zoneId": "back",
+    "schematicPosition": [
+      478,
+      742
+    ],
+    "planPosition": [
+      483.87,
+      620.3645
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B13",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -8.027716918697035,
+      1.77,
+      -4.278582688912429
+    ]
+  },
+  {
+    "id": "B14",
+    "zoneId": "back",
+    "schematicPosition": [
+      391,
+      772
+    ],
+    "planPosition": [
+      429.06,
+      637.4673
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B14",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -8.788933438117938,
+      1.77,
+      -6.718082503531074
+    ]
+  },
+  {
+    "id": "B15",
+    "zoneId": "back",
+    "schematicPosition": [
+      79,
+      748
+    ],
+    "planPosition": [
+      232.5,
+      623.785
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "B15",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -8.179957552083332,
+      1.77,
+      -15.466633562853106
+    ]
+  },
+  {
+    "id": "G1",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      134,
+      822
+    ],
+    "planPosition": [
+      291.368,
+      677.33
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G1",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -10.56315436970339,
+      1.662,
+      -12.846519074858756
+    ]
+  },
+  {
+    "id": "G2",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      213,
+      863
+    ],
+    "planPosition": [
+      347.616,
+      708.9
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G2",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -11.968281338276835,
+      1.662,
+      -10.343016327683616
+    ]
+  },
+  {
+    "id": "G3",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      144,
+      914
+    ],
+    "planPosition": [
+      298.488,
+      748.17
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G3",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -13.716122201624291,
+      1.662,
+      -12.529619992937853
+    ]
+  },
+  {
+    "id": "G4",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      175,
+      979
+    ],
+    "planPosition": [
+      340,
+      818
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G4",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -16.82413665254237,
+      1.662,
+      -10.68199152542373
+    ]
+  },
+  {
+    "id": "G5",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      161,
+      1038
+    ],
+    "planPosition": [
+      310.592,
+      843.65
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G5",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -17.965774496822032,
+      1.662,
+      -11.990891553672316
+    ]
+  },
+  {
+    "id": "G6",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      263,
+      1072
+    ],
+    "planPosition": [
+      383.216,
+      869.83
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G6",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -19.131001739053673,
+      1.662,
+      -8.758520918079096
+    ]
+  },
+  {
+    "id": "G7",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      371,
+      1038
+    ],
+    "planPosition": [
+      441,
+      843.65
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G7",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -17.965774496822032,
+      1.662,
+      -6.186653425141243
+    ]
+  },
+  {
+    "id": "G8",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      382,
+      940
+    ],
+    "planPosition": [
+      441,
+      768.19
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true,
+    "label": "G8",
+    "capacity": null,
+    "minSpend": null,
+    "status": "unconfigured",
+    "source": "ID and layout from user schematic; furniture appearance from supplied photos",
+    "position": [
+      -14.607178328036726,
+      1.662,
+      -6.186653425141243
+    ]
+  }
+]

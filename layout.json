@@ -1,0 +1,642 @@
+[
+  {
+    "id": "R1",
+    "zoneId": "riva",
+    "schematicPosition": [
+      605,
+      236
+    ],
+    "planPosition": [
+      578.1115,
+      284.8948
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R2",
+    "zoneId": "riva",
+    "schematicPosition": [
+      618,
+      319
+    ],
+    "planPosition": [
+      583.5358,
+      330.8489
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R3",
+    "zoneId": "riva",
+    "schematicPosition": [
+      633,
+      418
+    ],
+    "planPosition": [
+      589.7481,
+      386.5943
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R4",
+    "zoneId": "riva",
+    "schematicPosition": [
+      645,
+      509
+    ],
+    "planPosition": [
+      594.256,
+      438.8066
+    ],
+    "height": 1.12,
+    "furniture": "riva-compact",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R5",
+    "zoneId": "riva",
+    "schematicPosition": [
+      746,
+      237
+    ],
+    "planPosition": [
+      676.429,
+      284.7854
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R6",
+    "zoneId": "riva",
+    "schematicPosition": [
+      761,
+      319
+    ],
+    "planPosition": [
+      683.8613,
+      329.0998
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R7",
+    "zoneId": "riva",
+    "schematicPosition": [
+      771,
+      439
+    ],
+    "planPosition": [
+      686.6616,
+      395.3518
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R8",
+    "zoneId": "riva",
+    "schematicPosition": [
+      792,
+      516
+    ],
+    "planPosition": [
+      698.6514,
+      438.284
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R9",
+    "zoneId": "riva",
+    "schematicPosition": [
+      906,
+      237
+    ],
+    "planPosition": [
+      782.6637,
+      284.0729
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R10",
+    "zoneId": "riva",
+    "schematicPosition": [
+      917,
+      318
+    ],
+    "planPosition": [
+      788.045,
+      326.7514
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R11",
+    "zoneId": "riva",
+    "schematicPosition": [
+      933,
+      439
+    ],
+    "planPosition": [
+      795.9485,
+      391.693
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R12",
+    "zoneId": "riva",
+    "schematicPosition": [
+      955,
+      516
+    ],
+    "planPosition": [
+      808.8624,
+      433.4353
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R13",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1073,
+      237
+    ],
+    "planPosition": [
+      887.8866,
+      283.3671
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R14",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1083,
+      318
+    ],
+    "planPosition": [
+      893.2601,
+      324.9309
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R15",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1096,
+      439
+    ],
+    "planPosition": [
+      900.2273,
+      388.202
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "R16",
+    "zoneId": "riva",
+    "schematicPosition": [
+      1111,
+      516
+    ],
+    "planPosition": [
+      908.9571,
+      429.0317
+    ],
+    "height": 1.12,
+    "furniture": "riva-lounge",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B0",
+    "zoneId": "back",
+    "schematicPosition": [
+      80,
+      195
+    ],
+    "planPosition": [
+      233.13,
+      261.7103
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B1",
+    "zoneId": "back",
+    "schematicPosition": [
+      104,
+      260
+    ],
+    "planPosition": [
+      248.25,
+      305.6414
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B2",
+    "zoneId": "back",
+    "schematicPosition": [
+      171,
+      195
+    ],
+    "planPosition": [
+      290.46,
+      261.7103
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B3",
+    "zoneId": "back",
+    "schematicPosition": [
+      207,
+      260
+    ],
+    "planPosition": [
+      313.14,
+      305.6414
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B4",
+    "zoneId": "back",
+    "schematicPosition": [
+      262,
+      195
+    ],
+    "planPosition": [
+      347.79,
+      261.7103
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B5",
+    "zoneId": "back",
+    "schematicPosition": [
+      89,
+      346
+    ],
+    "planPosition": [
+      238.8,
+      361.0123
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B6",
+    "zoneId": "back",
+    "schematicPosition": [
+      201,
+      346
+    ],
+    "planPosition": [
+      309.36,
+      361.0123
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B7",
+    "zoneId": "back",
+    "schematicPosition": [
+      88,
+      415
+    ],
+    "planPosition": [
+      238.17,
+      398.7391
+    ],
+    "height": 0.62,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B8",
+    "zoneId": "back",
+    "schematicPosition": [
+      76,
+      626
+    ],
+    "planPosition": [
+      230.61,
+      554.2336
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B9",
+    "zoneId": "back",
+    "schematicPosition": [
+      160,
+      626
+    ],
+    "planPosition": [
+      283.53,
+      554.2336
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B10",
+    "zoneId": "back",
+    "schematicPosition": [
+      247,
+      626
+    ],
+    "planPosition": [
+      338.34,
+      554.2336
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B11",
+    "zoneId": "back",
+    "schematicPosition": [
+      325,
+      698
+    ],
+    "planPosition": [
+      387.48,
+      595.2804
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B12",
+    "zoneId": "back",
+    "schematicPosition": [
+      400,
+      718
+    ],
+    "planPosition": [
+      434.73,
+      606.6822
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B13",
+    "zoneId": "back",
+    "schematicPosition": [
+      478,
+      742
+    ],
+    "planPosition": [
+      483.87,
+      620.3645
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B14",
+    "zoneId": "back",
+    "schematicPosition": [
+      391,
+      772
+    ],
+    "planPosition": [
+      429.06,
+      637.4673
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "B15",
+    "zoneId": "back",
+    "schematicPosition": [
+      79,
+      748
+    ],
+    "planPosition": [
+      232.5,
+      623.785
+    ],
+    "height": 0.92,
+    "furniture": "beanbag-round",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G1",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      134,
+      822
+    ],
+    "planPosition": [
+      291.368,
+      677.33
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G2",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      213,
+      863
+    ],
+    "planPosition": [
+      347.616,
+      708.9
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G3",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      144,
+      914
+    ],
+    "planPosition": [
+      298.488,
+      748.17
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G4",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      175,
+      979
+    ],
+    "planPosition": [
+      340,
+      818
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G5",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      161,
+      1038
+    ],
+    "planPosition": [
+      310.592,
+      843.65
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G6",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      263,
+      1072
+    ],
+    "planPosition": [
+      383.216,
+      869.83
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G7",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      371,
+      1038
+    ],
+    "planPosition": [
+      441,
+      843.65
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  },
+  {
+    "id": "G8",
+    "zoneId": "glitzbar",
+    "schematicPosition": [
+      382,
+      940
+    ],
+    "planPosition": [
+      441,
+      768.19
+    ],
+    "height": 0.812,
+    "furniture": "masonry-director",
+    "layoutSource": "Pianta schematica monocromatica della venue.png",
+    "idConfirmedBySource": true
+  }
+]

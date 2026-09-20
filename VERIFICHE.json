@@ -1,0 +1,14 @@
+{
+  "width": 8.997966766357422,
+  "crownAboveSupport": 3.9989900588989253,
+  "crownAboveDancefloor": 4.998990058898926,
+  "tableCount": 40,
+  "allTableSelections": true,
+  "planToArchTransition": true,
+  "errors": [],
+  "environment": "Chromium WebGL",
+  "glbValid": true,
+  "exportedTableIds": 40,
+  "rearTrussPresent": true,
+  "continuousMasonryPresent": true
+}
