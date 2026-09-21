@@ -1127,10 +1127,17 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    {["STAGE", "RIVA", "BAR"].map((zid) => {
+                                    {["STAGE", "RIVA", "BAR", "SEAVIEW", "PRATO_BACK"].map((zid) => {
                                         const list = settings.floorplan_zones || [];
                                         const idx0 = list.findIndex((z) => z.id === zid);
-                                        const z = idx0 >= 0 ? list[idx0] : { id: zid, label: zid, color: "#E10600", price_from: "", min_spend: "", bottles: "", description: "" };
+                                        const defaults = {
+                                            STAGE: { label: "Back the Stage", color: "#E10600" },
+                                            RIVA: { label: "Riva Deck", color: "#00BFFF" },
+                                            BAR: { label: "Glitz Bar", color: "#FFA500" },
+                                            SEAVIEW: { label: "Seat View", color: "#FFFFFF" },
+                                            PRATO_BACK: { label: "Prato Back the Stage", color: "#FFFFFF" },
+                                        };
+                                        const z = idx0 >= 0 ? list[idx0] : { id: zid, ...defaults[zid], price_from: "", min_spend: "", bottles: "", description: "" };
                                         const setField = (patch) => {
                                             const next = [...(settings.floorplan_zones || [])];
                                             const idx = next.findIndex((x) => x.id === zid);
@@ -1623,6 +1630,14 @@ export default function AdminDashboard() {
                                         <input data-testid="past-gallery-description" className={input} placeholder="Descrizione (opz.)" value={settings.past_gallery_description || ""} onChange={(e) => setSettings({ ...settings, past_gallery_description: e.target.value })} />
                                     </div>
                                     <p className="text-[10px] text-white/40 mt-2">Le strip usano le foto della categoria <b className="text-lava">gallery</b> del media manager. Carica foto lì per popolarle.</p>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <div className="text-[10px] uppercase tracking-widest text-lava font-bold mb-2">Bottone Biglietti (globale)</div>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <input data-testid="events-ticket-label" className={input} placeholder="Testo bottone (es. Acquista Biglietto)" value={settings.events_ticket_label || ""} onChange={(e) => setSettings({ ...settings, events_ticket_label: e.target.value })} />
+                                        <input data-testid="events-ticket-url" className={input} placeholder="URL fallback (TicketSms venue)" value={settings.events_ticket_url || ""} onChange={(e) => setSettings({ ...settings, events_ticket_url: e.target.value })} />
+                                    </div>
+                                    <p className="text-[10px] text-white/40 mt-2">Il testo si applica a tutti gli eventi. L'URL è il fallback usato se l'evento non ha un `ticket_url` specifico.</p>
                                 </div>
                                 <div className="grid gap-3 md:grid-cols-2 pt-2">
                                     <SectionPreview label="Anteprima Blog" url="/news" kicker={settings.blog_kicker} title={settings.blog_title} description={settings.blog_description} />

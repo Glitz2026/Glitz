@@ -413,6 +413,9 @@ class SettingsIn(BaseModel):
     past_gallery_kicker: str = "Flashback"
     past_gallery_title: str = "Le notti che hanno fatto storia"
     past_gallery_description: str = "Momenti immortalati dalle stagioni passate."
+    # --- Biglietti button label + fallback URL ---
+    events_ticket_label: str = "Acquista Biglietto"
+    events_ticket_url: str = "https://www.ticketsms.it/it/location/glitz-club"
     # --- Poster frame ---
     poster_club_name: str = "GLITZ"
     poster_club_label: str = "CLUB"
@@ -653,6 +656,8 @@ DEFAULT_SETTINGS = {
     "past_gallery_kicker": "Flashback",
     "past_gallery_title": "Le notti che hanno fatto storia",
     "past_gallery_description": "Momenti immortalati dalle stagioni passate.",
+    "events_ticket_label": "Acquista Biglietto",
+    "events_ticket_url": "https://www.ticketsms.it/it/location/glitz-club",
     "poster_club_name": "GLITZ",
     "poster_club_label": "CLUB",
     "poster_location": "SAN NICOLA ARCELLA",

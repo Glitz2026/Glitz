@@ -14,9 +14,11 @@ export default function EventDetail() {
     const [ev, setEv] = useState(null);
     const [error, setError] = useState(false);
     const [bookingOpen, setBookingOpen] = useState(false);
+    const [settings, setSettings] = useState({});
 
     useEffect(() => {
         api.get(`/events/${id}`).then((r) => setEv(r.data)).catch(() => setError(true));
+        api.get("/settings").then((r) => setSettings(r.data || {})).catch(() => {});
     }, [id]);
 
     // Scroll to floorplan when URL hash is #floorplan
@@ -70,9 +72,9 @@ export default function EventDetail() {
                             <Countdown targetIso={ev.date} testIdPrefix="event-countdown" />
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            {ev.ticket_url && (
-                                <a href={ev.ticket_url} target="_blank" rel="noreferrer" data-testid="event-ticket-btn" className="btn-lava">
-                                    <Ticket className="w-4 h-4" /> Acquista Biglietto
+                            {(ev.ticket_url || settings.events_ticket_url) && (
+                                <a href={ev.ticket_url || settings.events_ticket_url} target="_blank" rel="noreferrer" data-testid="event-ticket-btn" className="btn-lava">
+                                    <Ticket className="w-4 h-4" /> {settings.events_ticket_label || "Acquista Biglietto"}
                                 </a>
                             )}
                             <button onClick={() => {

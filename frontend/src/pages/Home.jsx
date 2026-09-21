@@ -243,7 +243,7 @@ export default function Home() {
                     <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
                         <div className="space-y-3">
                             <span className="overline-tag">{settings?.about_kicker || "Il Club"}</span>
-                            <h2 className="section-title">Due Ambienti,<br /><span className="text-lava">Una Sola Notte</span></h2>
+                            <h2 className="section-title">Aree Diverse,<br /><span className="text-lava">Una Sola Notte</span></h2>
                         </div>
                         <Link to="/il-club" data-testid="see-all-zones-link" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
                             Scopri tutti gli ambienti <ArrowRight className="w-4 h-4" />
