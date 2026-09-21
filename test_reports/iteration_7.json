@@ -1,0 +1,28 @@
+{
+  "summary": "Iteration 7 testing: Contact editor + gallery subsections. Backend: 4/4 pytest PASSED (contact_* defaults, about_gallery_groups 3-item default, PUT /api/admin/settings roundtrip for contact_email + about_gallery_groups with restore, /api/media?category= filter). Frontend: /contatti renders all required testids (contact-title, contact-hours, contact-address, contact-map, plus WhatsApp/email/Instagram). /il-club shows 3 new gallery subsections (gallery-group-eventi-pubblico, gallery-group-location, gallery-group-dettagli); old flat 'zones-gallery-item-0' is GONE. Admin Contenuti tab has full contact-editor with all 10 input testids and 3 gallery-group-editor rows + add-gallery-group-btn. End-to-end save flow verified: changed contact_title -> 'Scrivici TEST' via admin, appeared live on /contatti inside data-testid=contact-title, then restored. Mobile (390x844) smoke of /, /il-club, /contatti loads without page errors. ONE REGRESSION: the footer marketing paragraph 'Il club all'aperto sulla costa tirrenica calabrese...' is STILL present in Layout.jsx line 224 despite the review request stating it was deleted.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Layout.jsx footer", "issue": "Marketing paragraph 'Il club all'aperto sulla costa tirrenica calabrese. 2000 posti...' was NOT deleted — still rendered inside data-testid='site-footer' at Layout.jsx line 224. Review request said it should be removed.", "selector": "[data-testid='site-footer'] p", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_contact_and_gallery.py", "/app/test_reports/pytest/iter7_backend.xml"],
+  "action_items": [
+    "Delete the marketing <p> paragraph at /app/frontend/src/components/Layout.jsx line 223-225 ('Il club all\\'aperto sulla costa tirrenica calabrese...') — the review claimed this was done but it is still present.",
+    "Investigate 18 console 'Failed to load resource: 401' errors during page loads (also flagged in iteration 6) — likely an authenticated endpoint being polled on public pages."
+  ],
+  "critical_code_review_comments": [
+    "Layout.jsx still emits the marketing paragraph — the delete described in the request was not applied.",
+    "Repeated 401 console noise on public pages (carry-over from iter 6) still not addressed."
+  ],
+  "updated_files": ["/app/backend/tests/test_contact_and_gallery.py"],
+  "success_rate": {"backend": "100% (4/4)", "frontend": "95% (all new features work; footer deletion regression)"},
+  "test_credentials": "Admin jalucas@hotmail.it / GlitzAdmin2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None — roundtrip test restored original contact_email + about_gallery_groups after modifying.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All new contact editor + gallery subsection features work end-to-end (backend + frontend + save persistence). Only outstanding item: main agent must actually delete the marketing paragraph in Layout.jsx lines 223-225. After that a quick footer regrep should suffice; no need to re-run full suite.",
+  "rca of the issue": "Footer marketing paragraph regression RCA: grep of /app/frontend/src/components/Layout.jsx shows '<p ...>Il club all'aperto sulla costa tirrenica calabrese. 2000 posti, vista mare, l'arco iconico e le notti più magiche del sud Italia.</p>' still exists at lines 223-225. The main agent's edit to Layout.jsx never landed. Reproduction: curl the / page or inspect footer HTML — text is present. Fix: remove those three lines (the <p> element)."
+}

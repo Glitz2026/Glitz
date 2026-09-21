@@ -1,0 +1,26 @@
+{
+  "summary": "Iteration 2 testing (bookings + real assets). Backend: 6/6 pytest passed (settings, past-events, booking create/list/patch, auth guard). Frontend: home logo (real PNG), Vimeo iframe with correct player URL, hero-table-btn opens booking modal, /eventi has 3 cards, event detail (Opening Season 2027) shows floorplan-section with real planimetria PNG and exactly 28 clickable tables (A1..E4). Clicking B5 opens booking modal; submitting form with name/phone persisted to DB (verified via admin listing showing 'TEST QA'), success toast shown, window.open called with correct wa.me/393444289232 URL and pre-filled message. Admin login OK; tab-bookings and tab-settings both present and functional. Settings tab shows hero_video_url, planimetria_url, logo_url fields + 4 upload inputs. No critical issues.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AdminDashboard header", "issues": ["Logo image in top-left of admin appears heavily cropped/truncated (only 'Glitz' partial glyph visible); may need aspect-ratio/height fix in header for admin pages"]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_bookings_and_settings.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is ~925 lines — consider splitting into routers/{auth,events,posts,faqs,media,bookings,settings}.py for maintainability",
+    "BookingModal opens WhatsApp via window.open which may be blocked by popup blockers on some browsers; consider fallback anchor with target=_blank",
+    "Floorplan table hotspots have fixed % positions — will drift on very small/mobile viewports; hotspot centering uses translate(-50%,-50%) which is fine, but consider clamp() on size (already used) and test on 390px viewport"
+  ],
+  "updated_files": ["/app/backend/tests/test_bookings_and_settings.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "jalucas@hotmail.it / GlitzAdmin2026!",
+  "seed_data_creation": "1 booking created via frontend (name='TEST QA', phone='+39 333 1111111', table B5, event 'Opening Season 2027 — Pyramid Night'); confirmed booking updated to status='confirmed' via PATCH in backend tests",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All iteration-2 features working end-to-end. Vimeo hero iframe loads but overlays 'Sign in to Vimeo' because video is private — this is a user-content issue, not a code bug. Real planimetria PNG (f645c928-2e46-4771-a6e7-819818a6377d.png) served via /api/files. Bookings table in mongodb 'bookings' collection.",
+  "rca of the issue": "N/A — no bugs found"
+}

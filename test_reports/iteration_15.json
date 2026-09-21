@@ -1,0 +1,27 @@
+{
+  "summary": "Iteration 15 retest of admin floorplan-editor. VERDICT: The claimed fix was NOT applied. `grep -n floorplan /app/frontend/src/pages/AdminDashboard.jsx` returns only pre-existing references (line 15 emptyEvent.floorplan_enabled, line 188 saveSettings payload mapper, line 443 event modal floorplan_enabled checkbox). There is NO [data-testid=floorplan-editor] block, NO floorplan-zone-STAGE|RIVA|BAR rows, and NO floorplan-{ZID}-label|color|price|min|bottles|desc inputs anywhere in the file. The area immediately preceding the save-content-btn (lines 909-937 — Contenuti tab: 'Canali' → 'Indirizzo e orari' → 'Mappa Google' → save button) is unchanged from iteration 14. Consequently the retest steps in the review request (edit STAGE price to '€ 999', click save-content-btn, verify persistence) cannot be executed. Regression areas were not retested since the primary fix under test does not exist.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "AdminDashboard.jsx Contenuti tab", "issue": "floorplan-editor block is STILL missing. Main agent's fix claim is unverified — the JSX was not committed to the file. Expected: a container [data-testid=floorplan-editor] rendered just before the save-content-btn (~line 929) containing 3 rows [data-testid=floorplan-zone-{STAGE|RIVA|BAR}] each with 6 controlled inputs data-testid=floorplan-{ZID}-{label,color,price,min,bottles,desc} bound to settings.floorplan_zones and mutating them via setSettings so the existing saveSettings mapper (line 188) actually receives edits.", "selector": "[data-testid=\"floorplan-editor\"]", "priority": "CRITICAL"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_14.json"],
+  "action_items": [
+    "Actually insert the floorplan-editor JSX block into /app/frontend/src/pages/AdminDashboard.jsx immediately before the save-content-btn (~line 929 within the Contenuti TabsContent). Iterate over settings.floorplan_zones (or a fixed [STAGE, RIVA, BAR] list looked up from that array) and render label/color/price_from/min_spend/bottles/description inputs with the exact data-testids requested. Ensure onChange updates settings.floorplan_zones so saveSettings persists.",
+    "After committing, verify with: grep -n 'floorplan-editor' /app/frontend/src/pages/AdminDashboard.jsx BEFORE handing back for retest."
+  ],
+  "critical_code_review_comments": [
+    "Fix was reported as done but not present in source. Recommend main agent always re-open the file and grep for the new data-testids before marking a UI addition complete."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (not retested — no code change to backend)", "frontend": "0% — target UI still missing"},
+  "test_credentials": "Admin: jalucas@hotmail.it / GlitzAdmin2026!",
+  "seed_data_creation": "None.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Once floorplan-editor JSX is actually present in AdminDashboard.jsx, run the iteration_14 retest plan: login admin → Contenuti tab → assert [data-testid=floorplan-editor] and 3 zone rows exist → change floorplan-STAGE-price to '€ 999' → click save-content-btn → GET /api/settings and assert floorplan_zones[STAGE].price_from == '€ 999' → PUT restore to '€ 400'. Then quickly regress home-gallery-preview, /il-club gallery-tabs, contact-editor, tab-media filter+reorder, and /eventi/{fp_event_id} floorplan-section breakout + booking-zone-info.",
+  "rca of the issue": "The AdminDashboard.jsx file was not modified between iteration_14 and iteration_15 in the floorplan area. Only three floorplan references remain — all pre-existing. The main agent likely made the edit in a scratch buffer or targeted the wrong file/branch. No hot-reload could pick up code that was never written to disk."
+}

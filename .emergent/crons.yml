@@ -1,0 +1,8 @@
+crons:
+  - name: glitz-reminders
+    description: "Sends email reminder 3h before every booked event to guests who left an email"
+    cron: "*/15 * * * *"
+    endpoint: "{{BASE_URL}}/api/cron/reminders"
+    method: POST
+    # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
+    enabled: true

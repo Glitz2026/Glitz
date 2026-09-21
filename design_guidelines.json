@@ -1,0 +1,178 @@
+{
+  "project_name": "Glitz Club — Sito Web Ufficiale",
+  "domain": "glitzclub.it",
+  "location": "San Nicola Arcella (CS), Costa Tirrenica Calabrese",
+  "capacity": "2000 posti all'aperto",
+  "app_type": "hybrid_fullstack",
+  "language": "it",
+  "theme": "dark",
+  "inspired_by": ["Pacha Ibiza", "Ushuaïa Ibiza", "Hï Ibiza", "UNVRS"],
+  "visual_identity": {
+    "core_elements": [
+      "Arco Iconico con LED Rossi e Laser mapping dynamic",
+      "Vista panoramica sul mare al tramonto (Costa dei Cedri / Arco Magno)",
+      "Deep black atmospheric shadows with red-lava neon glow",
+      "Fumo scenico, fari motorizzati, bagliori rossi ed effetti lenti"
+    ],
+    "mood_keywords": ["Cinematografico", "Esclusivo", "Adrenalinico", "Ibiza Vibe", "Magico", "Sensoriale"]
+  },
+  "typography": {
+    "font_family_heading": "Outfit, 'Clash Display', 'Cabinet Grotesk', sans-serif",
+    "font_family_body": "Plus Jakarta Sans, Manrope, sans-serif",
+    "font_family_mono": "JetBrains Mono, monospace",
+    "google_fonts_url": "https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap",
+    "hierarchy": {
+      "h1_hero": "text-4xl sm:text-6xl lg:text-7xl font-extrabold uppercase tracking-tight leading-none text-white",
+      "h2_section": "text-2xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-white",
+      "h3_card": "text-xl sm:text-2xl font-bold uppercase tracking-wide text-white",
+      "h4_sub": "text-lg sm:text-xl font-semibold tracking-normal text-gray-200",
+      "body_lead": "text-base sm:text-lg text-gray-300 leading-relaxed font-normal",
+      "body_main": "text-sm sm:text-base text-gray-400 leading-relaxed font-normal",
+      "caption_overline": "text-xs uppercase tracking-[0.25em] font-semibold text-red-500",
+      "badge_countdown": "text-xl sm:text-3xl font-black font-mono tracking-widest text-amber-400"
+    }
+  },
+  "colors": {
+    "css_variables": {
+      "--bg-primary": "#070609",
+      "--bg-surface": "#0F0D15",
+      "--bg-surface-hover": "#171420",
+      "--bg-glass": "rgba(15, 13, 21, 0.75)",
+      "--text-primary": "#FFFFFF",
+      "--text-secondary": "#A19FB0",
+      "--text-muted": "#686578",
+      "--accent-lava": "#FF3300",
+      "--accent-lava-hover": "#FF5522",
+      "--accent-lava-glow": "rgba(255, 51, 0, 0.4)",
+      "--secondary-sunset-purple": "#8A2BE2",
+      "--secondary-sunset-pink": "#E0115F",
+      "--secondary-sunset-magenta": "#C71585",
+      "--border-subtle": "rgba(255, 255, 255, 0.08)",
+      "--border-glow": "rgba(255, 51, 0, 0.3)",
+      "--status-success": "#10B981",
+      "--status-warning": "#F59E0B",
+      "--status-danger": "#EF4444"
+    },
+    "tailwind_palette_mapping": {
+      "bg-black-obsidian": "#070609",
+      "bg-card-dark": "#0F0D15",
+      "bg-card-hover": "#171420",
+      "text-lava": "#FF3300",
+      "text-sunset-pink": "#E0115F",
+      "border-red-glow": "rgba(255, 51, 0, 0.25)"
+    }
+  },
+  "layout_patterns": {
+    "hero_section": {
+      "type": "Full-screen Cinematic Video Overlay",
+      "aspect_ratio": "min-h-screen w-full relative overflow-hidden flex items-center justify-center",
+      "overlay_gradient": "bg-gradient-to-t from-[#070609] via-black/40 to-black/60",
+      "content_alignment": "z-10 text-center max-w-5xl px-4 mx-auto flex flex-col items-center gap-6",
+      "elements": [
+        "Video loop autoplay muted background (aftermovie atmosphere)",
+        "Overline brand tag: 'GLITZ CLUB • SAN NICOLA ARCELLA'",
+        "Main Heading: 'IL TEMPIO DELLE NOTTI CALABRESI'",
+        "Countdown per il Prossimo Evento in Primo Piano",
+        "Action Buttons: CTA Primaria 'Acquista Biglietto' (TicketSms) + CTA Secondaria 'Prenota Tavolo VIP' (WhatsApp)"
+      ]
+    },
+    "event_card": {
+      "container": "group relative overflow-hidden rounded-2xl bg-[#0F0D15] border border-white/10 hover:border-[#FF3300]/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,51,0,0.25)] flex flex-col",
+      "image_aspect": "aspect-[4/5] w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out",
+      "badge": "absolute top-4 left-4 bg-red-600/90 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest",
+      "content_box": "p-6 flex flex-col flex-1 justify-between gap-4 bg-gradient-to-b from-transparent to-[#070609]",
+      "cta_row": "flex items-center gap-3 pt-4 border-t border-white/5"
+    },
+    "faq_accordion": {
+      "location": "Top della Homepage e Sezione Info",
+      "container": "max-w-4xl mx-auto space-y-4 px-4 py-12",
+      "item": "border border-white/10 rounded-xl bg-[#0F0D15] overflow-hidden transition-all duration-200 hover:border-white/20",
+      "header_trigger": "w-full p-6 text-left flex justify-between items-center text-lg font-bold text-white hover:text-[#FF3300]",
+      "content_panel": "px-6 pb-6 text-gray-400 text-sm leading-relaxed"
+    },
+    "gallery_masonry": {
+      "grid": "columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 p-4",
+      "item": "break-inside-avoid relative overflow-hidden rounded-xl group cursor-pointer border border-white/5",
+      "hover_overlay": "absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4"
+    },
+    "admin_dashboard": {
+      "layout": "min-h-screen flex bg-[#070609] text-white",
+      "sidebar": "w-64 border-r border-white/10 bg-[#0F0D15] p-6 hidden md:flex flex-col justify-between",
+      "main_area": "flex-1 p-8 overflow-y-auto space-y-8",
+      "data_table": "w-full text-left border-collapse border border-white/10 rounded-xl overflow-hidden bg-[#0F0D15]",
+      "table_header": "bg-white/5 text-xs font-semibold uppercase tracking-wider text-gray-400 p-4 border-b border-white/10"
+    }
+  },
+  "motion_and_interactions": {
+    "lenis_smooth_scroll": true,
+    "hover_effects": "Hover su pulsanti con glow neon rosso lava, sollevamento card (-translate-y-1.5), zoom soft poster (+5%)",
+    "countdown_anim": "Pulsazione ad ogni secondo per le cifre del countdown",
+    "page_transitions": "Framer motion fade & slide up (y: 20 to 0, opacity: 0 to 1)",
+    "laser_light_sweep": "Animazione CSS keyframe di fasci luminosi e bagliori sull'arco della hero"
+  },
+  "accessibility_and_ux": {
+    "apca_contrast": "Tutti i testi garantiscono rapporto minimo 4.5:1 (Bianco puro su sfondi scuri obsidian)",
+    "keyboard_nav": "Focus ring visibile `#FF3300` per navigazione tastiera",
+    "touch_targets": "Pulsanti e link mobile dimensione minima 48x48px",
+    "prefers_reduced_motion": "Disattivazione video background e particelle per utenti con reduced motion abilitato"
+  },
+  "image_urls": {
+    "hero_and_venue": [
+      {
+        "category": "Hero Background / Aerial Sunset",
+        "url": "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Vista panoramica sul mare al tramonto San Nicola Arcella Glitz Club",
+        "usage": "Hero background fallback e header sezione Location"
+      },
+      {
+        "category": "Stage & Laser Lights",
+        "url": "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Arco iconico LED rossi e laser show Glitz Club",
+        "usage": "Background sezioni promozionali e banner serate"
+      }
+    ],
+    "events_and_djs": [
+      {
+        "category": "DJ Performance & Crowd",
+        "url": "https://images.unsplash.com/photo-1602167098991-7cdbfeb0f8d9?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Main Stage DJ Guest Performance",
+        "usage": "Poster evento principale e cover blog"
+      },
+      {
+        "category": "Festival Stage Atmosphere",
+        "url": "https://images.unsplash.com/photo-1563841930606-67e2bce48b78?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Folla e fuochi pirotecnici sul palco aperto",
+        "usage": "Card prossimi eventi e gallery"
+      },
+      {
+        "category": "Nightlife Concert Crowd",
+        "url": "https://images.unsplash.com/photo-1619229725920-ac8b63b0631a?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Folla di 2000 persone balla sotto le stelle al Glitz Club",
+        "usage": "Dettaglio evento e storia del club"
+      }
+    ],
+    "gallery_lightbox": [
+      {
+        "category": "Red Neon Light Texture",
+        "url": "https://images.unsplash.com/photo-1619286627925-634cddbafcbf?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Effetti di luce rossa e fumo scenico",
+        "usage": "Texture di sfondo e modal lightbox"
+      },
+      {
+        "category": "Sunset Cliff View",
+        "url": "https://images.unsplash.com/photo-1692688178673-07b356303af5?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Tramonto mediterraneo sulla costa tirrenica",
+        "usage": "Sezione About 'Il Tramonto sul Mare'"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "TUTTA la lingua della UI, i contenuti mock, le FAQ, i titoli dei blog, le descrizioni degli eventi DEVONO ESSERE ESCLUSIVAMENTE IN ITALIANO.",
+    "Non usare MAI i font Inter o Roboto. Usa Google Fonts Outfit per i titoli e Plus Jakarta Sans per il corpo del testo.",
+    "Tutti gli elementi interattivi (pulsanti biglietti, form filtri, FAQ accordion, tab navigation, link social, card eventi, righe tabella admin) DEVONO includere l'attributo data-testid in formato kebab-case (es. data-testid='buy-ticket-hero-button', data-testid='faq-accordion-item-1').",
+    "Implementare i link per 'Acquista Biglietti' indirizzando su TicketSms (es. https://www.ticketsms.it) e 'Prenota Tavolo' tramite link diretto WhatsApp (es. https://wa.me/393000000000?text=Richiesta%20Tavolo%20Glitz).",
+    "Garantire una header fissa o sticky con effetto glassmorphism (backdrop-blur-xl bg-[#0F0D15]/80) e bordi rossi impercettibili.",
+    "Assicurare che la pagina di login e la dashboard admin abbiano protezione con token JWT simulato o state auth reattivo.",
+    "Target file stack: Utilizzare file .js e componenti React in /src/components o /src/pages in linea con la struttura esistente."
+  ]
+}
