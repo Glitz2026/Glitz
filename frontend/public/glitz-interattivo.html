@@ -4263,5 +4263,173 @@ three/build/three.module.js:
    * SPDX-License-Identifier: MIT
    *)
 */
-</script></body></html>
+</script>
+<style id="glitz-embed-customization">
+/* --- MARKER: solo il numero flottante sopra il tavolo selezionato --- */
+/* Nascondi TUTTI i marker (nessun pallino rosso) */
+body.embedded #markers .table-marker { display: none !important; }
+body.embedded #markers .zone-marker { display: none !important; }
+/* Solo il marker del tavolo SELEZIONATO viene mostrato, e SENZA cerchio: solo il numero */
+body.embedded #markers .table-marker.selected {
+    display: flex !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    animation: none;
+    transform: translate(-50%, -140%);
+    z-index: 6;
+    pointer-events: none;
+}
+body.embedded #markers .table-marker.selected i { display: none !important; }
+body.embedded #markers .table-marker.selected span {
+    display: inline-block !important;
+    font: 900 14px/1 system-ui, -apple-system, sans-serif !important;
+    letter-spacing: 1px !important;
+    color: #ffffff !important;
+    background: #e10600 !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 0 22px rgba(225, 6, 0, 0.85), 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+    animation: glitzLabelPulse 1.5s ease-in-out infinite;
+}
+@keyframes glitzLabelPulse {
+    0%, 100% { box-shadow: 0 0 22px rgba(225, 6, 0, 0.85), 0 6px 20px rgba(0, 0, 0, 0.5); }
+    50% { box-shadow: 0 0 36px rgba(225, 6, 0, 1), 0 6px 20px rgba(0, 0, 0, 0.5); }
+}
+</style>
+<script id="glitz-embed-runtime">
+(function () {
+    var isEmbedded = new URLSearchParams(location.search).has("embedded");
+    if (!isEmbedded) return;
+
+    function boot() {
+        if (!window.GlitzMap || typeof window.GlitzMap.setBookingHandler !== "function") { setTimeout(boot, 100); return; }
+        try {
+            var actionBtn = document.getElementById("action");
+            function refreshActionLabel() {
+                if (!actionBtn) return;
+                var sel = window.GlitzMap.getSelection && window.GlitzMap.getSelection();
+                if (sel && sel.tableId) actionBtn.textContent = "Prenota tavolo " + sel.tableId;
+                else if (actionBtn.textContent.trim().length > 0) actionBtn.textContent = "Prenota";
+            }
+
+            // --- Boost del layer rosso sul 3D (divani/poltrone) ---
+            // Interni: emissiveIntensity default 0.18 → alzato a valori molto più alti + tint rosso sul color
+            function paintTable(tbl, opts) {
+                if (!tbl || !tbl.group) return;
+                tbl.group.traverse(function (m) {
+                    if (!m.isMesh || !m.material) return;
+                    if (!m.userData.originalMaterial) {
+                        m.userData.originalMaterial = m.material;
+                        m.material = m.material.clone();
+                    }
+                    if (m.material.emissive && m.material.emissive.setHex) {
+                        m.material.emissive.setHex(0xff0f00);
+                        m.material.emissiveIntensity = opts.intensity;
+                    }
+                    if (m.material.color && m.material.color.setHex && opts.tintColor) {
+                        m.material.color.lerpColors ?
+                            m.material.color.lerp(new (m.material.color.constructor)(opts.tintColor), opts.tintAmount || 0.5) :
+                            m.material.color.setHex(opts.tintColor);
+                    }
+                    m.material.needsUpdate = true;
+                });
+            }
+            function clearTablePaint(tbl) {
+                if (!tbl || !tbl.group) return;
+                tbl.group.traverse(function (m) {
+                    if (m.isMesh && m.userData.originalMaterial) {
+                        m.material.dispose && m.material.dispose();
+                        m.material = m.userData.originalMaterial;
+                        delete m.userData.originalMaterial;
+                    }
+                });
+            }
+            function forceRender() {
+                try {
+                    if (window.__glitz && window.__glitz.controls) {
+                        window.__glitz.controls.dispatchEvent({ type: "change" });
+                    }
+                    if (window.__glitz && window.__glitz.renderer && window.__glitz.scene && window.__glitz.camera) {
+                        window.__glitz.renderer.render(window.__glitz.scene, window.__glitz.camera);
+                    }
+                } catch (e) { /* no-op */ }
+            }
+            function highlightZone(zoneId, focusTableId) {
+                if (!window.__glitz || !window.__glitz.model) return;
+                var Tt = window.__glitz.model;
+                Tt.tables.forEach(function (tbl) {
+                    if (tbl.zoneId !== zoneId) { clearTablePaint(tbl); return; }
+                    if (["soldout", "unavailable"].indexOf(tbl.status) >= 0) { clearTablePaint(tbl); return; }
+                    if (focusTableId && tbl.id === focusTableId) {
+                        // Tavolo selezionato: rosso saturo pieno
+                        paintTable(tbl, { intensity: 2.2, tintColor: 0xff2010, tintAmount: 0.75 });
+                    } else {
+                        // Altri tavoli della zona: rosso medio
+                        paintTable(tbl, { intensity: 1.0, tintColor: 0xff4438, tintAmount: 0.35 });
+                    }
+                });
+                forceRender();
+            }
+            function clearAllTables() {
+                if (!window.__glitz || !window.__glitz.model) return;
+                window.__glitz.model.tables.forEach(clearTablePaint);
+                forceRender();
+            }
+
+            // Wrappa selectZone / selectTable / reset
+            var origSelectZone = window.GlitzMap.selectZone;
+            window.GlitzMap.selectZone = function (id) {
+                var r = origSelectZone.apply(this, arguments);
+                setTimeout(function () { highlightZone(id, null); refreshActionLabel(); }, 30);
+                return r;
+            };
+            var origSelectTable = window.GlitzMap.selectTable;
+            window.GlitzMap.selectTable = function (id) {
+                var r = origSelectTable.apply(this, arguments);
+                setTimeout(function () {
+                    var sel = window.__glitz && window.__glitz.state;
+                    if (sel && sel.currentZone) highlightZone(sel.currentZone, sel.currentTable);
+                    refreshActionLabel();
+                }, 30);
+                return r;
+            };
+            var origReset = window.GlitzMap.reset;
+            window.GlitzMap.reset = function () {
+                var r = origReset.apply(this, arguments);
+                setTimeout(function () { clearAllTables(); refreshActionLabel(); }, 30);
+                return r;
+            };
+            window.addEventListener("glitz:table-selected", function () {
+                setTimeout(function () {
+                    var sel = window.__glitz && window.__glitz.state;
+                    if (sel && sel.currentZone) highlightZone(sel.currentZone, sel.currentTable);
+                    refreshActionLabel();
+                }, 30);
+            });
+
+            // Zoom iniziale sull'arco
+            var archBtn = document.getElementById("arch-view");
+            if (archBtn) {
+                setTimeout(function () {
+                    archBtn.click();
+                    var zi = document.getElementById("zoom-in");
+                    if (zi) {
+                        setTimeout(function () { zi.click(); }, 700);
+                        setTimeout(function () { zi.click(); }, 1100);
+                        setTimeout(function () { zi.click(); }, 1500);
+                    }
+                }, 500);
+            }
+        } catch (e) { /* no-op */ }
+    }
+    if (document.readyState === "complete" || document.readyState === "interactive") boot();
+    else document.addEventListener("DOMContentLoaded", boot);
+})();
+</script>
+</body></html>
 
