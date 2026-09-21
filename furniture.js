@@ -18,6 +18,7 @@ function masonry(parent,x,z,rot=0,w=1.7){const g=subgroup(parent,x,z,rot);box(g,
 export function furniture(type,id){const root=new THREE.Group();root.name='ARREDI_'+id;
 if(type==='riva-compact'){sofa(root,0,-.62,0,1.35);woodTable(root,0,.08,.47,.8,.64)}
 else if(type==='riva-lounge'){sofa(root,0,-.87,0,1.6);woodTable(root,0,0,.48,.95,.72);ottoman(root,0,.87,1.38,.61)}
+else if(type==='lawn-pair'){soft(root,-.65,0,0,.92);soft(root,.65,0,0,.92);box(root,'Tavolino quadrato bianco',[0,.43,0],[.55,.045,.55],palette.metal,.01);for(const x of [-.24,.24])for(const z of [-.24,.24])box(root,'Tavolino bianco gamba',[x,.21,z],[.026,.42,.026],palette.metal);lantern(root,0,.46,0,true);}
 else if(type==='beanbag-round'){soft(root,0,-.46,0,.89);roundTable(root,.05,.45,.30);}
 else {woodTable(root,0,.08,.67,.86,.67,false);director(root,0,.9,Math.PI);}
 return root}

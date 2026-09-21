@@ -638,5 +638,145 @@
     "furniture": "masonry-director",
     "layoutSource": "Pianta schematica monocromatica della venue.png",
     "idConfirmedBySource": true
+  },
+  {
+    "id": "PB1",
+    "zoneId": "prato-back",
+    "schematicPosition": null,
+    "planPosition": [
+      220,
+      181
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "PB2",
+    "zoneId": "prato-back",
+    "schematicPosition": null,
+    "planPosition": [
+      267,
+      181
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "PB3",
+    "zoneId": "prato-back",
+    "schematicPosition": null,
+    "planPosition": [
+      314,
+      181
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "PB4",
+    "zoneId": "prato-back",
+    "schematicPosition": null,
+    "planPosition": [
+      361,
+      181
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "SV1",
+    "zoneId": "seaview",
+    "schematicPosition": null,
+    "planPosition": [
+      583,
+      188
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "SV2",
+    "zoneId": "seaview",
+    "schematicPosition": null,
+    "planPosition": [
+      652,
+      191
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "SV3",
+    "zoneId": "seaview",
+    "schematicPosition": null,
+    "planPosition": [
+      721,
+      194
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "SV4",
+    "zoneId": "seaview",
+    "schematicPosition": null,
+    "planPosition": [
+      790,
+      197
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "SV5",
+    "zoneId": "seaview",
+    "schematicPosition": null,
+    "planPosition": [
+      859,
+      200
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
+  },
+  {
+    "id": "SV6",
+    "zoneId": "seaview",
+    "schematicPosition": null,
+    "planPosition": [
+      928,
+      203
+    ],
+    "height": 0.02,
+    "furniture": "lawn-pair",
+    "rotation": -1.5707963267948966,
+    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "idConfirmedBySource": false
   }
 ]

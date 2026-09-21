@@ -10,7 +10,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'8.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'10.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -34,26 +34,31 @@ const stage=[[345,382],[275,406],[261,419],[256,435],[264,496],[277,523],[295,53
 const yard=[[228,655],[572,655],[505,909],[263,895]];
 const garden=[[546,170],[956,195],[979,212],[547,212]];
 polygon('Pista da ballo · quota -0.50',dance,.1,.15,C.stone);
-polygon('Piazzale · quota 0.00',[[543,233],[1007,239],[1007,654],[514,654],[514,618],[498,604],[513,606],[583,532],[565,516],[572,478]],.6,.55,C.light);
+polygon('Piazzale · quota 0.00',[[543,233],[979,239],[979,478],[1007,478],[1007,654],[514,654],[514,618],[498,604],[513,606],[583,532],[565,516],[572,478]],.6,.55,C.light);
 polygon('Palco DJ · quota 0.00',stage,.6,.55,C.stone);
 function zone(id,name,coords,y,anchor,description){polygon(name,coords,y,y+.04,C.white);polygon(name+' finitura',coords,y+.012,.024,C.stone);const z={id,name,coords,y,anchor:xy(...anchor,y+.8),description};zones.push(z);return z}
 zone('riva','RIVA DECK',terrace,1.1,[760,365],'Divani bianchi, base in legno e tavolini quadrati. Tavoli R1–R16.');
 // One commercial zone with two physical levels wrapping around the DJ booth.
 const upperBack=[[201,234],[388,234],[355,322],[201,322]];
+const backStairWidth=.85,backStairEnd=201+backStairWidth/SCALE;
+const backLanding=[[backStairEnd,322],[355,322],[350,338],[backStairEnd,338]];
 const lowerNorth=[[201,338],[350,338],[343,349],[345,381],[275,406],[258,423],[201,426]];
-for(const [poly,y] of [[lowerNorth,.9],[south,.9],[upperBack,.6]]){polygon('BACK THE STAGE',poly,y,y+.04,C.white);polygon('BACK THE STAGE finitura',poly,y+.012,.024,C.stone)}
-zones.push({id:'back',name:'BACK THE STAGE',coords:[...north,...south],y:.9,parts:[{coords:lowerNorth,y:.9},{coords:south,y:.9},{coords:upperBack,y:.6}],anchor:xy(280,574,1.7),description:'Sedute morbide e tavolini tondi intorno al palco. Tavoli B0–B15.'});
+for(const [poly,y] of [[lowerNorth,.9],[south,.9],[upperBack,.6],[backLanding,.9]]){polygon('BACK THE STAGE',poly,y,y+.04,C.white);polygon('BACK THE STAGE finitura',poly,y+.012,.024,C.stone)}
+zones.push({id:'back',name:'BACK THE STAGE',coords:[...north,...south],y:.9,parts:[{coords:backLanding,y:.9},{coords:lowerNorth,y:.9},{coords:south,y:.9},{coords:upperBack,y:.6}],anchor:xy(280,574,1.7),description:'Sedute morbide e tavolini tondi intorno al palco. Tavoli B0–B15.'});
 zone('glitzbar','GLITZ BAR',yard,.8,[388,786],'Panche in muratura, tavoli in legno e sedie pieghevoli. Tavoli G1–G8.');
 rail([[544,257],[943,257]],1.12);rail([[980,286],[980,380]],1.12);rail([[980,380],...terrace.slice(3,-1),[793,458]],1.12);rail([[708,466],[572,478],[544,257]],1.12);
 rail([[241,234],[388,234]],.62);rail([[202,271],[202,322]],.62);
 rail([[202,339],[202,425],[202,427],[202,653],[330,653]],.92);
 rail([[411,653],[512,653],[512,619]],.92);
-rail([[344,339],[344,381]],.92);
+const backGuard=new THREE.Group();backGuard.name='Ringhiera dalla scala dietro B5-B6 e fronte B6';root.add(backGuard);
+rail([[backStairEnd,322],[355,322],[350,338],[343,349],[345,381]],.92,backGuard);
+const frontGuard=new THREE.Group();frontGuard.name='Ringhiera fronte B3-B4';root.add(frontGuard);
+rail([[388,234],[355,322]],.62,frontGuard);
 rail([[368,532],[374,568],[498,604],[513,618]],.92);
 rail([[345,381],[276,406],[257,430],[265,495],[278,526],[368,531]],.6);
 // Side of each stair: all dimensions follow the visible geometry and annotated levels.
 function stairs(name,u,v,y1,y2,width,run,angle=0,count=4){const group=new THREE.Group();group.name=name;group.position.copy(xy(u,v));group.rotation.y=angle;root.add(group);for(let i=0;i<count;i++){let h=y1+(y2-y1)*(i+1)/count;box('Gradino',new THREE.Vector3(0,h/2,(i+.5)*run/count-run/2),width,h,run/count,C.white,group);const led=box('Luce gradino',new THREE.Vector3(0,h-.04,(i+1)*run/count-run/2),width*.95,.025,.02,new THREE.MeshStandardMaterial({color:'#ffe3ad',emissive:'#ffc778',emissiveIntensity:.4}),group);led.castShadow=false}}
-stairs('Scala terrazza laterale',752,474,1.1,.6,3.8,1.1,-Math.atan2(369,34),3);stairs('Scala terrazza fondo',958,240,1.1,0,1.6,1.45,Math.PI/2,6);stairs('Scala pista',548,565,.1,.6,Math.hypot(583-513,532-606)*SCALE,1.15,Math.atan2(513-583,606-532),3);stairs('Scala privé giardino',370,660,.8,.9,1.9,.6,Math.PI/2,2);stairs('Due gradini in discesa verso B0-B4',278,330,.6,.9,154*SCALE,16*SCALE,-Math.PI/2,2);
+stairs('Scala terrazza laterale',752,474,1.1,.6,3.8,1.1,-Math.atan2(369,34),3);stairs('Scala terrazza fondo',958,240,1.1,0,1.6,1.45,Math.PI/2,6);stairs('Scala pista',548,565,.1,.6,Math.hypot(583-513,532-606)*SCALE,1.15,Math.atan2(513-583,606-532),3);stairs('Scala privé giardino',370,660,.8,.9,1.9,.6,Math.PI/2,2);stairs('Due gradini in discesa verso B0-B4',201+backStairWidth/SCALE/2,330,.6,.9,backStairWidth,16*SCALE,-Math.PI/2,2);
 const cornerSteps=new THREE.Group();cornerSteps.name='Scala angolare dietro B0 su due lati';root.add(cornerSteps);for(let i=0;i<4;i++){const d=(4-i)*.31/SCALE;polygon('Gradino angolare',[[201-d,234-d],[240,234-d],[240,270],[201-d,270]],.6*(i+1)/4,.6*(i+1)/4,C.white,cornerSteps)}
 rail([[572,478],[565,516],[583,532]],.6);
 const arch=createArch(xy(356.5,457));arch.root.rotation.y=Math.atan2(23,150);root.add(arch.root);
@@ -65,9 +70,19 @@ const screen=box('LED wall',new THREE.Vector3(0,(.6+4.65)/2-ARCH_SPEC.supportY,-
 at('Banco DJ',304,457,1.13,2.7,1.05,.72,C.white);at('Piano DJ',304,457,1.68,2.75,.05,.76,C.dark);
 for(const v of [436,480]){at('CDJ',304,v,1.74,.34,.08,.34,'#171c20');at('Monitor DJ',287,v,1,.46,.6,.42,C.dark)}
 for(const v of [405,500])at('Subwoofer',398,v,.39,.7,.58,.62,C.dark);
+
+// New lawn lounges from the annotated photos; draft table IDs await the venue's inventory.
+const lawnBack=[[198,140],[388,159],[388,213],[198,213]];
+const seatView=[[546,147],[979,185],[979,213],[546,213]];
+for(const [id,name,coords,anchor,description] of [
+ ['prato-back','Prato Back the Stage',lawnBack,[280,183],'Salottini sul prato accanto a Back the Stage, con poltrone morbide e tavolini bianchi.'],
+ ['seaview','Seat View',seatView,[765,193],'Il panorama. La zona vista mare, tra aperitivo e tramonto sull’Isola di Dino.']
+]){polygon(name+' prato',coords,.0,.04,C.grass);zones.push({id,name,coords,y:0,anchor:xy(...anchor,.8),description});}
+
 for(const item of layout){
- const group=furniture(item.furniture,item.id);group.name='TABLE_'+item.id;group.userData={tableId:item.id,zoneId:item.zoneId,idConfirmedBySource:true,furnitureDimensionsEstimated:true};const floorHeight=item.zoneId==='back'?(Number(item.id.slice(1))<=4?.62:.92):item.height;group.position.copy(xy(...item.planPosition,floorHeight));
- if(item.zoneId==='riva')group.rotation.y=Math.PI;
+ const group=furniture(item.furniture,item.id);group.name='TABLE_'+item.id;group.userData={tableId:item.id,zoneId:item.zoneId,idConfirmedBySource:item.idConfirmedBySource!==false,furnitureDimensionsEstimated:true};const floorHeight=item.zoneId==='back'?(Number(item.id.slice(1))<=4?.62:.92):item.height;group.position.copy(xy(...item.planPosition,floorHeight));
+ if(Number.isFinite(item.rotation))group.rotation.y=item.rotation;
+ else if(item.zoneId==='riva')group.rotation.y=Math.PI;
  else if(item.id==='G6')group.rotation.y=Math.PI/2;else if(['G7','G8'].includes(item.id))group.rotation.y=Math.PI;
  // All markers and raycast groups refer to precisely one supplied table code.
  group.traverse(o=>{if(o.isMesh){o.userData.tableId=item.id;o.userData.zoneId=item.zoneId;pickables.push(o)}});root.add(group);
@@ -87,7 +102,7 @@ function bar(name,u,v,w,d,y=.6){
  at(name+' lavello',u,v+w/SCALE/2-10,y+.855,.43,.012,.40,'#4c5657');
 }
 bar('Main Bar',936,613,2.35,5.25,.6);
-const mainBarGroup=new THREE.Group();mainBarGroup.name='Main Bar rivolto verso palco';mainBarGroup.position.copy(xy(936,613));root.add(mainBarGroup);for(const o of [...root.children])if(o.name.startsWith('Main Bar ')&&o!==mainBarGroup){o.position.sub(mainBarGroup.position);mainBarGroup.add(o)}const toStage=xy(356.5,457).sub(mainBarGroup.position);mainBarGroup.rotation.y=Math.atan2(-toStage.z,toStage.x);mainBarGroup.userData.frontFacesStage=true;
+const mainBarGroup=new THREE.Group();mainBarGroup.name='Main Bar rivolto verso Riva Deck';mainBarGroup.position.copy(xy(936,613));root.add(mainBarGroup);for(const o of [...root.children])if(o.name.startsWith('Main Bar ')&&o!==mainBarGroup){o.position.sub(mainBarGroup.position);mainBarGroup.add(o)}mainBarGroup.rotation.y=0;mainBarGroup.userData.frontFacesRiva=true;
 // Straight sea bar: white vertical boarding and a wooden cap, photographed in DSC09666.
 at('Bar mare fronte',467,180,.59,.14,1.12,4.9,C.white);
 at('Bar mare piano legno',467,180,1.18,.66,.065,5.02,'#ab794f');
@@ -95,6 +110,7 @@ at('Bar mare zoccolo',467,180,.075,.20,.09,4.96,C.white);
 for(let i=0;i<35;i++)at('Bar mare fuga doghe',467+(i*.14-2.38)/SCALE,178.35,.61,.008,1.0,.007,'#c4c5bd');
 for(const du of [-2.38,2.38])at('Bar mare fianco',467+du/SCALE,185,.59,.60,1.12,.09,C.white);
 for(const du of [-1.8,1.8]){at('Bar mare lanterna base',467+du/SCALE,180,1.235,.22,.025,.22,C.white);for(const dx of [-.1,.1])for(const dz of [-.1,.1]){let q=xy(467+du/SCALE,180,1.25).add(new THREE.Vector3(dx,0,dz));rod('Bar mare lanterna',q,q.clone().add(new THREE.Vector3(0,.42,0)),.012,C.white)}at('Bar mare lanterna tetto',467+du/SCALE,180,1.68,.22,.025,.22,C.white);}
+const seaBarGroup=new THREE.Group();seaBarGroup.name='Bar mare ruotato 180 gradi';seaBarGroup.position.copy(xy(467,180));root.add(seaBarGroup);for(const o of [...root.children])if(o.name.startsWith('Bar mare ')&&o!==seaBarGroup){o.position.sub(seaBarGroup.position);seaBarGroup.add(o)}seaBarGroup.rotation.y=Math.PI;
 // Pad of individual square paving slabs in the lawn.
 for(let i=0;i<10;i++)for(let j=0;j<3;j++)at('Bar mare lastra',414+i*12.1,183+j*12.1,.04,.525,.055,.525,'#a9aba3');
 
@@ -119,7 +135,7 @@ polygon('Prato ingresso destro',[[650,958],[925,1040],[1006,658],[760,655]],.8,.
 polygon('Prato davanti ingresso Glitz Bar',[[573,660],[640,660],[570,934],[507,909]],.8,.84,C.grass);
 ramp('Raccordo ingresso Glitz Bar a prato',[[525,777],[592,795],[578,848],[511,830]],[.8,.8,.8,.8]);
 // Ramp starts at the curved rear corner of Riva Deck and reaches the lawn.
-ramp('Rampa curva Riva Deck verso prato',[[979,382],[1005,382],[1005,658],[979,658]],[1.1,1.1,.8,.8]);
+ramp('Rampa curva Riva Deck verso prato',[[979,257],[1007,257],[1007,478],[979,478]],[.05,.05,.6,.6]);
 // White entrance counters reuse the bar boarding and wooden top, with no bar equipment.
 function reception(name,u,v,angle){const g=new THREE.Group();g.name=name;g.position.copy(xy(u,v,.8));g.rotation.y=angle;root.add(g);
 box('Pannello dogato bianco',new THREE.Vector3(0,.54,0),.14,1.08,2.45,C.white,g);
