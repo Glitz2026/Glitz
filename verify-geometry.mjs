@@ -12,11 +12,13 @@ assert.equal(nodes.filter(o=>o.name==='Sgabello ingresso').length,6);
 assert.equal(nodes.filter(o=>o.name==='Scrivania interna bianca operatori').length,2);
 assert.equal(nodes.filter(o=>o.name==='Top superiore legno').length,2);
 assert.ok(!nodes.some(o=>o.name==='Deposito'||o.name==='Scala garden privé'));
-for(const name of ['Rampa ingresso divide i prati','Rampa curva Riva Deck verso prato','Scala quattro gradini dietro B0','Due gradini B0-B4 verso B5-B6'])assert.ok(nodes.some(o=>o.name===name),name);
-assert.equal(m.root.getObjectByName('Scala quattro gradini dietro B0').children.filter(o=>o.name==='Gradino').length,4);
-assert.equal(m.root.getObjectByName('Due gradini B0-B4 verso B5-B6').children.filter(o=>o.name==='Gradino').length,2);
-assert.equal(m.root.getObjectByName('Main Bar ruotato 180 gradi').rotation.y,Math.PI);
-assert.equal(m.tables.find(t=>t.id==='B0').height,.92);assert.equal(m.tables.find(t=>t.id==='B6').height,.62);assert.equal(m.tables.find(t=>t.id==='B13').height,.62);
+for(const name of ['Rampa ingresso divide i prati','Rampa curva Riva Deck verso prato','Scala angolare dietro B0 su due lati','Due gradini in discesa verso B0-B4'])assert.ok(nodes.some(o=>o.name===name),name);
+assert.equal(m.root.getObjectByName('Scala angolare dietro B0 su due lati').children.filter(o=>o.name==='Gradino angolare').length,4);
+assert.equal(m.root.getObjectByName('Due gradini in discesa verso B0-B4').children.filter(o=>o.name==='Gradino').length,2);
+const bar=m.root.getObjectByName('Main Bar rivolto verso palco');const facing=new THREE.Vector3(1,0,0).applyQuaternion(bar.quaternion);const toward=m.arch.root.position.clone().sub(bar.position);toward.y=0;toward.normalize();assert.ok(facing.dot(toward)>.999);
+for(const name of ['Ingresso tavoli','Ingresso ticket']){const d=m.root.getObjectByName(name);assert.equal(d.userData.alignedToEntranceRamp,true);}
+assert.equal(m.arch.sign.getObjectByName('Logo GLITZ originale PDF').userData.wordmarkOnly,true);
+assert.equal(m.tables.find(t=>t.id==='B0').height,.32);assert.equal(m.tables.find(t=>t.id==='B6').height,.62);assert.equal(m.tables.find(t=>t.id==='B13').height,.62);
 assert.equal(nodes.filter(o=>o.name==='Logo GLITZ originale PDF').length,2);
 const archRotation=m.arch.root.rotation.y;m.arch.root.rotation.y=0;m.arch.root.updateMatrixWorld(true);
 const bounds=new THREE.Box3().setFromObject(m.arch.truss);
@@ -29,5 +31,5 @@ for(const o of nodes)if(o.isMesh){const a=o.geometry.attributes.position;for(let
 globalThis.FileReader=class {readAsArrayBuffer(blob){blob.arrayBuffer().then(x=>{this.result=x;this.onloadend?.()})}readAsDataURL(blob){blob.arrayBuffer().then(x=>{this.result='data:application/octet-stream;base64,'+Buffer.from(x).toString('base64');this.onloadend?.()})}};
 optimize(m);m.zones.forEach(z=>{z.overlays.forEach(o=>o.visible=false);z.lines.forEach(o=>o.visible=false)});
 const data=await new GLTFExporter().parseAsync(m.root,{binary:true,onlyVisible:true});await fs.writeFile('glitz-club.glb',Buffer.from(data));
-const result={version:6,tables:40,stools:6,originalLogos:2,archWidth:bounds.max.x-bounds.min.x,archHeightAboveDancefloor:bounds.max.y-.1,archRotationRadians:archRotation,validFiniteVertices:true,glbBytes:data.byteLength,visualBrowserCheck:'Not performed: local file navigation blocked by browser policy',dimensions:'Arch confirmed by user; other new dimensions estimated from photographs and plan'};
-await fs.writeFile('VERIFICHE-v6.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+const result={version:7,tables:40,stools:6,originalLogos:2,archWidth:bounds.max.x-bounds.min.x,archHeightAboveDancefloor:bounds.max.y-.1,archRotationRadians:archRotation,validFiniteVertices:true,glbBytes:data.byteLength,visualBrowserCheck:'Not performed: local file navigation blocked by browser policy',dimensions:'Arch confirmed by user; other new dimensions estimated from photographs and plan'};
+await fs.writeFile('VERIFICHE-v7.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
