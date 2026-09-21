@@ -15,8 +15,26 @@ for(const x of [-size*.32,size*.32]){const curve=new THREE.CatmullRomCurve3([new
 function roundTable(parent,x,z,r=.33){mesh(new THREE.CylinderGeometry(r,r,.035,32),palette.metal,'Tavolino tondo bianco',parent,[x,.43,z]);for(const a of [0,Math.PI*.5,Math.PI,Math.PI*1.5])rod(parent,'Tavolino piede inclinato',[x+Math.cos(a)*r*.8,0,z+Math.sin(a)*r*.8],[x+Math.cos(a)*r*.5,.41,z+Math.sin(a)*r*.5],.018,palette.metal);lantern(parent,x,.46,z)}
 function director(parent,x,z,rot=0){const g=subgroup(parent,x,z,rot);for(const xx of [-.26,.26]){rod(g,'Sedia gamba incrociata',[xx,.015,-.28],[xx,.48,.23],.014,palette.metal);rod(g,'Sedia gamba incrociata',[xx,.015,.28],[xx,.48,-.23],.014,palette.metal);rod(g,'Sedia montante',[xx,.42,-.25],[xx,.92,-.3],.014,palette.metal);rod(g,'Sedia supporto bracciolo',[xx,.46,.23],[xx,.65,.23],.014,palette.metal);box(g,'Bracciolo legno',[xx,.65,-.015],[.035,.035,.54],palette.wood,.008)}box(g,'Sedia tela seduta',[0,.46,0],[.49,.025,.47],palette.fabric,.006);const back=box(g,'Sedia tela schienale',[0,.745,-.278],[.48,.32,.022],palette.fabric,.006);back.rotation.x=-.075;rod(g,'Sedia traverso basso',[-.26,.025,.28],[.26,.025,.28],.014,palette.metal)}
 function masonry(parent,x,z,rot=0,w=1.7){const g=subgroup(parent,x,z,rot);box(g,'Panca muratura base',[0,.25,0],[w,.5,.72],palette.masonry);box(g,'Panca muratura schienale',[0,.58,-.38],[w,.98,.16],palette.masonry);for(const xx of [-w*.25,w*.25])box(g,'Panca cuscino seduta',[xx,.525,.035],[w*.49,.08,.65],palette.fabric,.025);for(const [i,xx] of [-w*.3,w*.05,w*.32].entries()){const p=box(g,'Panca cuscino schienale',[xx,.75,-.23],[.37,.35,.12],i===1?palette.black:palette.fabric,.055);p.rotation.x=-.16;p.rotation.z=i%2?.12:-.05}return g}
+
+function rechargeableLamp(parent){
+ const dark='#353735';mesh(new THREE.CylinderGeometry(.10,.12,.025,24),dark,'Lampada ricaricabile base',parent,[0,.60,0]);
+ rod(parent,'Lampada ricaricabile stelo',[0,.61,0],[0,.84,0],.014,dark);
+ const glow=new THREE.MeshStandardMaterial({color:'#fff0ca',emissive:'#ffcc81',emissiveIntensity:.65});
+ mesh(new THREE.CylinderGeometry(.075,.115,.14,24),glow,'Lampada ricaricabile diffusore',parent,[0,.80,0]);
+ for(let i=0;i<16;i++){const a=i*Math.PI/8;rod(parent,'Lampada ricaricabile gabbia',[Math.cos(a)*.125,.73,Math.sin(a)*.125],[Math.cos(a)*.085,.89,Math.sin(a)*.085],.007,dark)}
+ mesh(new THREE.CylinderGeometry(.085,.085,.018,24),dark,'Lampada ricaricabile cappello',parent,[0,.90,0]);
+}
+function panoramaSeat(parent){
+ box(parent,'Seat View panca murata',[0,.22,0],[3.20,.44,.76],palette.masonry);
+ box(parent,'Seat View tavolino murato',[0,.50,0],[.48,.16,.76],palette.masonry);
+ for(const x of [-1.14,-.59,.59,1.14])box(parent,'Seat View cuscino panca',[x,.48,.015],[.53,.08,.68],palette.fabric,.025);
+ rechargeableLamp(parent);
+ const led=new THREE.MeshStandardMaterial({color:'#fff2d1',emissive:'#ffc875',emissiveIntensity:.8});
+ for(const x of [-1.08,0,1.08]){box(parent,'Seat View incasso luce',[x,.20,.383],[.13,.10,.018],palette.metal);box(parent,'Seat View luce calda',[x,.20,.394],[.095,.065,.008],led);}
+}
 export function furniture(type,id){const root=new THREE.Group();root.name='ARREDI_'+id;
-if(type==='riva-compact'){sofa(root,0,-.62,0,1.35);woodTable(root,0,.08,.47,.8,.64)}
+if(type==='panorama-masonry'){panoramaSeat(root);}
+else if(type==='riva-compact'){sofa(root,0,-.62,0,1.35);woodTable(root,0,.08,.47,.8,.64)}
 else if(type==='riva-lounge'){sofa(root,0,-.87,0,1.6);woodTable(root,0,0,.48,.95,.72);ottoman(root,0,.87,1.38,.61)}
 else if(type==='lawn-pair'){soft(root,-.65,0,0,.92);soft(root,.65,0,0,.92);box(root,'Tavolino quadrato bianco',[0,.43,0],[.55,.045,.55],palette.metal,.01);for(const x of [-.24,.24])for(const z of [-.24,.24])box(root,'Tavolino bianco gamba',[x,.21,z],[.026,.42,.026],palette.metal);lantern(root,0,.46,0,true);}
 else if(type==='beanbag-round'){soft(root,0,-.46,0,.89);roundTable(root,.05,.45,.30);}

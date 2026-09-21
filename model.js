@@ -10,7 +10,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'10.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'11.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -58,7 +58,9 @@ rail([[368,532],[374,568],[498,604],[513,618]],.92);
 rail([[345,381],[276,406],[257,430],[265,495],[278,526],[368,531]],.6);
 // Side of each stair: all dimensions follow the visible geometry and annotated levels.
 function stairs(name,u,v,y1,y2,width,run,angle=0,count=4){const group=new THREE.Group();group.name=name;group.position.copy(xy(u,v));group.rotation.y=angle;root.add(group);for(let i=0;i<count;i++){let h=y1+(y2-y1)*(i+1)/count;box('Gradino',new THREE.Vector3(0,h/2,(i+.5)*run/count-run/2),width,h,run/count,C.white,group);const led=box('Luce gradino',new THREE.Vector3(0,h-.04,(i+1)*run/count-run/2),width*.95,.025,.02,new THREE.MeshStandardMaterial({color:'#ffe3ad',emissive:'#ffc778',emissiveIntensity:.4}),group);led.castShadow=false}}
-stairs('Scala terrazza laterale',752,474,1.1,.6,3.8,1.1,-Math.atan2(369,34),3);stairs('Scala terrazza fondo',958,240,1.1,0,1.6,1.45,Math.PI/2,6);stairs('Scala pista',548,565,.1,.6,Math.hypot(583-513,532-606)*SCALE,1.15,Math.atan2(513-583,606-532),3);stairs('Scala privé giardino',370,660,.8,.9,1.9,.6,Math.PI/2,2);stairs('Due gradini in discesa verso B0-B4',201+backStairWidth/SCALE/2,330,.6,.9,backStairWidth,16*SCALE,-Math.PI/2,2);
+stairs('Scala terrazza laterale',752,474,1.1,.6,3.8,1.1,-Math.atan2(369,34),3);stairs('Seat View scala bassa quattro gradini',958,222,.05,.65,1.7,1.12,-Math.PI/2,4);polygon('Seat View pianerottolo',[[939,235],[977,235],[977,242],[939,242]],.65,.60,C.light);stairs('Seat View scala alta tre gradini',958,249,.65,1.1,1.7,.62,-Math.PI/2,3);
+for(const u of [937,979]){polygon('Seat View muretto scala',[[u-2,208],[u+2,208],[u+2,257],[u-2,257]],.8,.75,C.white);rail([[u,242],[u,257]],1.1);}
+stairs('Scala pista',548,565,.1,.6,Math.hypot(583-513,532-606)*SCALE,1.15,Math.atan2(513-583,606-532),3);stairs('Scala privé giardino',370,660,.8,.9,1.9,.6,Math.PI/2,2);stairs('Due gradini in discesa verso B0-B4',201+backStairWidth/SCALE/2,330,.6,.9,backStairWidth,16*SCALE,-Math.PI/2,2);
 const cornerSteps=new THREE.Group();cornerSteps.name='Scala angolare dietro B0 su due lati';root.add(cornerSteps);for(let i=0;i<4;i++){const d=(4-i)*.31/SCALE;polygon('Gradino angolare',[[201-d,234-d],[240,234-d],[240,270],[201-d,270]],.6*(i+1)/4,.6*(i+1)/4,C.white,cornerSteps)}
 rail([[572,478],[565,516],[583,532]],.6);
 const arch=createArch(xy(356.5,457));arch.root.rotation.y=Math.atan2(23,150);root.add(arch.root);
@@ -72,12 +74,12 @@ for(const v of [436,480]){at('CDJ',304,v,1.74,.34,.08,.34,'#171c20');at('Monitor
 for(const v of [405,500])at('Subwoofer',398,v,.39,.7,.58,.62,C.dark);
 
 // New lawn lounges from the annotated photos; draft table IDs await the venue's inventory.
-const lawnBack=[[198,140],[388,159],[388,213],[198,213]];
+const lawnBack=[[78,104],[409,137],[409,231],[78,231]];
 const seatView=[[546,147],[979,185],[979,213],[546,213]];
 for(const [id,name,coords,anchor,description] of [
  ['prato-back','Prato Back the Stage',lawnBack,[280,183],'Salottini sul prato accanto a Back the Stage, con poltrone morbide e tavolini bianchi.'],
  ['seaview','Seat View',seatView,[765,193],'Il panorama. La zona vista mare, tra aperitivo e tramonto sull’Isola di Dino.']
-]){polygon(name+' prato',coords,.0,.04,C.grass);zones.push({id,name,coords,y:0,anchor:xy(...anchor,.8),description});}
+]){polygon(name+' prato',coords,.0,.04,C.grass);const z={id,name,coords,y:0,anchor:xy(...anchor,.8),description};if(id==='seaview'){z.parts=[{coords,y:0},{coords:[[574,233],[940,233],[940,255],[574,255]],y:.05}];z.description='Seduta panoramica in muratura SV1–SV5, con lampade ricaricabili; salottini SV6–SV11 lungo la ringhiera nera.';}zones.push(z);}
 
 for(const item of layout){
  const group=furniture(item.furniture,item.id);group.name='TABLE_'+item.id;group.userData={tableId:item.id,zoneId:item.zoneId,idConfirmedBySource:item.idConfirmedBySource!==false,furnitureDimensionsEstimated:true};const floorHeight=item.zoneId==='back'?(Number(item.id.slice(1))<=4?.62:.92):item.height;group.position.copy(xy(...item.planPosition,floorHeight));
