@@ -24,6 +24,11 @@ const c=xy(490,767,.81);for(let i=0;i<65;i++){const a=rand()*Math.PI;let p=c.clo
 const railmat=new THREE.MeshStandardMaterial({color:'#343b32',roughness:.8});
 function fenceRod(a,b,r=.012){const d=b.clone().sub(a),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),5),railmat);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());m.name='Recinzione mare';root.add(m)}
 const fa=xy(90,90),fb=xy(1020,183);for(let i=0;i<=110;i++){const pp=fa.clone().lerp(fb,i/110);fenceRod(pp,pp.clone().add(new THREE.Vector3(0,1.12,0)),i%10===0?.025:.009);if(i%9===0)for(let j=0;j<26;j++)foliage(pp.clone().add(new THREE.Vector3((rand()-.5)*.35,.12+rand()*1.2,(rand()-.5)*.5)),.13,j)}fenceRod(fa.clone().add(new THREE.Vector3(0,1.12,0)),fb.clone().add(new THREE.Vector3(0,1.12,0)),.018);
+// Large shade tree at the far PB corner: high crown and clear space beneath.
+const shadeTree=new THREE.Group();shadeTree.name='Grande pianta PB chioma alta';const treeStart=root.children.length;
+const shadeBase=xy(411,135,0),fork=shadeBase.clone().add(new THREE.Vector3(0,3.2,0));branch(shadeBase,fork,.18);
+for(let k=0;k<12;k++){const a=k*Math.PI/6;const tip=fork.clone().add(new THREE.Vector3(Math.cos(a)*2.5,1.2+(k%3)*.30,Math.sin(a)*2.5));branch(fork,tip,.065);for(let j=0;j<18;j++){const aa=j*2.399;foliage(tip.clone().add(new THREE.Vector3(Math.cos(aa)*.7,.2+rand()*.6,Math.sin(aa)*.7)),.37+(j%3)*.05,j)}}
+for(const child of root.children.slice(treeStart))shadeTree.add(child);root.add(shadeTree);shadeTree.userData={trunkPlan:[411,135],clearHeight:3.2};
 // Trimmed shrubs at main bar edge as drawn in plan.
 for(const [u,v] of [[1030,384],[1030,434],[1030,478],[1030,562],[1030,603],[1030,645],[852,669],[889,670],[925,670],[959,670],[995,670]])tree(u,v,.38,.85);
 // Drooping fine branches behind the stage and denser lower growth.

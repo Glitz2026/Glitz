@@ -10,7 +10,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'11.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'12.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -74,7 +74,7 @@ for(const v of [436,480]){at('CDJ',304,v,1.74,.34,.08,.34,'#171c20');at('Monitor
 for(const v of [405,500])at('Subwoofer',398,v,.39,.7,.58,.62,C.dark);
 
 // New lawn lounges from the annotated photos; draft table IDs await the venue's inventory.
-const lawnBack=[[78,104],[409,137],[409,231],[78,231]];
+const lawnBack=[[78,92],[428,127],[428,231],[78,231]];
 const seatView=[[546,147],[979,185],[979,213],[546,213]];
 for(const [id,name,coords,anchor,description] of [
  ['prato-back','Prato Back the Stage',lawnBack,[280,183],'Salottini sul prato accanto a Back the Stage, con poltrone morbide e tavolini bianchi.'],
@@ -83,6 +83,7 @@ for(const [id,name,coords,anchor,description] of [
 
 for(const item of layout){
  const group=furniture(item.furniture,item.id);group.name='TABLE_'+item.id;group.userData={tableId:item.id,zoneId:item.zoneId,idConfirmedBySource:item.idConfirmedBySource!==false,furnitureDimensionsEstimated:true};const floorHeight=item.zoneId==='back'?(Number(item.id.slice(1))<=4?.62:.92):item.height;group.position.copy(xy(...item.planPosition,floorHeight));
+ if(item.furnitureScale)group.scale.setScalar(item.furnitureScale);
  if(Number.isFinite(item.rotation))group.rotation.y=item.rotation;
  else if(item.zoneId==='riva')group.rotation.y=Math.PI;
  else if(item.id==='G6')group.rotation.y=Math.PI/2;else if(['G7','G8'].includes(item.id))group.rotation.y=Math.PI;

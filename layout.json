@@ -715,13 +715,14 @@
     "schematicPosition": null,
     "planPosition": [
       583,
-      156.3
+      161.3
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
-    "idConfirmedBySource": false
+    "idConfirmedBySource": false,
+    "furnitureScale": 0.82
   },
   {
     "id": "SV7",
@@ -729,13 +730,14 @@
     "schematicPosition": null,
     "planPosition": [
       652,
-      163.2
+      168.2
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
-    "idConfirmedBySource": false
+    "idConfirmedBySource": false,
+    "furnitureScale": 0.82
   },
   {
     "id": "SV8",
@@ -743,13 +745,14 @@
     "schematicPosition": null,
     "planPosition": [
       721,
-      170.1
+      175.1
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
-    "idConfirmedBySource": false
+    "idConfirmedBySource": false,
+    "furnitureScale": 0.82
   },
   {
     "id": "SV9",
@@ -757,13 +760,14 @@
     "schematicPosition": null,
     "planPosition": [
       790,
-      177.0
+      182.0
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
-    "idConfirmedBySource": false
+    "idConfirmedBySource": false,
+    "furnitureScale": 0.82
   },
   {
     "id": "SV10",
@@ -771,13 +775,14 @@
     "schematicPosition": null,
     "planPosition": [
       859,
-      183.9
+      188.9
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
-    "idConfirmedBySource": false
+    "idConfirmedBySource": false,
+    "furnitureScale": 0.82
   },
   {
     "id": "SV11",
@@ -785,25 +790,26 @@
     "schematicPosition": null,
     "planPosition": [
       928,
-      190.8
+      195.8
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
-    "idConfirmedBySource": false
+    "idConfirmedBySource": false,
+    "furnitureScale": 0.82
   },
   {
     "id": "PB1",
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      220,
-      183
+      263,
+      188
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
-    "rotation": -1.5707963267948966,
+    "furniture": "lawn-short-l",
+    "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -812,12 +818,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      273,
-      183
+      323,
+      195
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
-    "rotation": -1.5707963267948966,
+    "furniture": "lawn-short-l",
+    "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -826,12 +832,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      326,
-      183
+      383,
+      201
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
-    "rotation": -1.5707963267948966,
+    "furniture": "lawn-short-l",
+    "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -840,12 +846,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      379,
-      183
+      383,
+      148
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
-    "rotation": -1.5707963267948966,
+    "furniture": "lawn-short-l",
+    "rotation": -1.6704649792860586,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -854,11 +860,11 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      110,
-      155
+      105,
+      124
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
@@ -868,11 +874,11 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      164,
-      160
+      168,
+      131
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
@@ -882,11 +888,11 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      110,
-      204
+      103,
+      182
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
@@ -896,11 +902,11 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      164,
-      207
+      151,
+      178
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
@@ -910,11 +916,11 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      233,
-      132
+      236,
+      138
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
@@ -924,11 +930,11 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      302,
-      139
+      305,
+      144
     ],
     "height": 0.02,
-    "furniture": "lawn-pair",
+    "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
