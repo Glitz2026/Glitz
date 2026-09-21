@@ -104,7 +104,7 @@ export default function Floorplan3D({ eventId, tables, reservedTables, getTableI
             <button type="button" className="btn-ghost mt-3" onClick={onFallback}>Usa la piantina 2D</button>
         </div> : <>
             {!map && <p role="status">Caricamento del club in 3D…</p>}
-            <iframe ref={frame} src="/glitz-interattivo.html?embedded=1&v=21" title="Mappa 3D interattiva del Glitz Club"
+            <iframe ref={frame} src="/glitz-interattivo.html?embedded=1&v=22" title="Mappa 3D interattiva del Glitz Club"
                 onLoad={loaded} onError={() => setFailed(true)}
                 className="w-full rounded-2xl border border-white/10" style={{ height: "min(900px, 85vh)", minHeight: 650 }} />
         </>}
