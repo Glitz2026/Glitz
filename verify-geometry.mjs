@@ -25,6 +25,11 @@ assert.ok(m.root.getObjectByName('Seat View scala alta tre gradini'));
 const stairBounds=new THREE.Box3().setFromObject(m.root.getObjectByName('Scala angolare dietro B0 su due lati'));
 for(const t of m.tables.filter(t=>t.zoneId==='prato-back')){const b=new THREE.Box3().setFromObject(t.group);assert.ok(b.max.x<stairBounds.min.x||b.min.x>stairBounds.max.x||b.max.z<stairBounds.min.z||b.min.z>stairBounds.max.z,'PB invade scala: '+t.id);}
 assert.equal(m.root.getObjectByName('Grande pianta PB chioma alta').userData.clearHeight,3.2);
+const booth=m.root.getObjectByName('Console DJ parallela arco');assert.equal(booth.rotation.y,m.arch.root.rotation.y);
+const localOffset=booth.position.clone().sub(m.arch.root.position).applyAxisAngle(new THREE.Vector3(0,1,0),-booth.rotation.y);assert.ok(Math.abs(localOffset.z+.42+.60)<1e-8);assert.ok(Math.abs(localOffset.x)<1e-8);
+assert.equal(nodes.filter(o=>o.userData.model==='CDJ-3000X').length,4);assert.equal(nodes.filter(o=>o.userData.model==='DJM-A9').length,1);
+assert.equal(nodes.filter(o=>o.name==='Pouf morbido senza schienale').length,16);
+for(const o of nodes.filter(o=>o.name==='Pouf morbido senza schienale'))assert.ok(!o.getObjectByName('Poltrona sacco schienale'));
 const bar=m.root.getObjectByName('Main Bar rivolto verso Riva Deck');assert.equal(bar.rotation.y,0);
 assert.equal(m.root.getObjectByName('Bar mare ruotato 180 gradi').rotation.y,Math.PI);
 assert.equal(m.tables.filter(t=>t.zoneId==='seaview').length,11);
@@ -45,5 +50,5 @@ for(const o of nodes)if(o.isMesh){const a=o.geometry.attributes.position;for(let
 globalThis.FileReader=class {readAsArrayBuffer(blob){blob.arrayBuffer().then(x=>{this.result=x;this.onloadend?.()})}readAsDataURL(blob){blob.arrayBuffer().then(x=>{this.result='data:application/octet-stream;base64,'+Buffer.from(x).toString('base64');this.onloadend?.()})}};
 optimize(m);m.zones.forEach(z=>{z.overlays.forEach(o=>o.visible=false);z.lines.forEach(o=>o.visible=false)});
 const data=await new GLTFExporter().parseAsync(m.root,{binary:true,onlyVisible:true});await fs.writeFile('glitz-club.glb',Buffer.from(data));
-const result={version:12,tables:61,stools:6,originalLogos:2,archWidth:bounds.max.x-bounds.min.x,archHeightAboveDancefloor:bounds.max.y-.1,archRotationRadians:archRotation,validFiniteVertices:true,glbBytes:data.byteLength,visualBrowserCheck:'Not performed: local file navigation blocked by browser policy',dimensions:'Arch confirmed by user; other new dimensions estimated from photographs and plan'};
-await fs.writeFile('VERIFICHE-v12.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+const result={version:13,tables:61,stools:6,originalLogos:2,archWidth:bounds.max.x-bounds.min.x,archHeightAboveDancefloor:bounds.max.y-.1,archRotationRadians:archRotation,validFiniteVertices:true,glbBytes:data.byteLength,visualBrowserCheck:'Not performed: local file navigation blocked by browser policy',dimensions:'Arch confirmed by user; other new dimensions estimated from photographs and plan'};
+await fs.writeFile('VERIFICHE-v13.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));

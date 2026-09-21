@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createDJBooth} from './dj.js';
 import {createLogo} from './logo.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import layout from './layout.json';
@@ -10,7 +11,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'12.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'13.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -69,12 +70,11 @@ arch.root.updateMatrixWorld(true);
 for(const x of [-4.475,4.475]){const p=arch.root.localToWorld(new THREE.Vector3(x,0,0));p.y=(ARCH_SPEC.supportY+.9)/2;const support=box('Appoggio arco quota confermata',p,.47,ARCH_SPEC.supportY-.9,.47,C.white);support.rotation.y=arch.root.rotation.y;}
 const screen=box('LED wall',new THREE.Vector3(0,(.6+4.65)/2-ARCH_SPEC.supportY,-5.60),5.6,4.05,.12,C.dark,arch.root);screen.userData.sign='GLITZ';const screenLogo=createLogo(4.3,.008);screenLogo.position.set(0,(.6+4.65)/2-ARCH_SPEC.supportY-screenLogo.userData.height/2,-5.53);arch.root.add(screenLogo);
 // Rear portal and central truss are modeled in arch.js; no substitute poles.
-at('Banco DJ',304,457,1.13,2.7,1.05,.72,C.white);at('Piano DJ',304,457,1.68,2.75,.05,.76,C.dark);
-for(const v of [436,480]){at('CDJ',304,v,1.74,.34,.08,.34,'#171c20');at('Monitor DJ',287,v,1,.46,.6,.42,C.dark)}
+const booth=createDJBooth();booth.rotation.y=arch.root.rotation.y;booth.position.copy(xy(356.5,457,.6)).add(new THREE.Vector3(0,0,-1.02).applyAxisAngle(new THREE.Vector3(0,1,0),booth.rotation.y));root.add(booth);
 for(const v of [405,500])at('Subwoofer',398,v,.39,.7,.58,.62,C.dark);
 
 // New lawn lounges from the annotated photos; draft table IDs await the venue's inventory.
-const lawnBack=[[78,92],[428,127],[428,231],[78,231]];
+const lawnBack=[[78,92],[428,127],[428,210],[178,210],[178,282],[78,282]];
 const seatView=[[546,147],[979,185],[979,213],[546,213]];
 for(const [id,name,coords,anchor,description] of [
  ['prato-back','Prato Back the Stage',lawnBack,[280,183],'Salottini sul prato accanto a Back the Stage, con poltrone morbide e tavolini bianchi.'],

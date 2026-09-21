@@ -804,12 +804,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      263,
-      188
+      245,
+      183
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
+    "rotation": -1.5707963267948966,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -818,12 +818,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      323,
-      195
+      307,
+      183
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
+    "rotation": -1.5707963267948966,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -832,12 +832,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      383,
-      201
+      369,
+      183
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
+    "rotation": -1.5707963267948966,
     "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -847,7 +847,7 @@
     "schematicPosition": null,
     "planPosition": [
       383,
-      148
+      137
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
@@ -860,12 +860,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      105,
-      124
+      104,
+      246
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
+    "rotation": -1.5707963267948966,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
   },
@@ -874,12 +874,12 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      168,
-      131
+      151,
+      251
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
+    "rotation": -1.5707963267948966,
     "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
     "idConfirmedBySource": false
   },
