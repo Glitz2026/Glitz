@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MapPin, Wine, CircleDollarSign, Maximize2, X } from "lucide-react";
+import Floorplan3D from "./Floorplan3D";
 import BookingModal from "./BookingModal";
 import { api } from "../lib/api";
 
@@ -51,6 +52,8 @@ const DEFAULT_ANCHORS = {
 
 
 export default function Floorplan({ eventTitle, eventId, reservedTables = {}, customImageUrl = "" }) {
+    const [view, setView] = useState("3d");
+    const [settingsReady, setSettingsReady] = useState(false);
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [hoveredId, setHoveredId] = useState(null);
@@ -73,6 +76,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
             const map = {};
             list.forEach((z) => { if (z?.id) map[z.id] = z; });
             setZonesData(map);
+            setSettingsReady(true);
             setTableOverrides(r.data?.floorplan_table_overrides || {});
             const anchors = r.data?.floorplan_anchors;
             if (anchors && typeof anchors === "object" && Object.keys(anchors).length) setCustomAnchors(anchors);
@@ -127,6 +131,39 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                         Piantina ufficiale del Glitz Club. Tocca un tavolo libero per prenotare. I tavoli grigi sono già assegnati.
                     </p>
                 </div>
+
+                {/* Toggle vista 3D / 2D */}
+                <div className="flex gap-2 mb-5" role="group" aria-label="Vista della piantina" data-testid="floorplan-view-toggle">
+                    <button
+                        type="button"
+                        data-testid="floorplan-view-3d"
+                        aria-pressed={view === "3d"}
+                        onClick={() => setView("3d")}
+                        className={view === "3d" ? "btn-lava" : "btn-ghost"}
+                    >
+                        Esplora in 3D
+                    </button>
+                    <button
+                        type="button"
+                        data-testid="floorplan-view-2d"
+                        aria-pressed={view === "2d"}
+                        onClick={() => setView("2d")}
+                        className={view === "2d" ? "btn-lava" : "btn-ghost"}
+                    >
+                        Piantina 2D
+                    </button>
+                </div>
+
+                {view === "3d" && <Floorplan3D
+                    eventId={eventId}
+                    tables={TABLES_LIST}
+                    reservedTables={reservedTables}
+                    getTableInfo={getTableInfo}
+                    activeZone={activeZone}
+                    ready={settingsReady}
+                    onSelect={(t) => { setSelected(t); setModalOpen(true); }}
+                    onFallback={() => setView("2d")}
+                />}
 
                 {/* Zone info cards con prezzi & bottiglie — cliccabili per evidenziare la zona in piantina */}
                 <div data-testid="floorplan-zone-cards" className="grid gap-3 sm:grid-cols-3 mb-6">

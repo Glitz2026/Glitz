@@ -75,7 +75,10 @@ export default function EventDetail() {
                                     <Ticket className="w-4 h-4" /> Acquista Biglietto
                                 </a>
                             )}
-                            <button onClick={() => setBookingOpen(true)} data-testid="event-table-btn" className="btn-ghost">
+                            <button onClick={() => {
+                                if (ev.floorplan_enabled) document.querySelector('[data-testid="floorplan-section"]')?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                else setBookingOpen(true);
+                            }} data-testid="event-table-btn" className="btn-ghost">
                                 <MessageCircle className="w-4 h-4" /> Prenota Tavolo
                             </button>
                         </div>
