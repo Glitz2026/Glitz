@@ -10,7 +10,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'7.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'8.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -41,32 +41,32 @@ zone('riva','RIVA DECK',terrace,1.1,[760,365],'Divani bianchi, base in legno e t
 // One commercial zone with two physical levels wrapping around the DJ booth.
 const upperBack=[[201,234],[388,234],[355,322],[201,322]];
 const lowerNorth=[[201,338],[350,338],[343,349],[345,381],[275,406],[258,423],[201,426]];
-for(const [poly,y] of [[lowerNorth,.6],[south,.6],[upperBack,.3]]){polygon('BACK THE STAGE',poly,y,y+.04,C.white);polygon('BACK THE STAGE finitura',poly,y+.012,.024,C.stone)}
-zones.push({id:'back',name:'BACK THE STAGE',coords:[...north,...south],y:.6,parts:[{coords:lowerNorth,y:.6},{coords:south,y:.6},{coords:upperBack,y:.3}],anchor:xy(280,574,1.7),description:'Sedute morbide e tavolini tondi intorno al palco. Tavoli B0–B15.'});
+for(const [poly,y] of [[lowerNorth,.9],[south,.9],[upperBack,.6]]){polygon('BACK THE STAGE',poly,y,y+.04,C.white);polygon('BACK THE STAGE finitura',poly,y+.012,.024,C.stone)}
+zones.push({id:'back',name:'BACK THE STAGE',coords:[...north,...south],y:.9,parts:[{coords:lowerNorth,y:.9},{coords:south,y:.9},{coords:upperBack,y:.6}],anchor:xy(280,574,1.7),description:'Sedute morbide e tavolini tondi intorno al palco. Tavoli B0–B15.'});
 zone('glitzbar','GLITZ BAR',yard,.8,[388,786],'Panche in muratura, tavoli in legno e sedie pieghevoli. Tavoli G1–G8.');
 rail([[544,257],[943,257]],1.12);rail([[980,286],[980,380]],1.12);rail([[980,380],...terrace.slice(3,-1),[793,458]],1.12);rail([[708,466],[572,478],[544,257]],1.12);
-rail([[241,234],[388,234]],.32);rail([[202,271],[202,322]],.32);
-rail([[202,339],[202,425],[202,427],[202,653],[330,653]],.62);
-rail([[411,653],[512,653],[512,619]],.62);
-rail([[344,339],[344,381]],.62);
-rail([[368,532],[374,568],[498,604],[513,618]],.62);
+rail([[241,234],[388,234]],.62);rail([[202,271],[202,322]],.62);
+rail([[202,339],[202,425],[202,427],[202,653],[330,653]],.92);
+rail([[411,653],[512,653],[512,619]],.92);
+rail([[344,339],[344,381]],.92);
+rail([[368,532],[374,568],[498,604],[513,618]],.92);
 rail([[345,381],[276,406],[257,430],[265,495],[278,526],[368,531]],.6);
 // Side of each stair: all dimensions follow the visible geometry and annotated levels.
 function stairs(name,u,v,y1,y2,width,run,angle=0,count=4){const group=new THREE.Group();group.name=name;group.position.copy(xy(u,v));group.rotation.y=angle;root.add(group);for(let i=0;i<count;i++){let h=y1+(y2-y1)*(i+1)/count;box('Gradino',new THREE.Vector3(0,h/2,(i+.5)*run/count-run/2),width,h,run/count,C.white,group);const led=box('Luce gradino',new THREE.Vector3(0,h-.04,(i+1)*run/count-run/2),width*.95,.025,.02,new THREE.MeshStandardMaterial({color:'#ffe3ad',emissive:'#ffc778',emissiveIntensity:.4}),group);led.castShadow=false}}
-stairs('Scala terrazza laterale',752,474,1.1,.6,3.8,1.1,-Math.atan2(369,34),3);stairs('Scala terrazza fondo',958,240,1.1,0,1.6,1.45,Math.PI/2,6);stairs('Scala pista',548,565,.1,.6,Math.hypot(583-513,532-606)*SCALE,1.15,Math.atan2(513-583,606-532),3);stairs('Scala privé giardino',370,660,.8,.6,1.9,.6,Math.PI/2,2);stairs('Due gradini in discesa verso B0-B4',278,330,.3,.6,154*SCALE,16*SCALE,-Math.PI/2,2);
-const cornerSteps=new THREE.Group();cornerSteps.name='Scala angolare dietro B0 su due lati';root.add(cornerSteps);for(let i=0;i<4;i++){const d=(4-i)*.31/SCALE;polygon('Gradino angolare',[[201-d,234-d],[240,234-d],[240,270],[201-d,270]],.3*(i+1)/4,.3*(i+1)/4,C.white,cornerSteps)}
+stairs('Scala terrazza laterale',752,474,1.1,.6,3.8,1.1,-Math.atan2(369,34),3);stairs('Scala terrazza fondo',958,240,1.1,0,1.6,1.45,Math.PI/2,6);stairs('Scala pista',548,565,.1,.6,Math.hypot(583-513,532-606)*SCALE,1.15,Math.atan2(513-583,606-532),3);stairs('Scala privé giardino',370,660,.8,.9,1.9,.6,Math.PI/2,2);stairs('Due gradini in discesa verso B0-B4',278,330,.6,.9,154*SCALE,16*SCALE,-Math.PI/2,2);
+const cornerSteps=new THREE.Group();cornerSteps.name='Scala angolare dietro B0 su due lati';root.add(cornerSteps);for(let i=0;i<4;i++){const d=(4-i)*.31/SCALE;polygon('Gradino angolare',[[201-d,234-d],[240,234-d],[240,270],[201-d,270]],.6*(i+1)/4,.6*(i+1)/4,C.white,cornerSteps)}
 rail([[572,478],[565,516],[583,532]],.6);
 const arch=createArch(xy(356.5,457));arch.root.rotation.y=Math.atan2(23,150);root.add(arch.root);
 arch.root.updateMatrixWorld(true);
 // Structural feet sit at the user-confirmed support level (1 m above the dancefloor).
-for(const x of [-4.475,4.475]){const p=arch.root.localToWorld(new THREE.Vector3(x,0,0));p.y=(ARCH_SPEC.supportY+.6)/2;const support=box('Appoggio arco quota confermata',p,.47,ARCH_SPEC.supportY-.6,.47,C.white);support.rotation.y=arch.root.rotation.y;}
+for(const x of [-4.475,4.475]){const p=arch.root.localToWorld(new THREE.Vector3(x,0,0));p.y=(ARCH_SPEC.supportY+.9)/2;const support=box('Appoggio arco quota confermata',p,.47,ARCH_SPEC.supportY-.9,.47,C.white);support.rotation.y=arch.root.rotation.y;}
 const screen=box('LED wall',new THREE.Vector3(0,(.6+4.65)/2-ARCH_SPEC.supportY,-5.60),5.6,4.05,.12,C.dark,arch.root);screen.userData.sign='GLITZ';const screenLogo=createLogo(4.3,.008);screenLogo.position.set(0,(.6+4.65)/2-ARCH_SPEC.supportY-screenLogo.userData.height/2,-5.53);arch.root.add(screenLogo);
 // Rear portal and central truss are modeled in arch.js; no substitute poles.
 at('Banco DJ',304,457,1.13,2.7,1.05,.72,C.white);at('Piano DJ',304,457,1.68,2.75,.05,.76,C.dark);
 for(const v of [436,480]){at('CDJ',304,v,1.74,.34,.08,.34,'#171c20');at('Monitor DJ',287,v,1,.46,.6,.42,C.dark)}
 for(const v of [405,500])at('Subwoofer',398,v,.39,.7,.58,.62,C.dark);
 for(const item of layout){
- const group=furniture(item.furniture,item.id);group.name='TABLE_'+item.id;group.userData={tableId:item.id,zoneId:item.zoneId,idConfirmedBySource:true,furnitureDimensionsEstimated:true};const floorHeight=item.zoneId==='back'?(Number(item.id.slice(1))<=4?.32:.62):item.height;group.position.copy(xy(...item.planPosition,floorHeight));
+ const group=furniture(item.furniture,item.id);group.name='TABLE_'+item.id;group.userData={tableId:item.id,zoneId:item.zoneId,idConfirmedBySource:true,furnitureDimensionsEstimated:true};const floorHeight=item.zoneId==='back'?(Number(item.id.slice(1))<=4?.62:.92):item.height;group.position.copy(xy(...item.planPosition,floorHeight));
  if(item.zoneId==='riva')group.rotation.y=Math.PI;
  else if(item.id==='G6')group.rotation.y=Math.PI/2;else if(['G7','G8'].includes(item.id))group.rotation.y=Math.PI;
  // All markers and raycast groups refer to precisely one supplied table code.
@@ -134,7 +134,7 @@ const entranceDirection=xy(720,655).sub(xy(610,952)).normalize(),entranceNormal=
 const entranceMidpoint=xy(665,803.5,.8),entranceAngle=Math.atan2(entranceDirection.x,entranceDirection.z);
 for(const [name,side] of [['Ingresso tavoli',-1],['Ingresso ticket',1]]){const desk=reception(name,0,0,entranceAngle+(side===-1?Math.PI:0));desk.position.copy(entranceMidpoint).addScaledVector(entranceNormal,side*2.05);desk.userData.alignedToEntranceRamp=true;}
 // Vine arch over garden lounge entry.
-const archCenter=xy(490,767,.81);for(let i=0;i<24;i++){let a=i*Math.PI/24,b=(i+1)*Math.PI/24;rod('Pergola garden',archCenter.clone().add(new THREE.Vector3(0,1.65+Math.sin(a)*.7,Math.cos(a)*1.25)),archCenter.clone().add(new THREE.Vector3(0,1.65+Math.sin(b)*.7,Math.cos(b)*1.25)),.022,'#646550')}for(const x of [-1.25,1.25])rod('Montante pergola',archCenter.clone().add(new THREE.Vector3(0,0,x)),archCenter.clone().add(new THREE.Vector3(0,1.65,x)),.025,'#646550');
+const archCenter=xy(490,767,.81);for(let i=0;i<24;i++){let a=i*Math.PI/24,b=(i+1)*Math.PI/24;rod('Pergola garden',archCenter.clone().add(new THREE.Vector3(Math.cos(a)*1.25,1.65+Math.sin(a)*.7,0)),archCenter.clone().add(new THREE.Vector3(Math.cos(b)*1.25,1.65+Math.sin(b)*.7,0)),.022,'#646550')}for(const x of [-1.25,1.25])rod('Montante pergola',archCenter.clone().add(new THREE.Vector3(x,0,0)),archCenter.clone().add(new THREE.Vector3(x,1.65,0)),.025,'#646550');
 landscape(root,xy);
 // WC blocks drawn as temporary structures in the plan.
 function service(name,u,v,w,d){at(name,u,v,1.15,w,2.3,d,'#e6e6de');at(name+' tetto',u,v,2.34,w+.22,.08,d+.2,'#e6e6de');const count=name==='WC donne'?2:1;for(let j=0;j<count;j++){const vv=v+(j-(count-1)/2)*w*.42/SCALE;at(name+' porta bianca',u+d/SCALE/2+.4,vv,1.1,.85,2.1,.035,'#f1f0e9');at(name+' gradino',u+d/SCALE/2+5,vv,.12,1.0,.24,.45,'#969b97');at(name+' maniglia',u+d/SCALE/2+1.0,vv-6,.98,.15,.025,.025,'#a7adae');}for(let j=0;j<14;j++)at(name+' fuga tavole',u+d/SCALE/2+.43,v,.15+j*.155,w,.007,.01,'#cdd0c9');}

@@ -18,7 +18,7 @@ assert.equal(m.root.getObjectByName('Due gradini in discesa verso B0-B4').childr
 const bar=m.root.getObjectByName('Main Bar rivolto verso palco');const facing=new THREE.Vector3(1,0,0).applyQuaternion(bar.quaternion);const toward=m.arch.root.position.clone().sub(bar.position);toward.y=0;toward.normalize();assert.ok(facing.dot(toward)>.999);
 for(const name of ['Ingresso tavoli','Ingresso ticket']){const d=m.root.getObjectByName(name);assert.equal(d.userData.alignedToEntranceRamp,true);}
 assert.equal(m.arch.sign.getObjectByName('Logo GLITZ originale PDF').userData.wordmarkOnly,true);
-assert.equal(m.tables.find(t=>t.id==='B0').height,.32);assert.equal(m.tables.find(t=>t.id==='B6').height,.62);assert.equal(m.tables.find(t=>t.id==='B13').height,.62);
+assert.equal(m.tables.find(t=>t.id==='B0').height,.62);assert.equal(m.tables.find(t=>t.id==='B6').height,.92);assert.equal(m.tables.find(t=>t.id==='B13').height,.92);
 assert.equal(nodes.filter(o=>o.name==='Logo GLITZ originale PDF').length,2);
 const archRotation=m.arch.root.rotation.y;m.arch.root.rotation.y=0;m.arch.root.updateMatrixWorld(true);
 const bounds=new THREE.Box3().setFromObject(m.arch.truss);
@@ -31,5 +31,5 @@ for(const o of nodes)if(o.isMesh){const a=o.geometry.attributes.position;for(let
 globalThis.FileReader=class {readAsArrayBuffer(blob){blob.arrayBuffer().then(x=>{this.result=x;this.onloadend?.()})}readAsDataURL(blob){blob.arrayBuffer().then(x=>{this.result='data:application/octet-stream;base64,'+Buffer.from(x).toString('base64');this.onloadend?.()})}};
 optimize(m);m.zones.forEach(z=>{z.overlays.forEach(o=>o.visible=false);z.lines.forEach(o=>o.visible=false)});
 const data=await new GLTFExporter().parseAsync(m.root,{binary:true,onlyVisible:true});await fs.writeFile('glitz-club.glb',Buffer.from(data));
-const result={version:7,tables:40,stools:6,originalLogos:2,archWidth:bounds.max.x-bounds.min.x,archHeightAboveDancefloor:bounds.max.y-.1,archRotationRadians:archRotation,validFiniteVertices:true,glbBytes:data.byteLength,visualBrowserCheck:'Not performed: local file navigation blocked by browser policy',dimensions:'Arch confirmed by user; other new dimensions estimated from photographs and plan'};
-await fs.writeFile('VERIFICHE-v7.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+const result={version:8,tables:40,stools:6,originalLogos:2,archWidth:bounds.max.x-bounds.min.x,archHeightAboveDancefloor:bounds.max.y-.1,archRotationRadians:archRotation,validFiniteVertices:true,glbBytes:data.byteLength,visualBrowserCheck:'Not performed: local file navigation blocked by browser policy',dimensions:'Arch confirmed by user; other new dimensions estimated from photographs and plan'};
+await fs.writeFile('VERIFICHE-v8.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
