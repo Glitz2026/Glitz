@@ -36,7 +36,7 @@ export default function Home() {
         api.get("/posts").then((r) => setPosts(r.data.slice(0, 3))).catch(() => {});
         api.get("/events").then((r) => setEvents(r.data.slice(0, 3))).catch(() => {});
         api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
-        api.get("/products").then((r) => setProducts(r.data.slice(0, 3))).catch(() => {});
+        api.get("/products").then((r) => setProducts(r.data.slice(0, 1))).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -243,14 +243,14 @@ export default function Home() {
                     <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
                         <div className="space-y-3">
                             <span className="overline-tag">{settings?.about_kicker || "Il Club"}</span>
-                            <h2 className="section-title">Cinque Ambienti,<br /><span className="text-lava">Una Sola Notte</span></h2>
+                            <h2 className="section-title">Due Ambienti,<br /><span className="text-lava">Una Sola Notte</span></h2>
                         </div>
                         <Link to="/il-club" data-testid="see-all-zones-link" className="inline-flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava-hover">
                             Scopri tutti gli ambienti <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        {settings.about_zones.slice(0, 4).map((z, i) => {
+                    <div className="grid gap-6 md:grid-cols-2">
+                        {settings.about_zones.slice(0, 2).map((z, i) => {
                             const img = z.image?.startsWith("http") ? z.image : `${process.env.REACT_APP_BACKEND_URL}${z.image}`;
                             return (
                                 <Link
@@ -321,7 +321,7 @@ export default function Home() {
                         Vai allo shop <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
-                <div className="grid gap-8 md:grid-cols-3">
+                <div className="grid gap-8 max-w-md mx-auto">
                     {products.map((p, i) => (
                         <Link
                             key={p.id}

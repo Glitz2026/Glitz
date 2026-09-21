@@ -406,6 +406,13 @@ class SettingsIn(BaseModel):
     events_kicker: str = "Line-up 2027"
     events_title: str = "EVENTI 2027"
     events_empty: str = "Nessun evento in calendario al momento. Torna presto."
+    # --- Gallery strip on Events & PastEvents ---
+    events_gallery_kicker: str = "Momenti"
+    events_gallery_title: str = "Le notti che ti aspettano"
+    events_gallery_description: str = "Un assaggio dell'energia Glitz. Dagli aftermovie ai momenti in console."
+    past_gallery_kicker: str = "Flashback"
+    past_gallery_title: str = "Le notti che hanno fatto storia"
+    past_gallery_description: str = "Momenti immortalati dalle stagioni passate."
     # --- Poster frame ---
     poster_club_name: str = "GLITZ"
     poster_club_label: str = "CLUB"
@@ -640,6 +647,12 @@ DEFAULT_SETTINGS = {
     "events_kicker": "Line-up 2027",
     "events_title": "EVENTI 2027",
     "events_empty": "Nessun evento in calendario al momento. Torna presto.",
+    "events_gallery_kicker": "Momenti",
+    "events_gallery_title": "Le notti che ti aspettano",
+    "events_gallery_description": "Un assaggio dell'energia Glitz. Dagli aftermovie ai momenti in console.",
+    "past_gallery_kicker": "Flashback",
+    "past_gallery_title": "Le notti che hanno fatto storia",
+    "past_gallery_description": "Momenti immortalati dalle stagioni passate.",
     "poster_club_name": "GLITZ",
     "poster_club_label": "CLUB",
     "poster_location": "SAN NICOLA ARCELLA",

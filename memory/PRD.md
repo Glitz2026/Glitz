@@ -64,6 +64,9 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
   - Admin: 2 nuovi tab `Prodotti` (CRUD completo con modal edit) e `Newsletter` (tabella iscritti + export CSV). Contenuti tab: 6 nuovi accordion (Menu di navigazione con rename/hide/riordino, Footer, Pagina Shop, Pagina Eventi Privati con lista aree/occasions/why_us editabile, Titoli sezioni, Poster & SEO).
 
 - **[Feb 2026]** Admin Floorplan Editor: **Snap-to-Grid** con toggle on/off e size selezionabile (5/10/20/25/50 px). Overlay griglia verde visibile in preview, snap applicato durante drag di tavoli ed etichette. `clientToSvg` applica arrotondamento a multipli di `gridSize`.
+- **[Feb 2026]** Nuovo componente `EventsGalleryStrip.jsx` (8 foto categoria `gallery`) montato in fondo a `/eventi` e `/eventi/passati`. Backend `SettingsIn` esteso con `events_gallery_{kicker,title,description}` e `past_gallery_{kicker,title,description}`. Admin Contenuti > Titoli sezioni: 2 blocchi editabili "Gallery strip Eventi Prossimi/Passati".
+- **[Feb 2026]** Home: **anteprima Ambienti ridotta da 4 a 2** (grid `md:grid-cols-2`, testo "Due Ambienti / Una Sola Notte"). **Anteprima Shop ridotta da 3 a 1 prodotto** con card centrata (`max-w-md mx-auto`).
+- **[Feb 2026]** Admin > Contenuti > Home: sezione **"Titolo Hero — BEYOND / THE NIGHT"** rinominata con label esplicite (Riga 1 bianca / Riga 2 rossa lava) per rendere trovabile la modifica del testo hero.
 
 ## Pending
 - **Deploy in produzione** — utente ancora indeciso (ask_human aperto)

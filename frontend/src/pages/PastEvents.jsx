@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ExternalLink, Calendar } from "lucide-react";
 import { api } from "../lib/api";
 import Seo from "../components/Seo";
+import EventsGalleryStrip from "../components/EventsGalleryStrip";
 
 function formatPast(iso) {
     try {
@@ -90,6 +91,14 @@ export default function PastEvents() {
                     </div>
                 </section>
             ))}
+
+            {/* Gallery preview — flashback delle serate archivio */}
+            <EventsGalleryStrip
+                kicker={settings.past_gallery_kicker || "Flashback"}
+                title={settings.past_gallery_title || "Le notti che hanno fatto storia"}
+                description={settings.past_gallery_description || "Momenti immortalati dalle stagioni passate."}
+                testIdPrefix="past-gallery"
+            />
         </div>
     );
 }

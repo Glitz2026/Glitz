@@ -755,12 +755,18 @@ export default function AdminDashboard() {
                             <div id="csec-home" className="scroll-mt-28">
                             <div className="glass-card rounded-2xl p-6 space-y-4">
                                 <div>
-                                    <h3 className="font-bold text-lg">Titolo Hero (2 righe)</h3>
-                                    <p className="text-xs text-white/50 mt-1">La prima riga (es. BEYOND) usa il font editorial bianco. La seconda (es. THE NIGHT) usa il colore lava.</p>
+                                    <h3 className="font-bold text-lg">Titolo Hero — "BEYOND / THE NIGHT"</h3>
+                                    <p className="text-xs text-white/50 mt-1">Modifica il grande titolo animato in home. <b className="text-lava">Riga 1</b> = "BEYOND" (font editorial bianco). <b className="text-lava">Riga 2</b> = "THE NIGHT" (colore lava). Puoi mettere qualsiasi testo.</p>
                                 </div>
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    <input data-testid="content-hero-line1" className={input} placeholder="Riga 1" value={settings.home_hero_line1 || ""} onChange={(e) => setSettings({ ...settings, home_hero_line1: e.target.value })} />
-                                    <input data-testid="content-hero-line2" className={input} placeholder="Riga 2" value={settings.home_hero_line2 || ""} onChange={(e) => setSettings({ ...settings, home_hero_line2: e.target.value })} />
+                                    <div>
+                                        <label className="text-[10px] uppercase tracking-widest text-white/50 block mb-1">Riga 1 (bianca)</label>
+                                        <input data-testid="content-hero-line1" className={input} placeholder="BEYOND" value={settings.home_hero_line1 || ""} onChange={(e) => setSettings({ ...settings, home_hero_line1: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] uppercase tracking-widest text-white/50 block mb-1">Riga 2 (rossa lava)</label>
+                                        <input data-testid="content-hero-line2" className={input} placeholder="THE NIGHT" value={settings.home_hero_line2 || ""} onChange={(e) => setSettings({ ...settings, home_hero_line2: e.target.value })} />
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="text-xs uppercase tracking-widest text-white/60 block mb-2">Sottotitolo hero</label>
@@ -1600,6 +1606,23 @@ export default function AdminDashboard() {
                                     <input className={input} placeholder="Eventi kicker" value={settings.events_kicker || ""} onChange={(e) => setSettings({ ...settings, events_kicker: e.target.value })} />
                                     <input className={input} placeholder="Eventi titolo" value={settings.events_title || ""} onChange={(e) => setSettings({ ...settings, events_title: e.target.value })} />
                                     <input className={input} placeholder="Messaggio vuoto" value={settings.events_empty || ""} onChange={(e) => setSettings({ ...settings, events_empty: e.target.value })} />
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <div className="text-[10px] uppercase tracking-widest text-lava font-bold mb-2">Gallery strip — Eventi Prossimi</div>
+                                    <div className="grid gap-3 sm:grid-cols-3">
+                                        <input data-testid="events-gallery-kicker" className={input} placeholder="Kicker (es. Momenti)" value={settings.events_gallery_kicker || ""} onChange={(e) => setSettings({ ...settings, events_gallery_kicker: e.target.value })} />
+                                        <input data-testid="events-gallery-title" className={input} placeholder="Titolo" value={settings.events_gallery_title || ""} onChange={(e) => setSettings({ ...settings, events_gallery_title: e.target.value })} />
+                                        <input data-testid="events-gallery-description" className={input} placeholder="Descrizione (opz.)" value={settings.events_gallery_description || ""} onChange={(e) => setSettings({ ...settings, events_gallery_description: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <div className="text-[10px] uppercase tracking-widest text-lava font-bold mb-2">Gallery strip — Eventi Passati</div>
+                                    <div className="grid gap-3 sm:grid-cols-3">
+                                        <input data-testid="past-gallery-kicker" className={input} placeholder="Kicker (es. Flashback)" value={settings.past_gallery_kicker || ""} onChange={(e) => setSettings({ ...settings, past_gallery_kicker: e.target.value })} />
+                                        <input data-testid="past-gallery-title" className={input} placeholder="Titolo" value={settings.past_gallery_title || ""} onChange={(e) => setSettings({ ...settings, past_gallery_title: e.target.value })} />
+                                        <input data-testid="past-gallery-description" className={input} placeholder="Descrizione (opz.)" value={settings.past_gallery_description || ""} onChange={(e) => setSettings({ ...settings, past_gallery_description: e.target.value })} />
+                                    </div>
+                                    <p className="text-[10px] text-white/40 mt-2">Le strip usano le foto della categoria <b className="text-lava">gallery</b> del media manager. Carica foto lì per popolarle.</p>
                                 </div>
                                 <div className="grid gap-3 md:grid-cols-2 pt-2">
                                     <SectionPreview label="Anteprima Blog" url="/news" kicker={settings.blog_kicker} title={settings.blog_title} description={settings.blog_description} />

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { api } from "../lib/api";
 import Seo from "../components/Seo";
+import EventsGalleryStrip from "../components/EventsGalleryStrip";
 
 const MESI = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
 const GIORNI = ["DOMENICA", "LUNEDÌ", "MARTEDÌ", "MERCOLEDÌ", "GIOVEDÌ", "VENERDÌ", "SABATO"];
@@ -88,6 +90,14 @@ export default function Events() {
                     );
                 })}
             </div>
+
+            {/* Gallery preview — momenti dalle serate */}
+            <EventsGalleryStrip
+                kicker={settings.events_gallery_kicker || "Momenti"}
+                title={settings.events_gallery_title || "Le notti che ti aspettano"}
+                description={settings.events_gallery_description || "Un assaggio dell'energia Glitz. Dagli aftermovie ai momenti in console."}
+                testIdPrefix="events-gallery"
+            />
         </div>
     );
 }
