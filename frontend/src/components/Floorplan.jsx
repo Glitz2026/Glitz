@@ -135,29 +135,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     </p>
                 </div>
 
-                {/* Toggle vista 3D / 2D */}
-                <div className="flex gap-2 mb-5" role="group" aria-label="Vista della piantina" data-testid="floorplan-view-toggle">
-                    <button
-                        type="button"
-                        data-testid="floorplan-view-3d"
-                        aria-pressed={view === "3d"}
-                        onClick={() => setView("3d")}
-                        className={view === "3d" ? "btn-lava" : "btn-ghost"}
-                    >
-                        Esplora in 3D
-                    </button>
-                    <button
-                        type="button"
-                        data-testid="floorplan-view-2d"
-                        aria-pressed={view === "2d"}
-                        onClick={() => setView("2d")}
-                        className={view === "2d" ? "btn-lava" : "btn-ghost"}
-                    >
-                        Piantina 2D
-                    </button>
-                </div>
-
-                {view === "3d" && <Floorplan3D
+                <Floorplan3D
                     eventId={eventId}
                     tables={TABLES_LIST}
                     reservedTables={reservedTables}
@@ -165,8 +143,8 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     activeZone={activeZone}
                     ready={settingsReady}
                     onSelect={(t) => { setSelected(t); setModalOpen(true); }}
-                    onFallback={() => setView("2d")}
-                />}
+                    onFallback={() => {}}
+                />
 
                 {/* Zone info cards con prezzi & bottiglie — cliccabili per evidenziare la zona in piantina */}
                 <div data-testid="floorplan-zone-cards" className="grid gap-3 sm:grid-cols-3 mb-6">
@@ -212,118 +190,6 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     <span className="flex items-center gap-2">
                         <span className="w-3 h-3 rounded-sm inline-block bg-red-500/40 border border-red-500" /> Prenotato
                     </span>
-                    <button
-                        data-testid="floorplan-fullscreen-btn"
-                        onClick={() => setFullscreen(true)}
-                        className="lg:hidden ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lava text-white text-xs font-bold uppercase tracking-widest shadow-[0_0_20px_rgba(225,6,0,0.35)] hover:bg-lava-hover transition"
-                    >
-                        <Maximize2 className="w-4 h-4" /> Vedi a schermo intero
-                    </button>
-                </div>
-
-                <div
-                    data-testid="floorplan-wrap"
-                    className="rounded-2xl overflow-hidden border border-white/10 bg-obsidian p-4 sm:p-6"
-                >
-                    <svg
-                        viewBox="0 0 1254 1254"
-                        className="w-full h-auto block"
-                        role="img"
-                        aria-label="Piantina Glitz Club"
-                        preserveAspectRatio="xMidYMid meet"
-                    >
-                        <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
-                        {/* Copertura scritte originali della PNG + label cliccabili delle zone */}
-                        {ZONE_IDS.map((zid) => {
-                            const a = ANCHORS[zid];
-                            const z = getZone(zid);
-                            const isActive = activeZone === zid;
-                            return (
-                                <g key={`zone-label-${zid}`} data-testid={`floorplan-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
-                                    <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} fill="#0a0a0a" />
-                                    <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} style={{ transition: "fill 0.2s, stroke-width 0.2s" }} />
-                                    <text x={a.label_x} y={a.label_y} textAnchor="middle" fill={z.color} fontSize={a.font_size} fontWeight="900" letterSpacing="2" style={{ textTransform: "uppercase" }}>{(z.label || zid).toUpperCase()}</text>
-                                </g>
-                            );
-                        })}
-                        {TABLES_LIST.filter((t) => Number.isFinite(t.x) && Number.isFinite(t.y)).map((t) => {
-                            const status = reservedTables[t.id];
-                            const isReserved = status === "reserved" || status === "booked";
-                            const isHover = hoveredId === t.id && !isReserved;
-                            const zoneColor = getZone(t.zone).color;
-                            const isZoneActive = activeZone === t.zone && !isReserved;
-                            const isPulsing = pulseId === t.id;
-                            const showOutline = isReserved || isHover || isZoneActive || isPulsing;
-                            let stroke = "transparent";
-                            let strokeWidth = 0;
-                            if (isReserved) { stroke = "#E10600"; strokeWidth = 2; }
-                            else if (isHover) { stroke = zoneColor; strokeWidth = 2.5; }
-                            else if (isZoneActive) { stroke = zoneColor; strokeWidth = 2; }
-                            // Quando pulsing (tavolo appena selezionato dentro una zona attiva) raddoppia il contorno
-                            if (isPulsing) { stroke = zoneColor; strokeWidth = isZoneActive ? 5 : 4; }
-                            return (
-                                <g
-                                    key={t.id}
-                                    data-testid={`floorplan-table-${t.id}`}
-                                    data-status={isReserved ? "reserved" : "available"}
-                                    onClick={() => openBooking(t)}
-                                    onMouseEnter={() => setHoveredId(t.id)}
-                                    onMouseLeave={() => setHoveredId(null)}
-                                    className={isReserved ? "cursor-not-allowed" : "cursor-pointer"}
-                                >
-                                    {/* Hit-box invisibile per facilitare il tap */}
-                                    <rect
-                                        x={t.x - CELL_W / 2}
-                                        y={t.y - CELL_H / 2}
-                                        width={CELL_W}
-                                        height={CELL_H}
-                                        fill="transparent"
-                                    />
-                                    {/* Contorno visibile: solo attorno al quadrato del tavolo, nessuna illuminazione del testo */}
-                                    {showOutline && (
-                                        <rect
-                                            x={t.x - LABEL_W / 2}
-                                            y={t.y - LABEL_H / 2}
-                                            width={LABEL_W}
-                                            height={LABEL_H}
-                                            rx="4"
-                                            fill="none"
-                                            stroke={stroke}
-                                            strokeWidth={strokeWidth}
-                                            style={{ transition: "stroke 0.15s" }}
-                                            pointerEvents="none"
-                                        >
-                                            {isPulsing && (
-                                                <>
-                                                    <animate attributeName="stroke-width" values="2;6;2" dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="width" values={`${LABEL_W};${LABEL_W * 2};${LABEL_W}`} dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="height" values={`${LABEL_H};${LABEL_H * 2};${LABEL_H}`} dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="x" values={`${t.x - LABEL_W / 2};${t.x - LABEL_W};${t.x - LABEL_W / 2}`} dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="y" values={`${t.y - LABEL_H / 2};${t.y - LABEL_H};${t.y - LABEL_H / 2}`} dur="0.38s" repeatCount="1" />
-                                                </>
-                                            )}
-                                        </rect>
-                                    )}
-                                    {isReserved && (
-                                        <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#E10600" fontSize="22" fontWeight="900" pointerEvents="none">×</text>
-                                    )}
-                                </g>
-                            );
-                        })}
-                        {/* Tooltip on hover */}
-                        {hoveredId && (() => {
-                            const t = TABLES_LIST.find((x) => x.id === hoveredId);
-                            if (!t) return null;
-                            const zoneLabel = getZone(t.zone).label;
-                            return (
-                                <g pointerEvents="none">
-                                    <rect x={t.x - 60} y={t.y - CELL_H / 2 - 44} width="120" height="34" rx="6" fill="#0a0a0a" stroke={getZone(t.zone).color} strokeWidth="1.5" />
-                                    <text x={t.x} y={t.y - CELL_H / 2 - 27} textAnchor="middle" fill="#FFFFFF" fontSize="12" fontWeight="800">Tavolo {t.id}</text>
-                                    <text x={t.x} y={t.y - CELL_H / 2 - 15} textAnchor="middle" fill={getZone(t.zone).color} fontSize="9" fontWeight="700" letterSpacing="1.5">{zoneLabel.toUpperCase()}</text>
-                                </g>
-                            );
-                        })()}
-                    </svg>
                 </div>
 
                 <p className="mt-4 text-[11px] text-white/40 italic text-center">
@@ -340,109 +206,6 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                 zone={selectedInfo?.label || ""}
                 zoneInfo={selectedInfo}
             />
-
-            {/* Fullscreen mobile floorplan overlay */}
-            {fullscreen && (
-                <div
-                    data-testid="floorplan-fullscreen"
-                    className="fixed inset-0 z-[70] bg-obsidian overflow-auto"
-                >
-                    <div className="sticky top-0 z-[71] flex items-center justify-between px-4 py-3 bg-obsidian/95 backdrop-blur border-b border-white/10">
-                        <div>
-                            <div className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">Piantina</div>
-                            <div className="text-sm font-black uppercase text-white">Scegli il tuo tavolo</div>
-                        </div>
-                        <button
-                            data-testid="floorplan-fullscreen-close"
-                            onClick={() => setFullscreen(false)}
-                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-lava text-white flex items-center justify-center"
-                            aria-label="Chiudi"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="p-2">
-                        <svg
-                            viewBox="0 0 1254 1254"
-                            className="w-full h-auto block"
-                            style={{ minWidth: "150vw", maxWidth: "none" }}
-                            preserveAspectRatio="xMidYMid meet"
-                        >
-                            <image href={floorplanUrl} x="0" y="0" width="1254" height="1254" preserveAspectRatio="xMidYMid meet" />
-                            {/* Copertura scritte + label cliccabili anche in fullscreen */}
-                            {ZONE_IDS.map((zid) => {
-                                const a = ANCHORS[zid];
-                                const z = getZone(zid);
-                                const isActive = activeZone === zid;
-                                return (
-                                    <g key={`fs-zone-label-${zid}`} data-testid={`fs-zone-label-${zid}`} onClick={() => setActiveZone(isActive ? null : zid)} style={{ cursor: "pointer" }}>
-                                        <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} fill="#0a0a0a" />
-                                        <rect x={a.cover_x} y={a.cover_y} width={a.cover_w} height={a.cover_h} rx="8" fill={isActive ? `${z.color}22` : "transparent"} stroke={z.color} strokeWidth={isActive ? 2.5 : 1.5} />
-                                        <text x={a.label_x} y={a.label_y} textAnchor="middle" fill={z.color} fontSize={a.font_size} fontWeight="900" letterSpacing="2">{(z.label || zid).toUpperCase()}</text>
-                                    </g>
-                                );
-                            })}
-                            {TABLES_LIST.filter((t) => Number.isFinite(t.x) && Number.isFinite(t.y)).map((t) => {
-                                const status = reservedTables[t.id];
-                                const isReserved = status === "reserved" || status === "booked";
-                                const zoneColor = getZone(t.zone).color;
-                                const isZoneActive = activeZone === t.zone && !isReserved;
-                                const isPulsing = pulseId === t.id;
-                                const stroke = isReserved ? "#E10600" : zoneColor;
-                                const strokeWidth = isZoneActive ? 2 : 2;
-                                return (
-                                    <g
-                                        key={t.id}
-                                        data-testid={`fs-table-${t.id}`}
-                                        onClick={() => {
-                                            if (isReserved) return;
-                                            setPulseId(t.id);
-                                            setTimeout(() => {
-                                                setSelected(t);
-                                                setModalOpen(true);
-                                                setFullscreen(false);
-                                                setPulseId(null);
-                                            }, 380);
-                                        }}
-                                        style={{ cursor: isReserved ? "not-allowed" : "pointer" }}
-                                    >
-                                        {/* Hit-box invisibile ingrandita per touch */}
-                                        <rect x={t.x - CELL_W / 2 - 6} y={t.y - CELL_H / 2 - 6} width={CELL_W + 12} height={CELL_H + 12} fill="transparent" />
-                                        {/* Contorno visibile: solo attorno al quadrato del tavolo */}
-                                        <rect
-                                            x={t.x - LABEL_W / 2}
-                                            y={t.y - LABEL_H / 2}
-                                            width={LABEL_W}
-                                            height={LABEL_H}
-                                            rx="4"
-                                            fill="none"
-                                            stroke={stroke}
-                                            strokeWidth={strokeWidth}
-                                            pointerEvents="none"
-                                        >
-                                            {isPulsing && (
-                                                <>
-                                                    <animate attributeName="stroke-width" values={`${strokeWidth};${strokeWidth * 3};${strokeWidth}`} dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="width" values={`${LABEL_W};${LABEL_W * 2};${LABEL_W}`} dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="height" values={`${LABEL_H};${LABEL_H * 2};${LABEL_H}`} dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="x" values={`${t.x - LABEL_W / 2};${t.x - LABEL_W};${t.x - LABEL_W / 2}`} dur="0.38s" repeatCount="1" />
-                                                    <animate attributeName="y" values={`${t.y - LABEL_H / 2};${t.y - LABEL_H};${t.y - LABEL_H / 2}`} dur="0.38s" repeatCount="1" />
-                                                </>
-                                            )}
-                                        </rect>
-                                        {isReserved && (
-                                            <text x={t.x} y={t.y + 7} textAnchor="middle" fill="#E10600" fontSize="22" fontWeight="900" pointerEvents="none">×</text>
-                                        )}
-                                    </g>
-                                );
-                            })}
-                        </svg>
-                        <p className="text-center text-white/60 text-xs mt-4 px-4 pb-6">
-                            Scorri orizzontalmente per vedere tutte le zone. Tocca un tavolo libero per prenotare.
-                        </p>
-                    </div>
-                </div>
-            )}
         </section>
     );
 }
