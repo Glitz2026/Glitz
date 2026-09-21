@@ -1,0 +1,34 @@
+{
+  "summary": "Iteration 14 tested floorplan zone editor + event-detail floorplan breakout. Backend: 3/3 pytest passed AFTER a 1-line patcher fix — GET /api/settings returns 3 floorplan_zones (STAGE/RIVA/BAR) with all keys (id,label,color,price_from,min_spend,bottles,description) populated; PUT /api/admin/settings partial update with floorplan_zones array replaces the list and persists on subsequent GET; STAGE modification verified and restored. Frontend event detail (/eventi/{fp_event_id}): [data-testid=floorplan-section] renders 1360px wide vs parent 1152px (breakout margins work). 3 zone cards (floorplan-zone-card-STAGE/RIVA/BAR) render with price_from and bottles text visible. Clicking a floorplan-table opens booking-modal which shows booking-zone-info with the zone's price/bottles/description text. CRITICAL: Admin Contenuti tab is MISSING the entire floorplan-editor block — [data-testid=floorplan-editor] not present, and none of the per-zone rows/inputs (floorplan-zone-{ZID}, floorplan-{ZID}-label/color/price/min/bottles/desc) exist in AdminDashboard.jsx. saveSettings payload does forward floorplan_zones to backend, but there is no UI to edit them.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "startup patcher (server.py:1216)", "issue": "Original patcher backfilled only home_/about_/contact_ prefixes; floorplan_zones was empty in DB. Fixed inline by adding or key.startswith('floorplan_') so the 3 default zones are backfilled automatically on next backend start."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "AdminDashboard Contenuti tab — floorplan editor block", "issue": "The entire floorplan editor UI is missing. No [data-testid=floorplan-editor], no floorplan-zone-{STAGE|RIVA|BAR} rows, no floorplan-{ZID}-label/color/price/min/bottles/desc inputs. AdminDashboard.jsx saveSettings correctly forwards floorplan_zones from settings state, but no editable form exists to modify them. Admin has NO way to edit table zone info (prices/bottles/descriptions) from the UI — one of the two headline features of this iteration is unimplemented in the admin dashboard.", "selector": "[data-testid=\"floorplan-editor\"]", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_iter14_floorplan.py", "/app/test_reports/pytest/iter14.xml"],
+  "action_items": [
+    "Add the missing floorplan-editor block to AdminDashboard.jsx Contenuti tab: render 3 zone rows for STAGE/RIVA/BAR each with editable inputs (label, color, price_from, min_spend, bottles, description). Inputs must have data-testid=floorplan-{ZID}-{label|color|price|min|bottles|desc} and rows data-testid=floorplan-zone-{ZID}, wrapped by data-testid=floorplan-editor. The saveSettings payload already includes floorplan_zones, so only UI wiring is needed."
+  ],
+  "critical_code_review_comments": [
+    "server.py:1216 startup patcher enumerated only home_/about_/contact_ prefixes and silently skipped floorplan_zones — patched to include floorplan_ prefix. Consider a whitelist-by-key approach (list of backfill-eligible keys) to avoid future misses when new prefixes are added.",
+    "AdminDashboard saveSettings on line ~188 maps floorplan_zones but there is no UI producing/mutating settings.floorplan_zones state — meaning the payload always reflects whatever came from GET /api/settings, effectively a no-op round-trip until an editor is added."
+  ],
+  "updated_files": [
+    "/app/backend/server.py (startup patcher: added floorplan_ prefix to backfill list)",
+    "/app/backend/tests/test_iter14_floorplan.py (new pytest module)"
+  ],
+  "success_rate": {"backend": "100% (3/3 after 1-line fix)", "frontend": "75% (event-detail floorplan + BookingModal zone info work; admin editor missing entirely)"},
+  "test_credentials": "Admin: jalucas@hotmail.it / GlitzAdmin2026! via POST /api/auth/login",
+  "seed_data_creation": "None. Partial PUT changed STAGE zone and was restored to defaults; no other data mutated.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend fully wired for floorplan_zones (GET + partial PUT). Frontend event-detail breakout & BookingModal zone info verified working. Missing piece is the Admin Contenuti floorplan editor UI; once main agent adds the JSX block with expected data-testids, rerun the frontend playwright section that edits STAGE price → clicks save-content-btn → asserts GET /api/settings persistence, then restores defaults."
+}

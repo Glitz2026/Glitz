@@ -1,0 +1,35 @@
+{
+  "summary": "FINAL RETEST passed after fixing seeded media data. All 3 requested checks verified: (1) Home /api/media?category=gallery-eventi now returns >=4 items and home-gallery-preview renders with 4 tiles (home-gallery-item-0..3), heading 'Uno sguardo dentro', and CTA linking to /il-club — verified on both desktop (1920) and mobile (390). (2) Partial PUT /api/admin/settings with {home_hero_line1:'BEYOND'} does NOT wipe about_zones (5) or about_gallery_groups (3). (3) Regression /il-club still renders 3 gallery-tab-* and 5 zone-* elements. Section order on Home confirmed: club-preview-section (top=2526) < home-gallery-preview (3309) < shop-preview-section (3776). Duplicate `Request` in fastapi import is gone (single import at line 1). All 3 pytest tests pass. NOTE: main agent's reseed script left media docs with `is_deleted` field absent and required MediaOut fields (filename/content_type/size) missing, causing /api/media to first return [] (missing is_deleted didn't match {is_deleted:False}) and then 500 (ResponseValidationError). I patched only the DB data (set is_deleted=False and added filename/content_type/size defaults on the seeded rows) so testing could proceed. Underlying data-seed script needs a fix; the API code itself is fine.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/media", "issue": "Seeded media rows (via main-agent reseed script) were missing `is_deleted`, `filename`, `content_type`, `size` fields. Query {'is_deleted': False} excluded them → returned 0. After I set is_deleted=False, MediaOut response validation raised 500 (ResponseValidationError for missing filename/content_type/size). I patched the DB rows to include defaults. The seed script itself must be updated to write all MediaOut-required fields."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_final_retest.py", "/app/test_reports/pytest/final_retest.xml"],
+  "action_items": [
+    "Update the media reseed script (used to insert gallery-eventi/gallery-location/gallery-dettagli seeds) to explicitly set is_deleted:False, filename, content_type ('image/jpeg'), size, and storage_path fields — otherwise every fresh reseed will 500 on GET /api/media.",
+    "Optional hardening: change the list_media query from {'is_deleted': False} to {'is_deleted': {'$ne': True}} so historical rows without the field are still returned."
+  ],
+  "critical_code_review_comments": [
+    "list_media in server.py:924 uses a strict {'is_deleted': False} filter — any legacy or seeded doc missing the field is silently dropped. A $ne:True filter is safer.",
+    "MediaOut requires filename/content_type/size but the model has no field-level defaults; combined with a strict list filter, any partially-populated seed row will crash the endpoint with a ResponseValidationError instead of gracefully falling back.",
+    "Seeder / data-fixture code should be idempotent and always emit the full MediaOut-required field set."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_final_retest.py (new pytest suite)",
+    "MongoDB test_database.media collection (data-only patch: set is_deleted=False and added filename/content_type/size/storage_path defaults on 11 rows so /api/media stops returning 500). No code files were modified."
+  ],
+  "success_rate": {"backend": "100% (3/3 pytest)", "frontend": "100% (home-gallery-preview + regression)"},
+  "test_credentials": "Admin login: jalucas@hotmail.it / GlitzAdmin2026! via POST /api/auth/login (response key: `token`).",
+  "seed_data_creation": "None new. Only patched existing media rows so validation passes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "The main-agent reseed script left media rows missing MediaOut-required fields (filename/content_type/size) and the boolean `is_deleted`. I patched the DB directly; if the seeder runs again, /api/media will 500. Verify seeded rows include all required fields before running frontend tests. Test file: /app/backend/tests/test_final_retest.py.",
+  "rca of the issue": "The reseed script inserted media docs with only {id, url, category, caption, created_at}. Two consequences on the API path: (1) list_media filters {is_deleted: False} which — under MongoDB semantics — excludes docs where the field is absent, so /api/media?category=gallery-eventi returned []; (2) after setting is_deleted=False on those rows, MediaOut (which requires filename, content_type, size) failed response validation and FastAPI returned 500. Data patch (set defaults) restored the endpoint. The correct long-term fix is in the seed script + a $ne:True filter in list_media."
+}

@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only verification of the mobile scroll-down arrow centering + reduced gap fix on Home.jsx. All 4 requested checks PASS. Mobile (390x844): hero-scroll-down bounding box = {x:0, width:390} -> center_x=195.0 (exactly centered, within 10px tolerance). Gap between bottom of arrow (y+h=907.24) and top of upcoming-events-section (y=930.17) = 22.93px, well below the 90px threshold (was ~200px before fix). Desktop (1920x800): arrow center_x=960.0 (perfectly centered), events section still positioned at y=964 with expected padding. Regression: /admin redirects to /admin/login (works), /il-club renders all 5 zone-* testids (zone-arco, zone-backthestage, zone-riva-deck, zone-seaview, zone-artist-area), /shop lists 6 product-cards, and all Home data-testid selectors present (hero-section, hero-title, upcoming-events-section, location-section, club-preview-section, shop-preview-section, faq-section). No regressions detected.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Some 401 console errors observed on public pages (Failed to load resource 401) - likely an authenticated endpoint being called without token from a public page. Non-blocking but should be investigated by main agent to reduce noise / avoid unnecessary calls."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Home.jsx layout fix verified. Mobile arrow perfectly centered (x=0,w=390,center=195). Gap arrow->events reduced to ~23px on mobile. Desktop unchanged (center=960). Minor: several 401 console errors on public routes worth checking.",
+  "measurements": {
+    "mobile_scroll_btn_box": {"x": 0, "y": 879.24, "width": 390, "height": 28, "center_x": 195.0},
+    "mobile_events_section_y": 930.17,
+    "mobile_gap_px": 22.93,
+    "desktop_scroll_btn_center_x": 960.0,
+    "desktop_events_section_y": 964
+  }
+}

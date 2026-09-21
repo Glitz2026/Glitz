@@ -1,0 +1,27 @@
+{
+  "summary": "Iteration 9 testing: Backend all green (about_zones=5, gallery-eventi has 9 media, admin PUT reorder+add zone works and persists, restore ok). Admin Contenuti tab zone editor fully functional (add-zone-btn appends zone-editor-5, all per-zone testids present). Regression club-preview-section on Home shows 4 club-zone-card-* correctly. CRITICAL BUG: the promised new Home section 'home-gallery-preview' is NOT rendered — Home.jsx has the galleryPreview state + useEffect fetch, but the JSX <section data-testid='home-gallery-preview'> block was never added between club-preview-section (ends line 267) and shop-preview-section (starts line 270). grep on Home.jsx confirms zero matches for 'home-gallery'. Feature '(1) Anteprima Tab Su Home' is therefore not delivered on the frontend.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Home.jsx", "issue": "Missing JSX section for home-gallery-preview. State galleryPreview is set (up to 4 items fetched from /media?category=gallery-eventi) but no <section data-testid='home-gallery-preview'> is rendered. As a result: no 'Uno sguardo dentro' heading, no home-gallery-cta, no home-gallery-item-0..3 tiles. Feature is completely invisible on Home.", "selector": "[data-testid='home-gallery-preview']", "priority": "CRITICAL"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Add the missing JSX section in /app/frontend/src/pages/Home.jsx between club-preview-section closing and shop-preview-section opening (around line 268). Section should: use data-testid='home-gallery-preview'; render only if galleryPreview.length > 0; include heading 'Uno sguardo dentro'; kicker showing settings?.about_gallery_groups?.[0]?.title; a Link to /il-club with data-testid='home-gallery-cta' ('Scopri il Club'); a responsive grid (grid-cols-2 on mobile, lg:grid-cols-4) of exactly 4 aspect-square tiles wrapped as Link to /il-club with data-testid={`home-gallery-item-${i}`}; each <img> src must resolve absolute URL (prefix REACT_APP_BACKEND_URL when path starts with '/')."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx: state/useEffect for galleryPreview added but corresponding JSX section is missing — feature commit is incomplete.",
+    "About_zones reseed via startup patcher works; consider making seed idempotent-on-empty rather than a startup one-off patcher, so future accidental wipes recover."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "50%"},
+  "test_credentials": "Admin jalucas@hotmail.it / GlitzAdmin2026! — login returns 200, token in response['token']",
+  "seed_data_creation": "None. Backend PUT test appended TEST_ZONE then restored original 5 zones (verified titles match originals).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Once main agent adds the missing home-gallery-preview JSX section, re-verify: (a) desktop 4-col grid + mobile 390 viewport 2-col grid, (b) exactly 4 home-gallery-item-* tiles with non-empty https/absolute src, (c) home-gallery-cta links to /il-club, (d) all 4 tiles link to /il-club, (e) section appears between club-preview-section and shop-preview-section. Backend + admin zone editor are all confirmed working — do not need retest. /il-club gallery-tabs regression already green from iteration 8; verify quickly if needed.",
+  "rca of the issue": "In this iteration's edit to Home.jsx, only the data-fetching layer (const [galleryPreview, setGalleryPreview] = useState([]) and its useEffect that calls /media with the first about_gallery_groups category) was added. The JSX rendering block that displays those 4 items was not committed. grep 'home-gallery' /app/frontend/src/pages/Home.jsx returns no matches, and the live DOM confirms 0 elements. Fix: append the JSX section as described in action_items."
+}

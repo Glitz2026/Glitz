@@ -1,0 +1,28 @@
+{
+  "summary": "Iteration 13 tested all 5 new features. Backend: 8/8 pytest passed (artist_photo_url on events POST/GET/DELETE round-trip; SettingsIn home_gallery_preview_kicker/title defaults + partial PUT with about_zones/groups preservation + restore; POST /admin/media/reorder returns {reordered:N} and reorders items by 'order' ASC in GET /media; PATCH /admin/media/{id} moves category and is reversible; both endpoints require admin auth; invalid body returns 400). Frontend Admin (verified DOM via Playwright): (a) Eventi form has both data-testid=upload-event-poster and upload-event-artist upload buttons with URL input fallback; (b) Media tab renders data-testid=media-category-filter with 7 options ['', gallery-eventi, gallery-location, gallery-dettagli, event-poster, event-artist, assets], and when gallery-eventi selected shows 4 tiles each with media-up-{id}, media-down-{id}, and media-cat-{id} selectors; (c) Contenuti tab has data-testid=content-gallery-preview-kicker and content-gallery-preview-title (current value 'Uno sguardo dentro'). Home /: [data-testid=home-gallery-preview] renders with heading 'UNO SGUARDO DENTRO' (uppercased via CSS), kicker 'EVENTI' fallback (kicker setting empty → uses first gallery group title), and 4 home-gallery-item tiles. All previously-working functionality intact.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin Media tab per-tile category <select>", "issues": ["React hydration warning: <span> cannot be a child of <option>. The rendered <option> wraps its title in a Fast-Refresh runtime <span> for editable-source tracing, which browsers reject. This is a dev-only issue caused by the emergent dev overlay wrapping dynamic text; harmless in production build. Optional: set the option label via {String(g.title)} or plain text to sidestep the wrapper. Not blocking."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter13_new_features.py", "/app/test_reports/pytest/iter13.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "list_media still uses strict {is_deleted: False} filter (server.py:930). Prior iteration flagged this — legacy/seeded rows missing the field are silently dropped. Consider {'is_deleted': {'$ne': True}}.",
+    "PATCH /admin/media/{id} only accepts category/caption but not event_id — if admin ever needs to reassociate a media to another event, another patchable field would be needed.",
+    "reorder_media does not validate that ids belong to the same category — the frontend calls it with the currently filtered list, but a malicious/incorrect payload could reorder across categories. Minor since it's admin-only."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter13_new_features.py (new)"],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "100% (all data-testids present, Home renders correctly)"},
+  "test_credentials": "Admin: jalucas@hotmail.it / GlitzAdmin2026! via POST /api/auth/login (response key: token).",
+  "seed_data_creation": "None. Test event created + deleted. Settings partial PUT restored. Media order/category patched + restored.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All 5 features in iteration-13 verified working end-to-end. Backend suite at /app/backend/tests/test_iter13_new_features.py can be reused as regression. Only cosmetic hydration warning on Media tab category select (dev overlay wrapping option labels). No blocking issues."
+}

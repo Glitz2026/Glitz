@@ -1,0 +1,31 @@
+{
+  "summary": "First-finish smoke: backend auth, admin CRUD (events/posts/faqs), newsletter, media, plus frontend home/eventi/news/gallery/il-club/contatti/admin login+event create+logout. All core flows working. Minor: login returns token key 'token' (not 'access_token'); PUT endpoints require full body (not partial) — non-blocking. Event detail countdown uses testid 'event-countdown-container' instead of 'event-countdown' (still present).",
+  "tested_scope": ["backend", "frontend", "auth", "integration"],
+  "passed": [
+    "POST /api/auth/login correct creds → 200 + JWT token (key: 'token')",
+    "POST /api/auth/login wrong password → 401",
+    "GET /api/auth/me without token → 403; with Bearer → {email: jalucas@hotmail.it}",
+    "POST/PUT/DELETE /api/admin/events with token → 200; POST without token → 403",
+    "POST/PUT/DELETE /api/admin/posts with token → 200 (field is 'body' not 'content')",
+    "POST/PUT/DELETE /api/admin/faqs with token → 200; POST without token → 403",
+    "POST /api/newsletter/subscribe new email → 'subscribed'; duplicate → 'already_subscribed'",
+    "GET /api/media → 9 items; GET /api/media?category=gallery → 9 (all seeded gallery)",
+    "Frontend /: hero-title, hero-countdown-container, 10 faq-item-*, 3 event-card-*, 3 blog-card-*",
+    "Frontend newsletter form: success toast on first submit, info (già iscritto) toast on duplicate",
+    "Frontend /eventi: 3 events-card-*; click → /eventi/{id} with event-title, event-ticket-btn (https://www.ticketsms.it/), event-table-btn (wa.me link)",
+    "Frontend /news: 3 post-card-*; click → /news/dietro-le-quinte with post-title",
+    "Frontend /gallery: 9 gallery-item-*; click opens lightbox-overlay; lightbox-close closes it",
+    "Frontend /il-club: about-title present",
+    "Frontend /contatti: contact-whatsapp, contact-email, contact-instagram, contact-map iframe all present",
+    "Frontend /admin/login: login with jalucas@hotmail.it/GlitzAdmin2026! → /admin dashboard; new-event-btn → fill event-title-input='Test Event QA' + datetime → save-event-btn → 'Evento salvato' toast + event in list; admin-logout-btn → back to /admin/login"
+  ],
+  "failed": [
+    {"area": "frontend/EventDetail", "issue": "Countdown testid is 'event-countdown-container' (from Countdown component prefix) not 'event-countdown' as spec requested", "evidence": "locator [data-testid='event-countdown']=0; [data-testid='event-countdown-container']=1 on /eventi/{id}", "priority": "LOW"}
+  ],
+  "action_items": [
+    "OPTIONAL: If exact testid 'event-countdown' is required, alias it in EventDetail.jsx (currently only container/labels expose testids)."
+  ],
+  "success_rate": {"backend": "100%", "frontend": "~98%"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}
