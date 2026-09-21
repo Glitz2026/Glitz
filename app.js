@@ -45,15 +45,7 @@ $('#back').onclick=()=>{if(step===3){const t=currentTable;chooseZone(currentZone
 $('#arch-view').onclick=()=>{if(!$('#source-plan').hidden)$('#plan-toggle').click();flat=false;$('#top').classList.remove('active');const target=model.arch.root.position.clone().add(new THREE.Vector3(0,2,0));animateCamera(target,3.5,true);frame.to=target.clone().add(new THREE.Vector3(-7,5,18));$('#view-name').textContent='L’arco del Glitz';$('#map-caption').textContent='9 m di larghezza · 5 m sopra la pista';};
 $('#help').onclick=()=>$('#help-dialog').showModal();$('#close-help').onclick=()=>$('#help-dialog').close();
 function updateInventory(records){if(!Array.isArray(records))throw Error('Inventory must be an array');for(const r of records){const t=model.tables.find(t=>t.id===r.id);if(!t)continue;if(['available','soldout','unavailable','unconfigured'].includes(r.status))t.status=r.status;if(typeof r.priceLabel==='string')t.priceLabel=r.priceLabel;if(r.minSpend===null||Number.isFinite(r.minSpend)&&r.minSpend>=0)t.minSpend=r.minSpend;if(r.capacity===null||Number.isInteger(r.capacity)&&r.capacity>0)t.capacity=r.capacity}const z=currentZone,t=currentTable;if(z){chooseZone(z,false);if(t)chooseTable(t)}else overview();dirty=true}
-// All textures are procedural. This makes the exported GLB and HTML portable.
-const signCanvas=document.createElement('canvas');signCanvas.width=1024;signCanvas.height=410;const cx=signCanvas.getContext('2d');cx.fillStyle='#19191e';cx.fillRect(0,0,1024,410);cx.fillStyle='#f4e8ed';cx.textAlign='center';// Logo manually redrawn from the visible LED wall; not a supplied original font.
-cx.strokeStyle='#eee4f1';cx.lineCap='butt';cx.lineJoin='miter';
-function line(x1,y1,x2,y2,w=3){cx.lineWidth=w;cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.stroke()}
-cx.lineWidth=3;cx.beginPath();cx.ellipse(317,191,65,105,0,.22,Math.PI*2-.25);cx.stroke();line(367,203,367,277,7);
-line(411,86,411,296,6);line(411,295,474,295,2);
-line(514,86,514,296,5);line(557,86,686,86,2);line(623,87,623,296,5);
-line(716,86,795,86,2);line(795,86,716,296,6);line(716,296,795,296,2);
-cx.font='23px sans-serif';cx.fillText('C   L   U   B',520,351);const texture=new THREE.CanvasTexture(signCanvas);texture.colorSpace=THREE.SRGBColorSpace;model.root.traverse(o=>{if(o.userData.sign){const m=new THREE.MeshBasicMaterial({map:texture});o.material=[matSide(),matSide(),matSide(),matSide(),m,matSide()]}});function matSide(){return new THREE.MeshStandardMaterial({color:'#19191e'})}
+// Original PDF logo is rendered as geometry by logo.js.
 optimize(model);
 let planVisible=false;
 function syncPlan(){document.querySelectorAll('#plan-hits rect').forEach(r=>{r.classList.toggle('current',r.dataset.id===currentTable);r.style.opacity=currentZone&&r.dataset.zone!==currentZone?.28:1})}

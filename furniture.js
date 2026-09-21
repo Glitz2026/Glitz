@@ -35,3 +35,5 @@ export function continuousBench(root,xy,points,y=.812){
   }
  }
 }
+
+export function entranceStool(){const g=new THREE.Group();g.name='Sgabello ingresso';director(g,0,0);g.scale.y=1.42;g.traverse(o=>{if(o.name.startsWith('Sedia tela'))o.material=mat(palette.metal)});rod(g,'Poggiapiedi sgabello',[-.26,.20,.28],[.26,.20,.28],.016,palette.metal);return g}

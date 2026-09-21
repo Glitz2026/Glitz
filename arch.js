@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createLogo} from './logo.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 export const ARCH_SPEC={width:9,heightAboveSupport:4,heightAboveDancefloor:5,supportAboveDancefloor:1,dancefloorY:.1,supportY:1.1,crownY:5.1,widthReference:'outer structural envelope',heightReference:'crown of truss; fixtures and sign separate',source:'User supplied dimensions'};
 export function createArch(position){const root=new THREE.Group();root.name='GLITZ_ARCH_9M';root.position.copy(position);root.position.y=ARCH_SPEC.supportY;root.userData={...ARCH_SPEC};
@@ -11,7 +12,7 @@ const point=(a,inner=false,z=0)=>new THREE.Vector3((inner?4.195:4.475)*Math.cos(
 for(let i=0;i<48;i++){const a=i*Math.PI/48,b=(i+1)*Math.PI/48;for(const z of [-.16,.16]){tube(truss,'Corrente esterno',point(a,false,z),point(b,false,z));tube(truss,'Corrente interno',point(a,true,z),point(b,true,z));tube(truss,'Diagonale faccia',point(a,i%2===0,z),point(b,i%2!==0,z),.010);if(i%2===0)tube(truss,'Montante radiale',point(a,false,z),point(a,true,z),.012)}tube(truss,'Diagonale profondita',point(a,false,-.16),point(b,false,.16),.01);if(i%4===0)for(const inner of [false,true])tube(truss,'Traverso',point(a,inner,-.16),point(a,inner,.16),.014)}
 for(const x of [-4.475,4.475])box(equipment,'Piastra piede',x,-.025,0,.43,.05,.47,silver);
 // Individual 40–50 cm LED segments, with black housings.
-for(let i=0;i<24;i++){const a=.16+i*(Math.PI-.32)/24,b=a+(Math.PI-.32)/24*.91;const pa=point(a,false,.202),pb=point(b,false,.202);tube(equipment,'Barra LED scocca',pa,pb,.039,black);const c=new THREE.Color().setHSL(.66+i/24*.07,.9,.66);const led=new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.65});tube(equipment,'Barra LED diffusore',pa.clone().add(new THREE.Vector3(0,0,.022)),pb.clone().add(new THREE.Vector3(0,0,.022)),.017,led)}
+for(let i=0;i<24;i++){const a=.16+i*(Math.PI-.32)/24,b=a+(Math.PI-.32)/24*.91;if(Math.abs(4.475*Math.cos((a+b)/2))<1.12)continue;const pa=point(a,false,.202),pb=point(b,false,.202);tube(equipment,'Barra LED scocca',pa,pb,.039,black);const c=new THREE.Color().setHSL(.66+i/24*.07,.9,.66);const led=new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.65});tube(equipment,'Barra LED diffusore',pa.clone().add(new THREE.Vector3(0,0,.022)),pb.clone().add(new THREE.Vector3(0,0,.022)),.017,led)}
 for(const a of [.25,.58,.91,1.22,1.91,2.24,2.57,2.89]){const p=point(a,false,0);const g=new THREE.Group();g.position.copy(p);g.rotation.z=a-Math.PI/2;equipment.add(g);box(g,'Testa mobile base',0,.045,0,.26,.085,.29,black);for(const x of [-.14,.14])box(g,'Forcella testa mobile',x,.22,0,.04,.3,.08,black);const h=box(g,'Testa mobile proiettore',0,.29,.02,.24,.32,.23,black);h.rotation.x=-.38;const lens=new THREE.Mesh(new THREE.CylinderGeometry(.074,.074,.014,20),new THREE.MeshStandardMaterial({color:'#99a6ba',metalness:.2,roughness:.22}));lens.rotation.x=Math.PI/2-.38;lens.position.set(0,.29,.155);lens.name='Lente testa mobile';g.add(lens)}
 for(const x of [-3.13,3.13]){const y=.025+3.95*Math.sqrt(1-(x/4.475)**2);tube(equipment,'Sospensione audio',new THREE.Vector3(x,y-.1,-.07),new THREE.Vector3(x,y-.65,-.07),.014,black);for(let i=0;i<2;i++){const o=box(equipment,'Line array modulo',x,y-.67-i*.32,.01,.70,.29,.42,black);o.rotation.x=.035+i*.045;box(equipment,'Griglia diffusore',x,y-.67-i*.32,.228,.65,.25,.015,new THREE.MeshStandardMaterial({color:'#333941',roughness:1}));}}
 
@@ -25,9 +26,6 @@ beam(new THREE.Vector3(0,3.81,-.16),new THREE.Vector3(0,top,rz));
 // Flanges and couplers at modular arch joints.
 for(let i=1;i<8;i++){const a=i*Math.PI/8;for(const z of [-.16,.16]){tube(equipment,'Giunto modulo arco',point(a,false,z).add(new THREE.Vector3(0,-.045,0)),point(a,false,z).add(new THREE.Vector3(0,.045,0)),.034,silver);}}
 
-// Solid extruded letters: thin strokes reproduce the sign silhouette without a bitmap plane.
-function stroke(x1,y1,x2,y2,w=.04){let d=new THREE.Vector2(x2-x1,y2-y1).normalize().multiplyScalar(w/2);let p=new THREE.Shape();p.moveTo(x1-d.y,y1+d.x);p.lineTo(x2-d.y,y2+d.x);p.lineTo(x2+d.y,y2-d.x);p.lineTo(x1+d.y,y1-d.x);p.closePath();const o=new THREE.Mesh(new THREE.ExtrudeGeometry(p,{depth:.06,bevelEnabled:false}),white);o.position.z=.02;sign.add(o);o.name='Lettera GLITZ'}
-const y=3.74,H=.53;let x=-.92;
-const gp=[];for(let i=0;i<=20;i++){let a=.35+i*(Math.PI*2-.7)/20;gp.push([x+.18+.18*Math.cos(a),y+H/2+H/2*Math.sin(a)])}for(let i=1;i<gp.length;i++)stroke(...gp[i-1],...gp[i]);stroke(x+.18,y+.22,x+.35,y+.22);stroke(x+.35,y+.22,x+.35,y+.10);x+=.46;
-stroke(x,y+H,x,y);stroke(x,y,x+.3,y);x+=.42;stroke(x,y,x,y+H);x+=.19;stroke(x,y+H,x+.4,y+H);stroke(x+.2,y+H,x+.2,y);x+=.5;stroke(x,y+H,x+.35,y+H);stroke(x+.35,y+H,x,y);stroke(x,y,x+.35,y);
+// Original brand silhouette on the exterior LED side, with clear LED space.
+const originalLogo=createLogo(1.85);originalLogo.position.set(0,3.80,.29);sign.add(originalLogo);
 root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.userData.archComponent=true}});return {root,truss,equipment,sign,rear,spec:ARCH_SPEC};}
