@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MapPin, Wine, CircleDollarSign, Maximize2, X } from "lucide-react";
+import Floorplan3D from "./Floorplan3D";
 import BookingModal from "./BookingModal";
 import { api } from "../lib/api";
 
@@ -51,6 +52,8 @@ const DEFAULT_ANCHORS = {
 
 
 export default function Floorplan({ eventTitle, eventId, reservedTables = {}, customImageUrl = "" }) {
+    const [view, setView] = useState("3d");
+    const [settingsReady, setSettingsReady] = useState(false);
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [hoveredId, setHoveredId] = useState(null);
@@ -73,6 +76,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
             const map = {};
             list.forEach((z) => { if (z?.id) map[z.id] = z; });
             setZonesData(map);
+            setSettingsReady(true);
             setTableOverrides(r.data?.floorplan_table_overrides || {});
             const anchors = r.data?.floorplan_anchors;
             if (anchors && typeof anchors === "object" && Object.keys(anchors).length) setCustomAnchors(anchors);
@@ -128,6 +132,17 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     </p>
                 </div>
 
+                <div className="flex gap-3 mb-5" role="group" aria-label="Vista della piantina">
+                    <button type="button" className="btn-ghost" aria-pressed={view === "3d"} onClick={() => setView("3d")}>Esplora in 3D</button>
+                    <button type="button" className="btn-ghost" aria-pressed={view === "2d"} onClick={() => setView("2d")}>Piantina 2D</button>
+                </div>
+                {view === "3d" && <Floorplan3D
+                    eventId={eventId} tables={TABLES_LIST} reservedTables={reservedTables}
+                    getTableInfo={getTableInfo} activeZone={activeZone} ready={settingsReady}
+                    onSelect={(t) => { setSelected(t); setModalOpen(true); }}
+                    onFallback={() => setView("2d")}
+                />}
+
                 {/* Zone info cards con prezzi & bottiglie — cliccabili per evidenziare la zona in piantina */}
                 <div data-testid="floorplan-zone-cards" className="grid gap-3 sm:grid-cols-3 mb-6">
                     {["STAGE", "RIVA", "BAR"].map((zid) => {
@@ -168,6 +183,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     })}
                 </div>
 
+                <div hidden={view !== "2d"}>
                 <div data-testid="floorplan-legend" className="flex items-center gap-3 mb-4 flex-wrap text-xs uppercase tracking-widest text-white/60">
                     <span className="flex items-center gap-2">
                         <span className="w-3 h-3 rounded-sm inline-block bg-red-500/40 border border-red-500" /> Prenotato
@@ -286,6 +302,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     </svg>
                 </div>
 
+                </div>
                 <p className="mt-4 text-[11px] text-white/40 italic text-center">
                     Piantina ufficiale del Glitz Club. Le posizioni dei tavoli possono variare per singolo evento.
                 </p>
@@ -406,3 +423,4 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
         </section>
     );
 }
+
