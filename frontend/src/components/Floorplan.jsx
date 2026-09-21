@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MapPin, Wine, CircleDollarSign, Maximize2, X } from "lucide-react";
+import { LAWN_TABLES } from "./floorplanBridge";
 import Floorplan3D from "./Floorplan3D";
 import BookingModal from "./BookingModal";
 import { api } from "../lib/api";
@@ -11,6 +12,8 @@ import { api } from "../lib/api";
  */
 
 const DEFAULT_ZONES = {
+    SEAVIEW: { label: "Seat View", color: "#FFFFFF", description: "Sedute panoramiche e salottini sul prato. Condizioni su richiesta." },
+    PRATO_BACK: { label: "Prato Back the Stage", color: "#FFFFFF", description: "Salottini sul prato. Condizioni su richiesta." },
     STAGE: { label: "Back the Stage", color: "#E10600", price_from: "€ 400", bottles: "1 bottiglia inclusa" },
     RIVA: { label: "Riva Deck", color: "#00BFFF", price_from: "€ 300", bottles: "1 bottiglia inclusa" },
     BAR: { label: "Glitz Bar", color: "#FFA500", price_from: "€ 200", bottles: "Consumazione dedicata" },
@@ -91,7 +94,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
     const ANCHORS = { ...DEFAULT_ANCHORS, ...(customAnchors || {}) };
     extraZones.forEach((z) => { if (z.id && !ANCHORS[z.id]) ANCHORS[z.id] = z; });
     const ZONE_IDS = Object.keys(ANCHORS);
-    const TABLES_LIST = customTables || TABLES;
+    const TABLES_LIST = customTables || [...TABLES, ...LAWN_TABLES];
 
     const getZone = (id) => ({ ...DEFAULT_ZONES[id], ...(zonesData[id] || {}) });
 
@@ -167,7 +170,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
 
                 {/* Zone info cards con prezzi & bottiglie — cliccabili per evidenziare la zona in piantina */}
                 <div data-testid="floorplan-zone-cards" className="grid gap-3 sm:grid-cols-3 mb-6">
-                    {["STAGE", "RIVA", "BAR"].map((zid) => {
+                    {["STAGE", "RIVA", "BAR", "SEAVIEW", "PRATO_BACK"].map((zid) => {
                         const z = getZone(zid);
                         const isActive = activeZone === zid;
                         return (
@@ -243,7 +246,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                 </g>
                             );
                         })}
-                        {TABLES_LIST.map((t) => {
+                        {TABLES_LIST.filter((t) => Number.isFinite(t.x) && Number.isFinite(t.y)).map((t) => {
                             const status = reservedTables[t.id];
                             const isReserved = status === "reserved" || status === "booked";
                             const isHover = hoveredId === t.id && !isReserved;
@@ -379,7 +382,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                     </g>
                                 );
                             })}
-                            {TABLES_LIST.map((t) => {
+                            {TABLES_LIST.filter((t) => Number.isFinite(t.x) && Number.isFinite(t.y)).map((t) => {
                                 const status = reservedTables[t.id];
                                 const isReserved = status === "reserved" || status === "booked";
                                 const zoneColor = getZone(t.zone).color;
