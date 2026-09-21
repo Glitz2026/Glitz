@@ -1,4 +1,4 @@
-export const MODEL_ZONES = { STAGE: "back", RIVA: "riva", BAR: "glitzbar" };
+export const MODEL_ZONES = { STAGE: "back", RIVA: "riva", BAR: "glitzbar", SEAVIEW: "seaview", PRATO_BACK: "prato-back" };
 
 export function isTableAvailable(status) {
     return status == null || status === "available";
@@ -19,3 +19,8 @@ export function makeInventory(modelTables, tables, reserved, getInfo, ready) {
         };
     });
 }
+
+export const LAWN_TABLES = [
+    ...Array.from({ length: 11 }, (_, i) => ({ id: `SV${i + 1}`, zone: "SEAVIEW" })),
+    ...Array.from({ length: 10 }, (_, i) => ({ id: `PB${i + 1}`, zone: "PRATO_BACK" })),
+];
