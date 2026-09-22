@@ -3,10 +3,13 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ShoppingBag, MessageCircle, Plus } from "lucide-react";
 import Seo from "../components/Seo";
+import SafeImage from "../components/SafeImage";
 import { api } from "../lib/api";
+import { useContact } from "../context/ContactContext";
 import ProductModal from "../components/ProductModal";
 
 export default function Shop() {
+    const { whatsappNumber } = useContact();
     const [products, setProducts] = useState([]);
     const [settings, setSettings] = useState({});
     const [quickAddProduct, setQuickAddProduct] = useState(null);
@@ -80,7 +83,7 @@ export default function Shop() {
                                 </button>
                                 <Link to={`/shop/${p.slug}`} className="block">
                                 <div className="aspect-[4/5] overflow-hidden bg-obsidian">
-                                    <img
+                                    <SafeImage
                                         src={p.image}
                                         alt={p.name}
                                         loading="lazy"
@@ -120,7 +123,7 @@ export default function Shop() {
                         ))}
                     </div>
                     <a
-                        href="https://wa.me/393444289232?text=Ciao%20Glitz!%20Avrei%20una%20domanda%20sullo%20shop."
+                        href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Ciao Glitz! Avrei una domanda sullo shop.")}`}
                         target="_blank"
                         rel="noreferrer"
                         data-testid="shop-whatsapp-info"

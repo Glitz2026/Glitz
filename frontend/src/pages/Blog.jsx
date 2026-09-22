@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api } from "../lib/api";
 import { formatItalianDate } from "../lib/constants";
 import Seo from "../components/Seo";
+import SafeImage from "../components/SafeImage";
 
 export default function Blog() {
     const [posts, setPosts] = useState([]);
@@ -31,7 +32,7 @@ export default function Blog() {
                         className="group block rounded-2xl overflow-hidden bg-surface border border-white/10 hover:border-lava/40 transition"
                     >
                         <div className="aspect-video overflow-hidden">
-                            <img src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <SafeImage src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         </div>
                         <div className="p-6 space-y-3">
                             <div className="flex justify-between items-center">

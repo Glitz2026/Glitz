@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { X, MapPin } from "lucide-react";
 import Seo from "../components/Seo";
+import SafeImage from "../components/SafeImage";
 import { api } from "../lib/api";
 import { ADDRESS } from "../lib/constants";
 
@@ -50,7 +51,7 @@ export default function About() {
 
             {/* HERO */}
             <section className="relative min-h-[80vh] overflow-hidden">
-                <img src={hero} alt="Glitz Club panoramica al tramonto" className="absolute inset-0 w-full h-full object-cover" />
+                <SafeImage src={hero} alt="Glitz Club panoramica al tramonto" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/60 to-obsidian/30" />
                 <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-24 flex flex-col justify-end min-h-[80vh]">
                     <span className="overline-tag">{settings?.about_kicker || "Il Club"}</span>
@@ -111,8 +112,8 @@ export default function About() {
                                     ))}
                                 </ul>
                             </div>
-                            <div className="relative aspect-[3/4] lg:aspect-[4/5] rounded-2xl overflow-hidden group cursor-pointer" onClick={() => setLightbox(zImage)}>
-                                <img src={zImage} alt={z.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <div className="relative aspect-[3/4] lg:aspect-[4/5] rounded-2xl overflow-hidden group cursor-pointer border border-white/5" onClick={() => setLightbox(zImage)}>
+                                <SafeImage src={zImage} alt={z.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-obsidian/50 via-transparent to-transparent" />
                             </div>
                         </motion.div>
@@ -179,7 +180,7 @@ export default function About() {
                                     data-testid={`gallery-item-${i}`}
                                     className="masonry-item group relative block w-full overflow-hidden rounded-xl border border-white/5 hover:border-lava/40 transition mb-4"
                                 >
-                                    <img src={url} alt="" loading="lazy" className="w-full h-auto group-hover:scale-105 transition-transform duration-500" />
+                                    <SafeImage src={url} alt="" loading="lazy" className="w-full h-auto min-h-[160px] group-hover:scale-105 transition-transform duration-500" />
                                 </button>
                             ))}
                         </div>

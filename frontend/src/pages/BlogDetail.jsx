@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { api } from "../lib/api";
 import { formatItalianDate } from "../lib/constants";
 import Seo from "../components/Seo";
+import SafeImage from "../components/SafeImage";
 
 function renderMarkdown(md) {
     // Ultra-simple markdown renderer for headings/paragraphs/lists
@@ -57,7 +58,7 @@ export default function BlogDetail() {
                 <p className="text-lg text-white/70">{p.excerpt}</p>
             </div>
             {p.cover_url && (
-                <img src={p.cover_url} alt={p.title} className="w-full rounded-2xl aspect-video object-cover mb-8" />
+                <SafeImage src={p.cover_url} alt={p.title} className="w-full rounded-2xl aspect-video object-cover mb-8" />
             )}
             <div className="prose prose-invert">{renderMarkdown(p.body || "")}</div>
         </article>

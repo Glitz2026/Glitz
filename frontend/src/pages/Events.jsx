@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import { api } from "../lib/api";
 import Seo from "../components/Seo";
-import EventsGalleryStrip from "../components/EventsGalleryStrip";
+import SafeImage from "../components/SafeImage";
 
 const MESI = ["GENNAIO", "FEBBRAIO", "MARZO", "APRILE", "MAGGIO", "GIUGNO", "LUGLIO", "AGOSTO", "SETTEMBRE", "OTTOBRE", "NOVEMBRE", "DICEMBRE"];
 const GIORNI = ["DOMENICA", "LUNEDÌ", "MARTEDÌ", "MERCOLEDÌ", "GIOVEDÌ", "VENERDÌ", "SABATO"];
@@ -78,7 +77,7 @@ export default function Events() {
                             className="group relative block overflow-hidden rounded-2xl bg-surface border border-white/10 hover:border-lava/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(225,6,0,0.25)]"
                         >
                             <div className="aspect-[4/5] w-full overflow-hidden relative">
-                                <img src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <SafeImage src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent" />
                             </div>
                             <div className="absolute inset-x-0 bottom-0 p-6 space-y-1">
@@ -90,14 +89,6 @@ export default function Events() {
                     );
                 })}
             </div>
-
-            {/* Gallery preview — momenti dalle serate */}
-            <EventsGalleryStrip
-                kicker={settings.events_gallery_kicker || "Momenti"}
-                title={settings.events_gallery_title || "Le notti che ti aspettano"}
-                description={settings.events_gallery_description || "Un assaggio dell'energia Glitz. Dagli aftermovie ai momenti in console."}
-                testIdPrefix="events-gallery"
-            />
         </div>
     );
 }

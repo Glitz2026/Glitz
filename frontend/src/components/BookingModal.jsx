@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { X, MessageCircle, Send, Loader2, Wine, CircleDollarSign } from "lucide-react";
 import { api } from "../lib/api";
-import { WHATSAPP_NUMBER } from "../lib/constants";
 import { useLanguage } from "../context/LanguageContext";
+import { useContact } from "../context/ContactContext";
 import { toast } from "sonner";
 
 export default function BookingModal({
@@ -15,6 +15,7 @@ export default function BookingModal({
     zoneInfo = null,
 }) {
     const { t } = useLanguage();
+    const { whatsappNumber } = useContact();
     const [form, setForm] = useState({ name: "", phone: "", email: "", guests: 2, note: "" });
     const [loading, setLoading] = useState(false);
 
@@ -47,7 +48,7 @@ export default function BookingModal({
                 `Telefono: ${form.phone}`,
                 form.note && `Note: ${form.note}`,
             ].filter(Boolean);
-            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msgLines.join("\n"))}`;
+            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msgLines.join("\n"))}`;
             window.open(url, "_blank");
             onClose();
             setForm({ name: "", phone: "", email: "", guests: 2, note: "" });
