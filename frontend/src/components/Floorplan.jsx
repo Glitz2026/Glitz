@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapPin, Wine, CircleDollarSign, Maximize2, X } from "lucide-react";
+import { MapPin, Wine, CircleDollarSign, Maximize2, X, Plus, Minus } from "lucide-react";
 import { LAWN_TABLES } from "./floorplanBridge";
 import Floorplan3D from "./Floorplan3D";
 import BookingModal from "./BookingModal";
@@ -64,6 +64,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
     const [tableOverrides, setTableOverrides] = useState({});
     const [fullscreen, setFullscreen] = useState(false);
     const [activeZone, setActiveZone] = useState(null);
+    const [expandedZone, setExpandedZone] = useState(null);
     const [pulseId, setPulseId] = useState(null); // id del tavolo appena cliccato per animazione
     const [customAnchors, setCustomAnchors] = useState(null);
     const [customTables, setCustomTables] = useState(null);
@@ -146,45 +147,80 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     onFallback={() => {}}
                 />
 
-                {/* Zone info cards con prezzi & bottiglie — cliccabili per evidenziare la zona in piantina */}
-                <div data-testid="floorplan-zone-cards" className="grid gap-3 sm:grid-cols-3 mb-6">
+                {/* Zone info compatte su UNA RIGA — nome + prezzo, "+" apre dettagli */}
+                <div data-testid="floorplan-zone-cards" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-3">
                     {["STAGE", "RIVA", "BAR", "SEAVIEW", "PRATO_BACK"].map((zid) => {
                         const z = getZone(zid);
                         const isActive = activeZone === zid;
+                        const isExpanded = expandedZone === zid;
                         return (
-                            <button
-                                type="button"
+                            <div
                                 key={zid}
                                 data-testid={`floorplan-zone-card-${zid}`}
-                                aria-pressed={isActive}
+                                className={`relative flex items-center justify-between gap-1 rounded-lg px-2.5 py-2 border-l-[3px] transition-all cursor-pointer ${isActive ? "bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.15)]" : "bg-white/[0.03] hover:bg-white/[0.06]"}`}
+                                style={{ borderLeftColor: z.color, boxShadow: isActive ? `inset 0 0 0 1px ${z.color}88, 0 0 18px ${z.color}44` : undefined }}
                                 onClick={() => setActiveZone(isActive ? null : zid)}
-                                className={`text-left glass-card rounded-xl p-4 space-y-2 border-l-4 transition-all duration-200 hover:-translate-y-[2px] focus:outline-none focus-visible:ring-2 focus-visible:ring-lava ${isActive ? "ring-2 ring-offset-2 ring-offset-obsidian shadow-[0_0_25px_rgba(255,255,255,0.15)]" : "hover:bg-white/[0.04]"}`}
-                                style={{ borderLeftColor: z.color, boxShadow: isActive ? `0 0 0 2px ${z.color}, 0 0 30px ${z.color}55` : undefined }}
+                                role="button"
+                                aria-pressed={isActive}
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="text-sm font-black uppercase tracking-wide text-white">{z.label}</div>
-                                    <span className={`w-3 h-3 rounded-sm ${isActive ? "animate-pulse" : ""}`} style={{ background: z.color }} />
+                                <div className="min-w-0 flex-1">
+                                    <div className="text-[11px] font-black uppercase tracking-wide text-white truncate leading-tight">{z.label}</div>
+                                    {z.price_from && (
+                                        <div className="text-[10px] font-bold text-white/70 truncate">Da {z.price_from}</div>
+                                    )}
                                 </div>
-                                {z.price_from && (
-                                    <div className="flex items-center gap-2 text-xs text-white/80">
-                                        <CircleDollarSign className="w-3.5 h-3.5 text-lava" />
-                                        <span className="font-bold">Da {z.price_from}</span>
-                                        {z.min_spend && <span className="text-white/50">· {z.min_spend}</span>}
-                                    </div>
-                                )}
-                                {z.bottles && (
-                                    <div className="flex items-center gap-2 text-xs text-white/70">
-                                        <Wine className="w-3.5 h-3.5 text-lava" /> {z.bottles}
-                                    </div>
-                                )}
-                                {z.description && <p className="text-[11px] text-white/50 pt-1 leading-relaxed">{z.description}</p>}
-                                <div className={`text-[10px] uppercase tracking-[0.25em] font-bold pt-1 transition-opacity ${isActive ? "opacity-100" : "opacity-40"}`} style={{ color: z.color }}>
-                                    {isActive ? "Zona evidenziata · Tocca per deselezionare" : "Tocca per evidenziare in piantina"}
-                                </div>
-                            </button>
+                                <button
+                                    type="button"
+                                    data-testid={`floorplan-zone-info-${zid}`}
+                                    aria-expanded={isExpanded}
+                                    aria-label={isExpanded ? `Chiudi info ${z.label}` : `Info ${z.label}`}
+                                    onClick={(e) => { e.stopPropagation(); setExpandedZone(isExpanded ? null : zid); }}
+                                    className={`w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center transition ${isExpanded ? "bg-lava text-white" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
+                                >
+                                    {isExpanded ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                                </button>
+                            </div>
                         );
                     })}
                 </div>
+
+                {/* Pannello dettagli — appare quando l'utente preme "+" su una zona */}
+                {expandedZone && (() => {
+                    const z = getZone(expandedZone);
+                    return (
+                        <div data-testid={`floorplan-zone-detail-${expandedZone}`} className="glass-card rounded-xl p-5 mb-6 border-l-4 space-y-3 animate-in fade-in slide-in-from-top-2" style={{ borderLeftColor: z.color }}>
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <div className="text-xs uppercase tracking-[0.3em] font-bold" style={{ color: z.color }}>Dettagli zona</div>
+                                    <div className="text-xl font-black uppercase mt-1">{z.label}</div>
+                                </div>
+                                <button onClick={() => setExpandedZone(null)} data-testid="floorplan-zone-detail-close" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center" aria-label="Chiudi">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                            {z.price_from && (
+                                <div className="flex items-center gap-2 text-sm text-white/90">
+                                    <CircleDollarSign className="w-4 h-4 text-lava" />
+                                    <span className="font-bold">Da {z.price_from}</span>
+                                    {z.min_spend && <span className="text-white/60">· {z.min_spend}</span>}
+                                </div>
+                            )}
+                            {z.bottles && (
+                                <div className="flex items-center gap-2 text-sm text-white/80">
+                                    <Wine className="w-4 h-4 text-lava" /> {z.bottles}
+                                </div>
+                            )}
+                            {z.description && <p className="text-sm text-white/60 leading-relaxed">{z.description}</p>}
+                            <button
+                                onClick={() => { setActiveZone(expandedZone); }}
+                                data-testid="floorplan-zone-detail-highlight"
+                                className="btn-ghost !text-xs !py-1.5"
+                            >
+                                Evidenzia in piantina 3D
+                            </button>
+                        </div>
+                    );
+                })()}
 
                 <div data-testid="floorplan-legend" className="flex items-center gap-3 mb-4 flex-wrap text-xs uppercase tracking-widest text-white/60">
                     <span className="flex items-center gap-2">
