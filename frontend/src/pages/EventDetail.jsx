@@ -7,6 +7,7 @@ import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
 import Floorplan from "../components/Floorplan";
 import BookingModal from "../components/BookingModal";
+import SafeImage from "../components/SafeImage";
 
 export default function EventDetail() {
     const { id } = useParams();
@@ -50,7 +51,7 @@ export default function EventDetail() {
         <div>
             <Seo title={ev.title} description={ev.description?.slice(0, 155)} schema={schema} />
             <div className="relative min-h-[70vh] overflow-hidden">
-                <img src={ev.poster_url} alt={ev.title} className="absolute inset-0 w-full h-full object-cover" />
+                <SafeImage src={ev.poster_url} alt={ev.title} className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/80 to-obsidian/40" />
                 <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-24">
                     <Link to="/eventi" data-testid="back-to-events" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm uppercase tracking-widest mb-8">

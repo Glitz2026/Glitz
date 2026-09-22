@@ -1,11 +1,12 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, LogOut, User, Shield, ShoppingBag } from "lucide-react";
-import { WHATSAPP_DISPLAY, EMAIL, INSTAGRAM, TIKTOK, ADDRESS, whatsappInfoLink } from "../lib/constants";
+import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, LogOut, User, Shield, ShoppingBag, Globe } from "lucide-react";
+import { whatsappInfoLink } from "../lib/constants";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useContact } from "../context/ContactContext";
 import Newsletter from "./Newsletter";
 
 function resolveUrl(url) {
@@ -29,11 +30,13 @@ export default function Layout({ children }) {
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [logoUrl, setLogoUrl] = useState("");
+    const [logoFailed, setLogoFailed] = useState(false);
     const [settings, setSettings] = useState({});
     const loc = useLocation();
     const { user, logout } = useAuth();
     const { count: cartCount, setOpen: setCartOpen } = useCart();
     const { lang, setLang, t } = useLanguage();
+    const { whatsappNumber, whatsappDisplay, email, instagram, tiktok, address } = useContact();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -56,94 +59,54 @@ export default function Layout({ children }) {
         <div className="min-h-screen bg-obsidian text-white">
             <header
                 data-testid="site-header"
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-obsidian/85 backdrop-blur-xl border-b border-white/5" : "bg-transparent"}`}
+                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || open ? "bg-obsidian/90 backdrop-blur-xl border-b border-white/5" : "bg-gradient-to-b from-obsidian/70 to-transparent"}`}
             >
-                <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
-                    <Link to="/" data-testid="site-logo-link" className="flex items-center gap-2 group">
-                        {logoUrl ? (
-                            <img src={logoUrl} alt="Glitz Club" className="h-14 sm:h-16 w-auto object-contain -my-2" />
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 h-16 sm:h-20">
+                    <Link to="/" data-testid="site-logo-link" className="flex items-center gap-2 group shrink-0 min-w-0">
+                        {logoUrl && !logoFailed ? (
+                            <img src={logoUrl} alt="Glitz Club" onError={() => setLogoFailed(true)} className="h-10 sm:h-12 w-auto object-contain" />
                         ) : (
-                            <>
-                                <span className="text-2xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent group-hover:text-glow-lava transition">
-                                    GLITZ
-                                </span>
-                                <span className="text-[10px] uppercase tracking-widest text-white/50 hidden sm:inline">Club Calabria</span>
-                            </>
+                            <span className="text-xl sm:text-2xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent group-hover:text-glow-lava transition">
+                                GLITZ
+                            </span>
                         )}
                     </Link>
-                    <nav className="hidden lg:flex items-center gap-8">
+
+                    {/* Primary nav: only when there's genuinely room for it (wide desktop) */}
+                    <nav className="hidden 2xl:flex items-center gap-5 mx-4 overflow-hidden">
                         {NAV.map((n) => (
                             <NavLink
                                 key={n.to}
                                 to={n.to}
                                 data-testid={`nav-${n.label.toLowerCase().replace(/\s/g, "-")}`}
                                 className={({ isActive }) =>
-                                    `text-sm uppercase tracking-widest font-semibold transition ${isActive ? "text-lava" : "text-white/70 hover:text-white"}`
+                                    `whitespace-nowrap text-[13px] uppercase tracking-widest font-semibold transition ${isActive ? "text-lava" : "text-white/70 hover:text-white"}`
                                 }
                             >
                                 {n.label}
                             </NavLink>
                         ))}
-                        <span className="h-4 w-px bg-white/15" aria-hidden />
-                        {user ? (
-                            <div className="flex items-center gap-4">
-                                <Link
-                                    to="/account"
-                                    data-testid="header-account-btn"
-                                    className="flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-white/80 hover:text-white transition"
-                                >
-                                    {user.picture ? (
-                                        <img src={user.picture} alt={user.name} className="w-6 h-6 rounded-full" />
-                                    ) : (
-                                        <User className="w-4 h-4" />
-                                    )}
-                                    <span className="max-w-[120px] truncate">{(user.name || user.email).split(" ")[0]}</span>
-                                </Link>
-                                {user.is_admin && (
-                                    <Link
-                                        to="/admin"
-                                        data-testid="header-admin-dash"
-                                        className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-white/70 hover:text-lava transition"
-                                    >
-                                        <Shield className="w-4 h-4" /> Admin
-                                    </Link>
-                                )}
-                                <button
-                                    onClick={logout}
-                                    data-testid="header-logout-btn"
-                                    className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
-                                >
-                                    <LogOut className="w-4 h-4" /> {t("header_logout")}
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-4">
-                                <Link
-                                    to="/accedi"
-                                    data-testid="header-login-btn"
-                                    className="flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
-                                >
-                                    <LogIn className="w-4 h-4" /> {t("header_login")}
-                                </Link>
-                                <Link
-                                    to="/admin/login"
-                                    data-testid="header-admin-link"
-                                    className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-white/60 hover:text-white transition"
-                                >
-                                    <Shield className="w-4 h-4" /> {t("header_admin")}
-                                </Link>
-                            </div>
-                        )}
+                    </nav>
+
+                    {/* Compact action cluster: identical at every breakpoint, never wraps */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                         <button
                             onClick={() => setLang(lang === "it" ? "en" : "it")}
                             data-testid="lang-toggle"
                             aria-label="Cambia lingua / Change language"
-                            className="flex items-center gap-1 text-xs font-black tracking-widest text-white/50 hover:text-white border border-white/15 rounded-full px-2.5 py-1 transition"
+                            className="hidden sm:flex items-center gap-1 text-[11px] font-black tracking-widest text-white/60 hover:text-white border border-white/15 rounded-full px-2.5 py-1.5 transition"
                         >
-                            {lang === "it" ? "EN" : "IT"}
+                            <Globe className="w-3 h-3" /> {lang === "it" ? "EN" : "IT"}
                         </button>
-                    </nav>
-                    <div className="flex items-center gap-3">
+                        {user ? (
+                            <Link to="/account" data-testid="header-account-btn" aria-label="Il mio account" className="hidden sm:flex p-2 text-white/80 hover:text-white">
+                                {user.picture ? <img src={user.picture} alt={user.name} className="w-5 h-5 rounded-full" /> : <User className="w-5 h-5" />}
+                            </Link>
+                        ) : (
+                            <Link to="/accedi" data-testid="header-login-btn" aria-label={t("header_login")} className="hidden sm:flex p-2 text-white/80 hover:text-white">
+                                <LogIn className="w-5 h-5" />
+                            </Link>
+                        )}
                         <button
                             onClick={() => setCartOpen(true)}
                             data-testid="header-cart-btn"
@@ -152,33 +115,38 @@ export default function Layout({ children }) {
                         >
                             <ShoppingBag className="w-5 h-5" />
                             {cartCount > 0 && (
-                                <span data-testid="header-cart-count" className="absolute -top-1 -right-1 bg-lava text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                                <span data-testid="header-cart-count" className="absolute top-0.5 right-0.5 bg-lava text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                                     {cartCount}
                                 </span>
                             )}
                         </button>
                         <a
-                            href={whatsappInfoLink()}
+                            href={whatsappInfoLink(whatsappNumber)}
                             target="_blank"
                             rel="noreferrer"
                             data-testid="header-whatsapp-btn"
-                            className="hidden sm:inline-flex btn-lava !px-5 !py-2.5 !text-xs"
+                            aria-label="WhatsApp"
+                            className="btn-lava !px-3 !py-2 sm:!px-5 sm:!py-2.5 !text-xs"
                         >
-                            <MessageCircle className="w-4 h-4" /> WhatsApp
+                            <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">WhatsApp</span>
                         </a>
                         <button
                             data-testid="mobile-menu-toggle"
                             onClick={() => setOpen((o) => !o)}
-                            className="lg:hidden p-2 text-white"
+                            className="p-2 text-white shrink-0"
                             aria-label="Menu"
+                            aria-expanded={open}
                         >
                             {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
                 </div>
+
+                {/* Unified menu panel: carries full nav always, plus account/lang controls on the
+                    breakpoints where the compact cluster above hides them (mobile). */}
                 {open && (
-                    <div className="lg:hidden bg-obsidian/95 backdrop-blur-xl border-t border-white/10">
-                        <nav className="flex flex-col p-6 gap-4">
+                    <div className="border-t border-white/10 bg-obsidian/95 backdrop-blur-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+                        <nav className="max-w-7xl mx-auto flex flex-col p-6 gap-4">
                             {NAV.map((n) => (
                                 <NavLink
                                     key={n.to}
@@ -242,20 +210,20 @@ export default function Layout({ children }) {
                                 data-testid="mobile-lang-toggle"
                                 className="mt-2 self-start flex items-center gap-1 text-xs font-black tracking-widest text-white/50 hover:text-white border border-white/15 rounded-full px-3 py-1.5 transition"
                             >
-                                {lang === "it" ? "English" : "Italiano"}
+                                <Globe className="w-3.5 h-3.5" /> {lang === "it" ? "English" : "Italiano"}
                             </button>
                         </nav>
                     </div>
                 )}
             </header>
 
-            <main className="pt-20">{children}</main>
+            <main className="pt-16 sm:pt-20">{children}</main>
 
             <footer data-testid="site-footer" className="mt-24 border-t border-white/10 bg-surface/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-16 md:grid-cols-4">
                     <div className="md:col-span-2 space-y-8">
-                        {logoUrl ? (
-                            <img src={logoUrl} alt="Glitz Club" className="h-14 w-auto object-contain" />
+                        {logoUrl && !logoFailed ? (
+                            <img src={logoUrl} alt="Glitz Club" onError={() => setLogoFailed(true)} className="h-14 w-auto object-contain" />
                         ) : (
                             <div className="text-3xl font-black tracking-[0.2em] font-display bg-gradient-to-r from-white via-lava to-sunset-pink bg-clip-text text-transparent">
                                 GLITZ
@@ -266,23 +234,23 @@ export default function Layout({ children }) {
                     <div className="space-y-3 text-sm">
                         <h4 className="uppercase tracking-widest text-lava text-xs font-bold">{settings.footer_contact_title || "Contatti"}</h4>
                         <Link to="/#faq" data-testid="footer-faq-link" className="block text-white/70 hover:text-white transition">FAQ</Link>
-                        <a href={`mailto:${EMAIL}`} data-testid="footer-email" className="flex items-center gap-2 text-white/70 hover:text-white transition">
-                            <Mail className="w-4 h-4" /> {EMAIL}
+                        <a href={`mailto:${email}`} data-testid="footer-email" className="flex items-center gap-2 text-white/70 hover:text-white transition">
+                            <Mail className="w-4 h-4" /> {email}
                         </a>
-                        <a href={whatsappInfoLink()} target="_blank" rel="noreferrer" data-testid="footer-whatsapp" className="flex items-center gap-2 text-white/70 hover:text-white transition">
-                            <MessageCircle className="w-4 h-4" /> {WHATSAPP_DISPLAY}
+                        <a href={whatsappInfoLink(whatsappNumber)} target="_blank" rel="noreferrer" data-testid="footer-whatsapp" className="flex items-center gap-2 text-white/70 hover:text-white transition">
+                            <MessageCircle className="w-4 h-4" /> {whatsappDisplay}
                         </a>
                         <p className="flex items-start gap-2 text-white/70">
-                            <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" /> {ADDRESS}
+                            <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" /> {address}
                         </p>
                     </div>
                     <div className="space-y-3 text-sm">
                         <h4 className="uppercase tracking-widest text-lava text-xs font-bold">{settings.footer_social_title || "Social"}</h4>
                         <div className="flex items-center gap-3">
-                            <a href={INSTAGRAM} target="_blank" rel="noreferrer" aria-label="Instagram" data-testid="footer-instagram" className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-lava transition">
+                            <a href={instagram} target="_blank" rel="noreferrer" aria-label="Instagram" data-testid="footer-instagram" className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-lava transition">
                                 <Instagram className="w-4 h-4" />
                             </a>
-                            <a href={TIKTOK} target="_blank" rel="noreferrer" aria-label="TikTok" data-testid="footer-tiktok" className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-lava transition">
+                            <a href={tiktok} target="_blank" rel="noreferrer" aria-label="TikTok" data-testid="footer-tiktok" className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-lava transition">
                                 <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" aria-hidden><path d="M19.5 6.5a5.9 5.9 0 0 1-4-1.5V15a5 5 0 1 1-5-5v3a2 2 0 1 0 2 2V2h3a4 4 0 0 0 4 4v.5z"/></svg>
                             </a>
                         </div>

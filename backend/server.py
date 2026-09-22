@@ -1249,6 +1249,17 @@ async def delete_product(product_id: str, admin=Depends(get_admin)):
     return {"deleted": r.deleted_count}
 
 
+@api.post("/admin/products/reorder")
+async def reorder_products(body: dict, admin=Depends(get_admin)):
+    """Body: {order: [product_id_1, product_id_2, ...]} — assigns index as 'order' field."""
+    ids = body.get("order") or []
+    if not isinstance(ids, list):
+        raise HTTPException(status_code=400, detail="order deve essere una lista")
+    for idx, pid in enumerate(ids):
+        await db.products.update_one({"id": pid}, {"$set": {"order": idx}})
+    return {"reordered": len(ids)}
+
+
 # --- Shop orders (cart, WhatsApp checkout) ---
 class OrderItemIn(BaseModel):
     product_id: str

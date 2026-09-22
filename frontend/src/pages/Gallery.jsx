@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { api, API } from "../lib/api";
 import Seo from "../components/Seo";
+import SafeImage from "../components/SafeImage";
 
 function resolveUrl(m) {
     if (!m.url) return "";
@@ -37,7 +38,7 @@ export default function Gallery() {
                         onClick={() => setSelected(m)}
                         className="masonry-item group relative block w-full overflow-hidden rounded-xl border border-white/5 hover:border-lava/40 transition"
                     >
-                        <img src={resolveUrl(m)} alt={m.caption || "Glitz gallery"} loading="lazy" className="w-full h-auto group-hover:scale-105 transition-transform duration-500" />
+                        <SafeImage src={resolveUrl(m)} alt={m.caption || "Glitz gallery"} loading="lazy" className="w-full h-auto min-h-[160px] group-hover:scale-105 transition-transform duration-500" />
                         <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
                     </button>
                 ))}
