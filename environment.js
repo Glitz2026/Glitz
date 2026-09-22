@@ -21,7 +21,10 @@ export function createEnvironment(xy){
  box('Muro contenimento villa',-5,.30,68,58,1.1,.3);
  hedge([-34,21],[-34,67]);hedge([-34,67],[23,67]);
  for(const [x,z,h,r] of [[-30,30,5,2.4],[-26,42,5.8,2.8],[-32,57,6,2.5],[20,60,4.5,2],[21,31,5,2.1]])tree(x,z,h,r,.8);
- for(let i=0;i<40;i++){const t=i/39,x=-21+Math.sin(t*3)*2,z=22+t*42;for(const dx of [-.35,.35]){const s=mesh(new T.CylinderGeometry(.25,.25,.055,7),stone,'Passi in pietra nel prato',[x+dx,.82,z]);s.rotation.y=i*.7;}}
+ // Paired stepping stones traced from the original plan.
+ const walk=[[1045,655],[1100,927],[1495,1062]];
+ for(let k=1;k<walk.length;k++){const a=xy(...walk[k-1],.82),b=xy(...walk[k],.82),d=b.clone().sub(a),n=Math.ceil(d.length()/.43),normal=new T.Vector3(-d.z,0,d.x).normalize();for(let i=0;i<=n;i++)for(const side of [-1,1]){const p=a.clone().lerp(b,i/n).addScaledVector(normal,side*.25);const stoneMesh=mesh(new T.CylinderGeometry(.20,.22,.055,8),stone,'Passi in pietra da planimetria',p.toArray());stoneMesh.rotation.y=i*.6;}}
+
  hedge([-18,26],[-18,38]);hedge([-18,42],[-18,63]);
  // Villa and pool share a local frame; long pool edge parallel to the veranda.
  const villa=new T.Group();villa.name='Casa e piscina';villa.position.copy(xy(1450,610,0));root.add(villa);
@@ -37,8 +40,8 @@ export function createEnvironment(xy){
  const water=new T.MeshPhysicalMaterial({color:'#28b8d3',roughness:.16,metalness:.12,transparent:true,opacity:.78,clearcoat:1});
  const pg=new T.PlaneGeometry(14,6,45,20);pg.rotateX(-Math.PI/2);const pa=pg.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,.012*Math.sin(pa.getX(i)*8+pa.getZ(i)*11));pg.computeVertexNormals();mesh(pg,water,'Piscina acqua',[0,y-.12,0],villa);
  for(let i=0;i<65;i++){const x=-6.7+rand()*13.4,z=-2.8+rand()*5.6;const m=box('Riflesso acqua piscina',x,y-.105,z,.1+rand()*.35,.004,.008,'#72dae0',villa);m.rotation.y=rand();m.castShadow=false;}
- box('Trampolino bianco',-7.0,y+.4,0,2.6,.12,.55,white,villa);box('Base trampolino',-8,y+.18,0,.5,.36,.48,white,villa);
- for(const x of [5.45,6]){rod('Scaletta piscina',[x,y-1,2.8],[x,y+.65,2.8],.035,'#b9ccca',villa);rod('Scaletta piscina maniglia',[x,y+.65,2.8],[x,y+.65,3.45],.035,'#b9ccca',villa);}for(let i=0;i<4;i++)rod('Scaletta piscina gradino',[5.45,y-.95+i*.26,2.8],[6,y-.95+i*.26,2.8],.036,'#b9ccca',villa);
+ box('Trampolino bianco',7.0,y+.4,0,2.6,.12,.55,white,villa);box('Base trampolino',8,y+.18,0,.5,.36,.48,white,villa);
+ for(const z of [-.45,.45]){rod('Scaletta piscina',[-6.8,y-1,z],[-6.8,y+.65,z],.035,'#b9ccca',villa);rod('Scaletta piscina maniglia',[-6.8,y+.65,z],[-7.6,y+.65,z],.035,'#b9ccca',villa);}for(let i=0;i<4;i++)rod('Scaletta piscina gradino',[-6.8,y-.95+i*.26,-.45],[-6.8,y-.95+i*.26,.45],.036,'#b9ccca',villa);
  // Terracotta tile seams and photographed sunbeds.
  for(let x=-10;x<=10;x+=.65)for(const z of [-5,5])box('Fuga cotto',x,y+.005,z,.012,.006,2.95,'#c18a69',villa);
  function lounger(x,z,angle){const g=new T.Group();g.position.set(x,y,z);g.rotation.y=angle;villa.add(g);box('Lettino tela bianca',0,.34,0,.7,.09,1.9,white,g);const back=box('Lettino schienale',0,.58,-.62,.7,.08,.65,white,g);back.rotation.x=.50;for(const xx of [-.32,.32]){rod('Lettino telaio',[xx,.05,-.8],[xx,.34,.8],.025,iron,g);rod('Lettino telaio',[xx,.34,-.8],[xx,.05,.8],.025,iron,g);}}
@@ -72,26 +75,68 @@ export function createEnvironment(xy){
  for(const [x,z] of [[-15,4],[-12,15],[12,13],[12,4]])shrub(x,z,1.2,.8,true,villa);
  // Place the villa on the measured 1:200 footprint, not the preliminary photo placement.
  // Visible PDF vector vertices; the legend masks the short northern connection.
- const footprint=[[-5.698,0],[5.698,0],[8.197,3.677],[11.200,12.359],[7.557,20.132],[-1.767,15.689],[-2.625,14.427],[-1.719,13.809],[-2.903,12.068],[-3.809,12.686],[-5.378,10.380]];
- const replaceNames=['Casa volume bianco','Terrazzo tetto calpestio','Parapetto terrazzo','Cimasa cotto'];
+ const footprint=[[-11.3993, 10.4106], [-6.7644, -0.0], [-2.3883, -0.7876], [6.7644, 0.0], [12.3837, 6.4903], [4.5321, 13.2008], [3.0302, 13.4709], [2.834, 12.3917], [0.7625, 12.7661], [0.9582, 13.8453], [-1.7866, 14.3399]];
+ const replaceNames=['Casa volume bianco','Terrazzo tetto calpestio','Parapetto terrazzo','Cimasa cotto','Veranda pavimento','Veranda soffitto','Veranda pilastro','Infisso legno','Vetro finestra','Grata finestra','Grata traversa','Finestra laterale','Inferriata laterale','Panca veranda','Panca veranda schienale'];
  for(const o of [...villa.children])if(replaceNames.includes(o.name)||o.children.some(c=>c.name==='Tetto falda cotto'))o.removeFromParent();
- const fit=new T.Matrix4().makeScale(11.3957907/19,1,.8).multiply(new T.Matrix4().makeTranslation(0,0,-5.65));
+ const fit=new T.Matrix4().makeScale(13.528706216292582/19,1,.8).multiply(new T.Matrix4().makeTranslation(0,0,-5.65));
  for(const o of villa.children)o.applyMatrix4(fit);
- villa.position.copy(xy(1317.46,753.485));villa.rotation.y=-.333027111;
- villa.userData={footprintSource:'planimetria.pdf, A3 1:200, vector outline',frontWidthMetres:11.3957907,hiddenOutline:'Northern connection under PDF legend reconstructed',poolDimensionsEstimated:true};
+ villa.position.copy(xy(1510.73,619.47));villa.rotation.y=-1.4849557511646156;
+ villa.userData={footprintSource:'planimetria.pdf, A3 1:200, vector outline',frontWidthMetres:13.528706216292582,frontWidthEstimatedAcrossLegend:true,hiddenOutline:'Northern connection under PDF legend reconstructed',poolDimensionsEstimated:true};
  // Open veranda occupies the first 1.6 m; remaining outline forms the enclosed house.
- const shell=footprint.map(([x,z])=>[x,z===0?1.6:z]);
+ const shell=footprint.map(([x,z])=>[x,Math.max(2.35,z)]);
  const hs=new T.Shape();shell.forEach(([x,z],i)=>i?hs.lineTo(x,-z):hs.moveTo(x,-z));hs.closePath();
  const hg=new T.ExtrudeGeometry(hs,{depth:3.5,bevelEnabled:false});hg.rotateX(-Math.PI/2);mesh(hg,white,'Casa sagoma da planimetria',[0,y,0],villa);
  slab('Tetto terrazza sagoma originale',footprint,y+3.55,cotto,villa);
  for(let i=0;i<footprint.length;i++){const a=footprint[i],b=footprint[(i+1)%footprint.length];rod('Parapetto sagoma villa',[a[0],y+3.85,a[1]],[b[0],y+3.85,b[1]],.25,white,villa);rod('Cimasa sagoma villa',[a[0],y+4.12,a[1]],[b[0],y+4.12,b[1]],.075,cotto,villa);const len=Math.hypot(b[0]-a[0],b[1]-a[1]);for(let j=0;j<len/.19;j++){const t=j*.19/len,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;const n=new T.Vector2(-(b[1]-a[1]),b[0]-a[0]).normalize();rod('Coppi bordo sagoma',[x,y+3.6,z],[x+n.x*.6,y+3.37,z+n.y*.6],.048,cotto,villa);}}
+ // Portico facing the pool and sea, with a central passage through its low front wall.
+ box('Portico pavimento cotto',0,y+.33,1.2,13.3,.20,2.7,cotto,villa);
+ box('Portico soffitto intonaco',0,y+3.25,1.2,13.8,.20,3.05,white,villa);
+ for(const x of [-6.5,-2.3,2.3,6.5])box('Portico pilastro quadrato',x,y+1.75,0,.24,2.9,.24,white,villa);
+ for(const x of [-4.05,4.05]){box('Portico muretto basso',x,y+.65,-.04,4.65,.66,.22,white,villa);box('Portico copertina cotto',x,y+1.0,-.04,4.76,.065,.31,cotto,villa);}
+ // The actual front wall is set behind the open portico.
+ for(const x of [-4.6,0,4.8]){box('Portico porta legno',x,y+1.52,2.30,1.7,2.35,.09,'#624631',villa);box('Portico vetrata',x,y+1.60,2.23,1.43,1.92,.035,'#263e3b',villa);for(let k=0;k<7;k++)rod('Portico grata',[x-.69+k*.23,y+.54,2.18],[x-.69+k*.23,y+2.70,2.18],.014,iron,villa);}
+ // Open metal spiral staircase at the end of the veranda, documented in DSC09584.
+ const spiral=new T.Group();spiral.name='Scala a chiocciola portico';spiral.position.set(-5.75,y+.43,1.25);villa.add(spiral);
+ rod('Scala chiocciola asse',[0,0,0],[0,3.55,0],.04,iron,spiral);
+ for(let i=0;i<18;i++){const a=i*Math.PI/7,h=i*.19,g=new T.Group();g.position.y=h;g.rotation.y=a;spiral.add(g);box('Scala chiocciola pedata',.35,0,0,.7,.035,.25,iron,g);rod('Scala chiocciola montante',[.68,0,0],[.68,.84,0],.012,iron,g);if(i){const b=(i-1)*Math.PI/7;rod('Scala chiocciola corrimano',[Math.cos(b)*.68,h+.65,-Math.sin(b)*.68],[Math.cos(a)*.68,h+.84,-Math.sin(a)*.68],.015,iron,spiral);}}
+ // Suspended wrought-wire lanterns and climbing vines under the beam.
+ for(const x of [-5.4,0,5.4]){rod('Catena lanterna',[x,y+3.12,.15],[x,y+2.70,.15],.009,iron,villa);for(let j=0;j<8;j++){const a=j*Math.PI/4,b=(j+1)*Math.PI/4;rod('Lanterna portico gabbia',[x+Math.cos(a)*.24,y+2.25,.15+Math.sin(a)*.24],[x,y+2.70,.15],.009,iron,villa);rod('Lanterna portico bordo',[x+Math.cos(a)*.24,y+2.25,.15+Math.sin(a)*.24],[x+Math.cos(b)*.24,y+2.25,.15+Math.sin(b)*.24],.009,iron,villa);}mesh(new T.CylinderGeometry(.045,.045,.13,8),'#efe0b6','Candela portico',[x,y+2.29,.15],villa);}
+ for(let i=0;i<24;i++){const x=-6.4+i*.55;rod('Ramo rampicante portico',[x,y+3.1,-.05],[x+.24,y+2.85-(i%4)*.09,-.05],.012,green,villa);for(let j=0;j<4;j++){const leaf=mesh(new T.SphereGeometry(.075,5,3),j%2?'#415c30':'#5b773b','Foglia rampicante portico',[x+j*.06,y+3.03-j*.11,-.1],villa);leaf.scale.set(1.2,1,.22);}}
+ // Wooden armchairs with pale cushions around the veranda tables.
+ for(const x of [-4.7,-3.2,3.2,4.7])for(const z of [.65,1.8]){const chair=new T.Group();chair.position.set(x,y+.43,z);if(z>1)chair.rotation.y=Math.PI;villa.add(chair);box('Poltrona portico cuscino',0,.42,0,.55,.09,.52,white,chair);for(const a of [-.26,.26]){rod('Poltrona portico gamba',[a,0,-.22],[a,.85,-.22],.027,'#735039',chair);rod('Poltrona portico gamba',[a,0,.22],[a,.58,.22],.027,'#735039',chair);box('Poltrona portico bracciolo',a,.61,0,.055,.06,.60,'#735039',chair);}for(let j=0;j<4;j++)box('Poltrona portico schienale',-.21+j*.14,.71,-.23,.065,.40,.045,'#735039',chair);}
  // Windows on the traced perimeter.
- for(let i=1;i<footprint.length;i++){const a=footprint[i],b=footprint[(i+1)%footprint.length],dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);if(len<2)continue;const n=[dz/len,-dx/len];for(let j=1;j<=Math.floor(len/2.4);j++){const t=j/(Math.floor(len/2.4)+1),g=new T.Group();g.position.set(a[0]+dx*t+n[0]*.03,y+1.9,a[1]+dz*t+n[1]*.03);g.rotation.y=-Math.atan2(dz,dx);villa.add(g);box('Finestra villa telaio',0,0,0,1.14,1.65,.06,'#6b4f35',g);box('Finestra villa vetro',0,0,-.045,1.03,1.52,.02,'#30423d',g);for(let k=0;k<6;k++)rod('Grata villa',[-.48+k*.192,-.8,-.085],[-.48+k*.192,.8,-.085],.015,iron,g);for(const h of [-.55,.55])rod('Traversa grata villa',[-.54,h,-.085],[.54,h,-.085],.017,iron,g);}}
+ for(let i=1;i<footprint.length;i++){const a=footprint[i],b=footprint[(i+1)%footprint.length],dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);if(len<2||(a[1]<2.36&&b[1]<2.36))continue;const n=[dz/len,-dx/len];for(let j=1;j<=Math.floor(len/2.4);j++){const t=j/(Math.floor(len/2.4)+1),g=new T.Group();g.position.set(a[0]+dx*t+n[0]*.03,y+1.9,a[1]+dz*t+n[1]*.03);g.rotation.y=-Math.atan2(dz,dx);villa.add(g);box('Finestra villa telaio',0,0,0,1.14,1.65,.06,'#6b4f35',g);box('Finestra villa vetro',0,0,-.045,1.03,1.52,.02,'#30423d',g);for(let k=0;k<6;k++)rod('Grata villa',[-.48+k*.192,-.8,-.085],[-.48+k*.192,.8,-.085],.015,iron,g);for(const h of [-.55,.55])rod('Traversa grata villa',[-.54,h,-.085],[.54,h,-.085],.017,iron,g);}}
  // Pitched terracotta wings around the central roof terrace.
- for(let i=1;i<footprint.length;i++){const a=footprint[i],b=footprint[(i+1)%footprint.length],len=Math.hypot(b[0]-a[0],b[1]-a[1]);if(len<3)continue;const inward=new T.Vector2(-(b[1]-a[1]),b[0]-a[0]).normalize();for(let j=0;j<len/.16;j++){const t=j*.16/len,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;rod('Coppi falda villa',[x,y+3.65,z],[x+inward.x*1.65,y+4.20,z+inward.y*1.65],.078,j%3?'#b87954':'#a16245',villa);}}
+ for(let i=1;i<footprint.length;i++){const a=footprint[i],b=footprint[(i+1)%footprint.length],len=Math.hypot(b[0]-a[0],b[1]-a[1]);if(len<3)continue;const inward=new T.Vector2(-(b[1]-a[1]),b[0]-a[0]).normalize();for(let j=0;j<len/.16;j++){const t=j*.16/len,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;rod('Coppi falda villa',[x,y+3.65,z],[x+inward.x*2.7,y+4.20,z+inward.y*2.7],.078,j%3?'#b87954':'#a16245',villa);}}
+ // Detached seaward building and patterned courtyard: photographic dimensions pending survey.
+ const annex=new T.Group();annex.name='Edificio oltre piscina da foto';annex.userData={dimensionsEstimated:true};annex.position.set(3,y-1,-15);villa.add(annex);
+ box('Edificio mare intonaco',0,1.5,0,5.6,3,8.0,white,annex);
+ box('Edificio mare terrazza centrale',0,3.05,0,5.6,.12,2.3,'#6c6e68',annex);
+ for(const z of [-2.65,2.65]){const roof=new T.Group();roof.position.set(0,3.15,z);roof.rotation.x=z<0?-.12:.12;annex.add(roof);box('Edificio mare falda',0,0,0,5.9,.16,3.0,cotto,roof);for(let x=-2.85;x<=2.85;x+=.16)rod('Edificio mare coppo',[x,.12,-1.5],[x,.12,1.5],.058,cotto,roof);}
+ for(const x of [-2.75,2.75])box('Edificio mare parapetto terrazza',x,3.35,0,.16,.65,2.3,white,annex);
+ box('Edificio mare camino',.6,3.85,-.35,.36,1.65,.36,white,annex);
+ for(const z of [-2.6,0,2.6])box('Edificio mare finestra',-2.82,1.5,z,.045,1.15,1.0,'#30423d',annex);
+ box('Cortile pavimento grigio',-4.8,.835,-14,8,.07,9,'#777970',villa);
+ for(let x=-8.8;x<=-.8;x+=1.35)box('Cortile fuga longitudinale',x,.877,-14,.04,.01,9,'#c2ad88',villa);
+ for(let z=-18.5;z<=-9.5;z+=1.35)box('Cortile fuga trasversale',-4.8,.877,z,8,.01,.04,'#c2ad88',villa);
+ for(let x=-8.12;x<-.8;x+=1.35)for(let z=-17.82;z<-9.5;z+=1.35){const star=box('Cortile decorazione',x,.886,z,.16,.01,.16,'#c2ad88',villa);star.rotation.y=Math.PI/4;}
+ hedge([-8.9,-18.6],[-8.9,-9.4],.1,villa);
  slab('Raccordo prato costa',[[11,18],[15,-29],[22,-35],[35,-35],[40,74],[20,74]],-.09,green);
  for(let i=0;i<30;i++){const z=23+i*1.35;shrub(18+Math.sin(i*.5),z,.8,.78,i%5===0);}
  for(let i=0;i<22;i++){const z=26+i*1.65;shrub(-31+Math.sin(i)*1.7,z,.8,.78,i%4===0);}
+ // Covered garden bar between the club and the pool, visible in the twilight aerial.
+ const gazebo=new T.Group();gazebo.name='Pergolato bar giardino';gazebo.position.copy(xy(1120,480,.25));root.add(gazebo);
+ box('Pergolato platea cotto',0,0,0,3.7,.15,3.5,cotto,gazebo);
+ for(const x of [-1.6,1.6])for(const z of [-1.4,1.4])box('Pergolato pilastro',x,1.25,z,.15,2.5,.15,'#6d694d',gazebo);
+ box('Pergolato tetto cotto',0,2.6,0,3.9,.12,3.7,cotto,gazebo);
+ for(let x=-1.9;x<1.95;x+=.16)rod('Pergolato coppi',[x,2.69,-1.85],[x,2.69,1.85],.060,'#ab684b',gazebo);
+ hedge([-1.8,-1.6],[1.8,-1.6],.0,gazebo);shrub(-1.8,1.6,.55,1.4,true,gazebo);
+ box('Bar giardino bancone',0,.53,1.25,2.7,1.06,.6,white,gazebo);box('Bar giardino top',0,1.10,1.25,2.82,.065,.73,'#91623d',gazebo);
+ // Decorative stone carpet in the adjoining patio, as visible in the aerials.
+ const carpet=xy(1215,522,.30);box('Patio mosaico pietra',carpet.x,carpet.y,carpet.z,2.1,.035,5.8,'#7b8077');
+ for(const x of [-.94,.94])box('Patio mosaico bordo',carpet.x+x,carpet.y+.024,carpet.z,.12,.012,5.6,'#bd9973');for(const z of [-2.65,2.65])box('Patio mosaico bordo',carpet.x,carpet.y+.024,carpet.z+z,1.9,.012,.12,'#bd9973');
+ // Warm globe fixtures along the photographed paths.
+ for(const [u,v] of [[1080,650],[1130,740],[1210,845],[1390,1000],[1570,890]]){const p=xy(u,v,.8);rod('Lampione giardino',p.toArray(),[p.x,p.y+1.35,p.z],.025,iron);mesh(new T.SphereGeometry(.14,10,6),new T.MeshStandardMaterial({color:'#fff1c5',emissive:'#ffbd67',emissiveIntensity:.65}),'Globo giardino',[p.x,p.y+1.4,p.z]);}
  // Slightly sloping coastal scrub beyond the black sea railing, leaving lawn tables untouched.
  const shore=new T.BufferGeometry();shore.setAttribute('position',new T.Float32BufferAttribute([17,-.2,-27,25,-.2,24,58,-8,45,17,-.2,-27,58,-8,45,62,-8,-48],3));shore.computeVertexNormals();mesh(shore,'#70794a','Pendio macchia mediterranea');
  for(let i=0;i<85;i++){const x=25+rand()*25,z=-29+rand()*64;shrub(x,z,.4+rand()*.65,-.3-(x-25)*.16);}
@@ -112,5 +157,5 @@ export function createEnvironment(xy){
  const cp=[];for(let i=1;i<coastpoints.length;i++){const a=coastpoints[i-1],b=coastpoints[i];cp.push(a[0],-10,a[1],b[0],-10,b[1],b[0]+220,40+28*Math.sin(i),b[1],a[0],-10,a[1],b[0]+220,40+28*Math.sin(i),b[1],a[0]+220,40+28*Math.sin(i-1),a[1]);}
  const cg=new T.BufferGeometry();cg.setAttribute('position',new T.Float32BufferAttribute(cp,3));cg.computeVertexNormals();mesh(cg,new T.MeshStandardMaterial({color:'#7f9188',roughness:1,side:T.DoubleSide}),'Costa e rilievi sullo sfondo',[0,0,0],panorama);
  for(let i=0;i<38;i++){const z=-340+i*18,x=360+(z+340)*.35;box('Edifici lontani sulla costa',x,-4,z,2+rand()*3,2+rand()*3,3,'#cac7b4',panorama);}
- return {root,villa,panorama,gardenTarget:xy(1370,620,2),panoramaTarget:new T.Vector3(130,-3,-70)};
+ return {root,villa,panorama,gardenTarget:xy(1490,570,2),panoramaTarget:new T.Vector3(130,-3,-70)};
 }
