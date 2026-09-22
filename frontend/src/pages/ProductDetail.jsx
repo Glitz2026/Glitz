@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, MessageCircle, Loader2, Minus, Plus, CreditCard } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Loader2, Minus, Plus, CreditCard, ShoppingBag } from "lucide-react";
 import Seo from "../components/Seo";
 import { WHATSAPP_NUMBER } from "../lib/constants";
 import { api } from "../lib/api";
+import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { toast } from "sonner";
 
 export default function ProductDetail() {
     const { id } = useParams();
+    const { addItem } = useCart();
+    const { t } = useLanguage();
     const [product, setProduct] = useState(null);
     const [notFound, setNotFound] = useState(false);
     const [activeImg, setActiveImg] = useState(0);
@@ -51,6 +55,12 @@ export default function ProductDetail() {
             toast.error("Errore. Riprova o contattaci su WhatsApp.");
             setLoading(false);
         }
+    };
+
+    const addToCart = () => {
+        if (product.sizes && product.sizes.length && !size) { toast.error("Seleziona una taglia"); return; }
+        addItem(product, { size, quantity: qty });
+        toast.success(`${product.name} aggiunto al carrello`);
     };
 
     const whatsappOrder = () => {
@@ -117,7 +127,7 @@ export default function ProductDetail() {
                         <div className="space-y-4 border-t border-white/10 pt-6">
                             {product.sizes && product.sizes.length > 0 && (
                                 <div>
-                                    <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">Taglia *</label>
+                                    <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">{t("shop_size")} *</label>
                                     <div className="flex flex-wrap gap-2">
                                         {product.sizes.map((s) => (
                                             <button key={s} data-testid={`size-${s}`} onClick={() => setSize(s)}
@@ -129,7 +139,7 @@ export default function ProductDetail() {
                                 </div>
                             )}
                             <div>
-                                <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">Quantità</label>
+                                <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">{t("shop_quantity")}</label>
                                 <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-2 py-1">
                                     <button data-testid="qty-minus" onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2 text-white/70 hover:text-white"><Minus className="w-4 h-4" /></button>
                                     <span data-testid="qty-value" className="text-white font-bold w-6 text-center">{qty}</span>
@@ -138,17 +148,20 @@ export default function ProductDetail() {
                             </div>
                             <div className="flex items-center justify-between border-t border-white/10 pt-4">
                                 <div>
-                                    <div className="text-[11px] uppercase tracking-widest text-white/50">Totale</div>
+                                    <div className="text-[11px] uppercase tracking-widest text-white/50">{t("shop_total")}</div>
                                     <div data-testid="detail-total" className="text-3xl font-black">€ {total}</div>
                                 </div>
                             </div>
+                            <button data-testid="add-to-cart" onClick={addToCart} className="btn-lava w-full">
+                                <ShoppingBag className="w-4 h-4" /> {t("shop_add_to_cart")}
+                            </button>
                             <div className="grid gap-3 sm:grid-cols-2">
-                                <button data-testid="checkout-stripe" onClick={stripeCheckout} disabled={loading} className="btn-lava w-full disabled:opacity-50">
+                                <button data-testid="checkout-stripe" onClick={stripeCheckout} disabled={loading} className="btn-ghost w-full disabled:opacity-50">
                                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-                                    {loading ? "Redirect a Stripe..." : "Paga con carta"}
+                                    {loading ? "Redirect a Stripe..." : t("shop_pay_card")}
                                 </button>
                                 <button data-testid="checkout-whatsapp" onClick={whatsappOrder} className="btn-ghost w-full">
-                                    <MessageCircle className="w-4 h-4" /> Ordina via WhatsApp
+                                    <MessageCircle className="w-4 h-4" /> {t("shop_order_whatsapp")}
                                 </button>
                             </div>
                             <p className="text-[11px] text-white/40 text-center">Pagamento sicuro con Stripe. Spedizione 24-48h in Italia o ritiro in club.</p>
