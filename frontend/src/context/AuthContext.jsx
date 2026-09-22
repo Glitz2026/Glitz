@@ -39,8 +39,20 @@ export function AuthProvider({ children }) {
         window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
     };
 
+    const registerWithPassword = async ({ name, email, password }) => {
+        const r = await api.post("/auth/password/register", { name, email, password }, { withCredentials: true });
+        setUser(r.data.user);
+        return r.data.user;
+    };
+
+    const loginWithPassword = async ({ email, password }) => {
+        const r = await api.post("/auth/password/login", { email, password }, { withCredentials: true });
+        setUser(r.data.user);
+        return r.data.user;
+    };
+
     return (
-        <AuthCtx.Provider value={{ user, loading, setUser, loginWithGoogle, logout, refresh: checkAuth }}>
+        <AuthCtx.Provider value={{ user, loading, setUser, loginWithGoogle, registerWithPassword, loginWithPassword, logout, refresh: checkAuth }}>
             {children}
         </AuthCtx.Provider>
     );

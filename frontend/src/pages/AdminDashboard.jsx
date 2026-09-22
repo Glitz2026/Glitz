@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, API } from "../lib/api";
 import { toast } from "sonner";
-import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays, ArrowUp, ArrowDown, ShoppingBag, Download } from "lucide-react";
+import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays, ArrowUp, ArrowDown, ShoppingBag, Download, Unlock, PackageCheck } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 
 function resolveMediaUrl(m) {
@@ -53,6 +53,7 @@ export default function AdminDashboard() {
     const [settings, setSettings] = useState(null);
     const [savingSettings, setSavingSettings] = useState(false);
     const [bookings, setBookings] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [privateEvents, setPrivateEvents] = useState([]);
     const [stats, setStats] = useState(null);
     const [products, setProducts] = useState([]);
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
 
     const load = async () => {
         try {
-            const [e, p, f, m, s, b, st] = await Promise.all([
+            const [e, p, f, m, s, b, st, o] = await Promise.all([
                 api.get("/events", { params: { published_only: false } }),
                 api.get("/posts", { params: { published_only: false } }),
                 api.get("/faqs"),
@@ -91,8 +92,9 @@ export default function AdminDashboard() {
                 api.get("/settings"),
                 api.get("/admin/bookings"),
                 api.get("/admin/stats"),
+                api.get("/admin/orders").catch(() => ({ data: [] })),
             ]);
-            setEvents(e.data); setPosts(p.data); setFaqs(f.data); setMedia(m.data); setSettings(s.data); setBookings(b.data); setStats(st.data);
+            setEvents(e.data); setPosts(p.data); setFaqs(f.data); setMedia(m.data); setSettings(s.data); setBookings(b.data); setStats(st.data); setOrders(o.data);
         } catch (err) {
             if (err?.response?.status === 401) { logout(); }
         }
@@ -101,6 +103,23 @@ export default function AdminDashboard() {
     const setBookingStatus = async (id, status) => {
         try {
             await api.patch(`/admin/bookings/${id}`, null, { params: { status } });
+            toast.success("Aggiornato");
+            load();
+        } catch { toast.error("Errore"); }
+    };
+
+    const releaseTable = async (eventId, tableNumber) => {
+        if (!window.confirm(`Liberare il tavolo ${tableNumber}? Tornerà disponibile per nuove prenotazioni.`)) return;
+        try {
+            await api.patch(`/admin/events/${eventId}/tables/${tableNumber}/release`);
+            toast.success(`Tavolo ${tableNumber} liberato`);
+            load();
+        } catch { toast.error("Errore nel liberare il tavolo"); }
+    };
+
+    const setOrderStatus = async (id, status) => {
+        try {
+            await api.patch(`/admin/orders/${id}`, null, { params: { status } });
             toast.success("Aggiornato");
             load();
         } catch { toast.error("Errore"); }
@@ -432,6 +451,7 @@ export default function AdminDashboard() {
                     <TabsTrigger value="media" data-testid="tab-media" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><ImgIcon className="w-4 h-4" /> Media</TabsTrigger>
                     <TabsTrigger value="products" data-testid="tab-products" onClick={() => api.get("/products", { params: { active_only: false } }).then((r) => setProducts(r.data)).catch(() => {})} className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><ShoppingBag className="w-4 h-4" /> Prodotti</TabsTrigger>
                     <TabsTrigger value="bookings" data-testid="tab-bookings" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><Users className="w-4 h-4" /> Prenotazioni</TabsTrigger>
+                    <TabsTrigger value="orders" data-testid="tab-orders" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2"><PackageCheck className="w-4 h-4" /> Ordini</TabsTrigger>
                     <TabsTrigger value="private" data-testid="tab-private" className="data-[state=active]:bg-lava data-[state=active]:text-white gap-2" onClick={() => api.get("/private-events").then((r) => setPrivateEvents(r.data)).catch(() => {})}>
                         <Users className="w-4 h-4" /> Eventi Privati
                     </TabsTrigger>
@@ -1121,7 +1141,7 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    {["STAGE", "RIVA", "BAR"].map((zid) => {
+                                    {["STAGE", "RIVA", "BAR", "SEAVIEW", "PRATO_BACK"].map((zid) => {
                                         const list = settings.floorplan_zones || [];
                                         const idx0 = list.findIndex((z) => z.id === zid);
                                         const z = idx0 >= 0 ? list[idx0] : { id: zid, label: zid, color: "#E10600", price_from: "", min_spend: "", bottles: "", description: "" };
@@ -1170,6 +1190,54 @@ export default function AdminDashboard() {
                                                     <input data-testid={`floorplan-${zid}-bottles`} className={input} placeholder="Bottiglie incluse" value={z.bottles || ""} onChange={(e) => setField({ bottles: e.target.value })} />
                                                 </div>
                                                 <textarea data-testid={`floorplan-${zid}-desc`} rows="2" className={input} placeholder="Descrizione breve" value={z.description || ""} onChange={(e) => setField({ description: e.target.value })} />
+
+                                                {/* Listino bottiglie della zona: marche ed extra oltre a quella inclusa */}
+                                                <div className="pt-3 mt-1 border-t border-white/5 space-y-2" data-testid={`floorplan-${zid}-bottle-menu`}>
+                                                    <div className="text-[10px] uppercase tracking-widest text-white/50 font-bold">Listino bottiglie (marca + prezzo)</div>
+                                                    {(z.bottle_menu || []).map((bm, bi) => (
+                                                        <div key={bi} className="flex gap-2">
+                                                            <input
+                                                                data-testid={`floorplan-${zid}-bottle-${bi}-name`}
+                                                                className={`${input} flex-1`}
+                                                                placeholder="Es. Grey Goose"
+                                                                value={bm.name || ""}
+                                                                onChange={(e) => {
+                                                                    const list = [...(z.bottle_menu || [])];
+                                                                    list[bi] = { ...list[bi], name: e.target.value };
+                                                                    setField({ bottle_menu: list });
+                                                                }}
+                                                            />
+                                                            <input
+                                                                data-testid={`floorplan-${zid}-bottle-${bi}-price`}
+                                                                className={`${input} w-28`}
+                                                                placeholder="€ 180"
+                                                                value={bm.price || ""}
+                                                                onChange={(e) => {
+                                                                    const list = [...(z.bottle_menu || [])];
+                                                                    list[bi] = { ...list[bi], price: e.target.value };
+                                                                    setField({ bottle_menu: list });
+                                                                }}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                data-testid={`floorplan-${zid}-bottle-${bi}-remove`}
+                                                                onClick={() => setField({ bottle_menu: (z.bottle_menu || []).filter((_, i) => i !== bi) })}
+                                                                className="p-2 text-red-400 hover:bg-red-500/20 rounded"
+                                                                aria-label="Rimuovi"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    <button
+                                                        type="button"
+                                                        data-testid={`floorplan-${zid}-bottle-add`}
+                                                        onClick={() => setField({ bottle_menu: [...(z.bottle_menu || []), { name: "", price: "" }] })}
+                                                        className="btn-ghost !px-3 !py-1.5 !text-xs"
+                                                    >
+                                                        <Plus className="w-3.5 h-3.5" /> Aggiungi bottiglia
+                                                    </button>
+                                                </div>
 
                                                 {zid === "RIVA" && (
                                                     <div className="pt-4 mt-3 border-t border-white/10 space-y-3" data-testid="riva-table-overrides">
@@ -1946,7 +2014,57 @@ export default function AdminDashboard() {
                                     </div>
                                     <div className="flex gap-1.5">
                                         <button onClick={() => setBookingStatus(b.id, "confirmed")} data-testid={`booking-confirm-${b.id}`} className="p-2 text-green-400 hover:bg-green-500/20 rounded" title="Conferma"><Check className="w-4 h-4" /></button>
-                                        <button onClick={() => setBookingStatus(b.id, "cancelled")} className="p-2 text-red-400 hover:bg-red-500/20 rounded" title="Rifiuta"><Trash2 className="w-4 h-4" /></button>
+                                        <button onClick={() => setBookingStatus(b.id, "cancelled")} className="p-2 text-red-400 hover:bg-red-500/20 rounded" title="Rifiuta (libera il tavolo automaticamente)"><Trash2 className="w-4 h-4" /></button>
+                                        {b.event_id && b.table_number && (
+                                            <button onClick={() => releaseTable(b.event_id, b.table_number)} data-testid={`booking-release-${b.id}`} className="p-2 text-amber-400 hover:bg-amber-500/20 rounded" title={`Libera il tavolo ${b.table_number} senza cambiare lo stato della richiesta`}><Unlock className="w-4 h-4" /></button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </TabsContent>
+
+                {/* SHOP ORDERS */}
+                <TabsContent value="orders" className="mt-6 space-y-3" data-testid="tab-content-orders">
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-lg">Ordini Shop</h3>
+                        <span className="text-sm text-white/60">{orders.length} totali</span>
+                    </div>
+                    {orders.length === 0 && <p className="text-white/50">Ancora nessun ordine.</p>}
+                    <div className="grid gap-3">
+                        {orders.map((o) => (
+                            <div key={o.id} data-testid={`order-row-${o.id}`} className="glass-card rounded-xl p-4">
+                                <div className="flex flex-wrap items-start gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="font-bold text-white">{o.name}</span>
+                                            <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full ${o.status === "confirmed" ? "bg-green-500/20 text-green-400" : o.status === "cancelled" ? "bg-red-500/20 text-red-400" : "bg-yellow-500/20 text-yellow-400"}`}>
+                                                {o.status || "pending"}
+                                            </span>
+                                            <span className="text-[10px] uppercase tracking-widest bg-lava/20 text-lava px-2 py-0.5 rounded-full">
+                                                {o.shipping_method === "ritiro" ? "Ritiro in club" : "Spedizione"}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-white/50 mt-1 flex flex-wrap gap-3">
+                                            <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {o.phone}</span>
+                                            {o.email && <span className="flex items-center gap-1"><MailIcon className="w-3 h-3" /> {o.email}</span>}
+                                        </div>
+                                        <ul className="text-xs text-white/70 mt-2 space-y-0.5">
+                                            {(o.items || []).map((it, idx) => (
+                                                <li key={idx}>
+                                                    {it.quantity}× {it.product_name}{it.size ? ` (${it.size})` : ""} — € {it.unit_price} cad.
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        {o.address && <div className="text-xs text-white/70 mt-1"><span className="text-white/40">Indirizzo:</span> {o.address}</div>}
+                                        {o.note && <div className="text-xs text-white/70 mt-1"><span className="text-white/40">Note:</span> {o.note}</div>}
+                                        <div className="text-sm font-bold text-white mt-2">Totale: € {o.total}</div>
+                                        <div className="text-[10px] text-white/40 mt-1">{new Date(o.created_at).toLocaleString("it-IT")}</div>
+                                    </div>
+                                    <div className="flex gap-1.5">
+                                        <button onClick={() => setOrderStatus(o.id, "confirmed")} data-testid={`order-confirm-${o.id}`} className="p-2 text-green-400 hover:bg-green-500/20 rounded" title="Conferma"><Check className="w-4 h-4" /></button>
+                                        <button onClick={() => setOrderStatus(o.id, "cancelled")} className="p-2 text-red-400 hover:bg-red-500/20 rounded" title="Annulla"><Trash2 className="w-4 h-4" /></button>
                                     </div>
                                 </div>
                             </div>

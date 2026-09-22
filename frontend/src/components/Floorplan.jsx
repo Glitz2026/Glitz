@@ -4,6 +4,7 @@ import { LAWN_TABLES } from "./floorplanBridge";
 import Floorplan3D from "./Floorplan3D";
 import BookingModal from "./BookingModal";
 import { api } from "../lib/api";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Piantina Glitz Club — usa l'immagine ufficiale come sfondo, con hotspot cliccabili
@@ -12,11 +13,30 @@ import { api } from "../lib/api";
  */
 
 const DEFAULT_ZONES = {
-    SEAVIEW: { label: "Seat View", color: "#FFFFFF", description: "Sedute panoramiche e salottini sul prato. Condizioni su richiesta." },
-    PRATO_BACK: { label: "Prato Back the Stage", color: "#FFFFFF", description: "Salottini sul prato. Condizioni su richiesta." },
-    STAGE: { label: "Back the Stage", color: "#E10600", price_from: "€ 400", bottles: "1 bottiglia inclusa" },
-    RIVA: { label: "Riva Deck", color: "#00BFFF", price_from: "€ 300", bottles: "1 bottiglia inclusa" },
-    BAR: { label: "Glitz Bar", color: "#FFA500", price_from: "€ 200", bottles: "Consumazione dedicata" },
+    SEAVIEW: {
+        label: "Seat View", color: "#FFFFFF", price_from: "€ 150",
+        bottles: "Consumazione dedicata, bottiglia su richiesta",
+        description: "Sedute panoramiche e salottini sul prato affacciati sul mare. Ideali per aperitivo e dopo cena.",
+        bottle_menu: [{ name: "Prosecco", price: "€ 70" }, { name: "Absolut", price: "€ 130" }],
+    },
+    PRATO_BACK: {
+        label: "Prato Back the Stage", color: "#FFFFFF", price_from: "€ 150",
+        bottles: "Consumazione dedicata, bottiglia su richiesta",
+        description: "Salottini sul prato, vicino alla pista e alla consolle, comodi e informali.",
+        bottle_menu: [{ name: "Prosecco", price: "€ 70" }, { name: "Absolut", price: "€ 130" }],
+    },
+    STAGE: {
+        label: "Back the Stage", color: "#E10600", price_from: "€ 400", bottles: "1 bottiglia inclusa",
+        bottle_menu: [{ name: "Grey Goose", price: "€ 180" }, { name: "Belvedere", price: "€ 190" }, { name: "Moët & Chandon", price: "€ 160" }, { name: "Dom Pérignon", price: "€ 350" }],
+    },
+    RIVA: {
+        label: "Riva Deck", color: "#00BFFF", price_from: "€ 300", bottles: "1 bottiglia inclusa",
+        bottle_menu: [{ name: "Absolut", price: "€ 130" }, { name: "Grey Goose", price: "€ 180" }, { name: "Prosecco", price: "€ 70" }],
+    },
+    BAR: {
+        label: "Glitz Bar", color: "#FFA500", price_from: "€ 200", bottles: "Consumazione dedicata",
+        bottle_menu: [{ name: "Cocktail signature", price: "€ 12" }, { name: "Superalcolico premium", price: "€ 10" }],
+    },
 };
 
 const TABLES = [
@@ -55,7 +75,9 @@ const DEFAULT_ANCHORS = {
 
 
 export default function Floorplan({ eventTitle, eventId, reservedTables = {}, customImageUrl = "" }) {
+    const { t } = useLanguage();
     const [view, setView] = useState("3d");
+    const [slowHint, setSlowHint] = useState(false);
     const [settingsReady, setSettingsReady] = useState(false);
     const [selected, setSelected] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -127,23 +149,45 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
         <section data-testid="floorplan-section" className="my-16 -mx-4 sm:-mx-6 lg:-mx-16 xl:-mx-32">
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6">
                 <div className="mb-6 space-y-3">
-                    <span className="overline-tag">Piantina Ufficiale</span>
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight">Scegli il tuo tavolo</h2>
+                    <span className="overline-tag">{t("floorplan_kicker")}</span>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight">{t("floorplan_title")}</h2>
                     <p className="text-white/60 max-w-2xl flex items-start gap-2">
                         <MapPin className="w-4 h-4 mt-1 flex-shrink-0 text-lava" />
-                        Piantina ufficiale del Glitz Club. Tocca un tavolo libero per prenotare. I tavoli grigi sono già assegnati.
+                        {t("floorplan_intro")}
                     </p>
                 </div>
 
-                <div className="flex gap-3 mb-5" role="group" aria-label="Vista della piantina">
-                    <button type="button" className="btn-ghost" aria-pressed={view === "3d"} onClick={() => setView("3d")}>Esplora in 3D</button>
-                    <button type="button" className="btn-ghost" aria-pressed={view === "2d"} onClick={() => setView("2d")}>Piantina 2D</button>
+                <div className="flex gap-3 mb-5 flex-wrap" role="group" aria-label="Vista della piantina">
+                    <button type="button" className="btn-ghost" aria-pressed={view === "3d"} onClick={() => setView("3d")}>{t("floorplan_view_3d")}</button>
+                    <div className="relative inline-flex">
+                        <button
+                            type="button"
+                            data-testid="floorplan-2d-btn"
+                            className={`btn-ghost ${slowHint && view === "3d" ? "ring-2 ring-lava animate-pulse" : ""}`}
+                            aria-pressed={view === "2d"}
+                            onClick={() => { setView("2d"); setSlowHint(false); }}
+                        >
+                            {t("floorplan_view_2d")}
+                        </button>
+                        {slowHint && view === "3d" && (
+                            <div
+                                data-testid="floorplan-slow-hint"
+                                role="status"
+                                className="absolute left-0 top-full mt-2 z-20 w-64 rounded-xl border border-lava/40 bg-obsidian shadow-[0_0_25px_rgba(225,6,0,0.25)] p-3 text-xs text-white/80"
+                            >
+                                <span className="font-bold text-lava">{t("floorplan_slow_title")}</span> {t("floorplan_slow_body")}
+                                <button type="button" className="block mt-2 text-[10px] uppercase tracking-widest text-white/40 hover:text-white" onClick={() => setSlowHint(false)}>{t("floorplan_slow_dismiss")}</button>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {view === "3d" && <Floorplan3D
                     eventId={eventId} tables={TABLES_LIST} reservedTables={reservedTables}
                     getTableInfo={getTableInfo} activeZone={activeZone} ready={settingsReady}
                     onSelect={(t) => { setSelected(t); setModalOpen(true); }}
                     onFallback={() => setView("2d")}
+                    onSlowLoad={() => setSlowHint(true)}
+                    onReady={() => setSlowHint(false)}
                 />}
 
                 {/* Zone info cards con prezzi & bottiglie — cliccabili per evidenziare la zona in piantina */}
@@ -168,7 +212,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                 {z.price_from && (
                                     <div className="flex items-center gap-2 text-xs text-white/80">
                                         <CircleDollarSign className="w-3.5 h-3.5 text-lava" />
-                                        <span className="font-bold">Da {z.price_from}</span>
+                                        <span className="font-bold">{t("floorplan_from")} {z.price_from}</span>
                                         {z.min_spend && <span className="text-white/50">· {z.min_spend}</span>}
                                     </div>
                                 )}
@@ -178,8 +222,19 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                     </div>
                                 )}
                                 {z.description && <p className="text-[11px] text-white/50 pt-1 leading-relaxed">{z.description}</p>}
+                                {z.bottle_menu?.length > 0 && (
+                                    <div data-testid={`floorplan-zone-card-${zid}-bottle-menu`} className="pt-1 space-y-0.5 border-t border-white/5 mt-1">
+                                        <div className="text-[9px] uppercase tracking-widest text-white/40 pt-1">{t("floorplan_bottle_menu")}</div>
+                                        {z.bottle_menu.map((bm, i) => (
+                                            <div key={i} className="flex items-center justify-between text-[11px] text-white/60">
+                                                <span>{bm.name}</span>
+                                                <span className="font-bold text-white/80">{bm.price}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 <div className={`text-[10px] uppercase tracking-[0.25em] font-bold pt-1 transition-opacity ${isActive ? "opacity-100" : "opacity-40"}`} style={{ color: z.color }}>
-                                    {isActive ? "Zona evidenziata · Tocca per deselezionare" : "Tocca per evidenziare in piantina"}
+                                    {isActive ? t("floorplan_zone_active") : t("floorplan_zone_inactive")}
                                 </div>
                             </button>
                         );
@@ -189,14 +244,14 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                 <div hidden={view !== "2d"}>
                 <div data-testid="floorplan-legend" className="flex items-center gap-3 mb-4 flex-wrap text-xs uppercase tracking-widest text-white/60">
                     <span className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-sm inline-block bg-red-500/40 border border-red-500" /> Prenotato
+                        <span className="w-3 h-3 rounded-sm inline-block bg-red-500/40 border border-red-500" /> {t("floorplan_reserved")}
                     </span>
                     <button
                         data-testid="floorplan-fullscreen-btn"
                         onClick={() => setFullscreen(true)}
                         className="lg:hidden ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lava text-white text-xs font-bold uppercase tracking-widest shadow-[0_0_20px_rgba(225,6,0,0.35)] hover:bg-lava-hover transition"
                     >
-                        <Maximize2 className="w-4 h-4" /> Vedi a schermo intero
+                        <Maximize2 className="w-4 h-4" /> {t("floorplan_fullscreen")}
                     </button>
                 </div>
 
@@ -307,7 +362,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
 
                 </div>
                 <p className="mt-4 text-[11px] text-white/40 italic text-center">
-                    Piantina ufficiale del Glitz Club. Le posizioni dei tavoli possono variare per singolo evento.
+                    {t("floorplan_footer_note")}
                 </p>
             </div>
 
@@ -329,8 +384,8 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                 >
                     <div className="sticky top-0 z-[71] flex items-center justify-between px-4 py-3 bg-obsidian/95 backdrop-blur border-b border-white/10">
                         <div>
-                            <div className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">Piantina</div>
-                            <div className="text-sm font-black uppercase text-white">Scegli il tuo tavolo</div>
+                            <div className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">{t("floorplan_fullscreen_label")}</div>
+                            <div className="text-sm font-black uppercase text-white">{t("floorplan_title")}</div>
                         </div>
                         <button
                             data-testid="floorplan-fullscreen-close"
@@ -418,7 +473,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                             })}
                         </svg>
                         <p className="text-center text-white/60 text-xs mt-4 px-4 pb-6">
-                            Scorri orizzontalmente per vedere tutte le zone. Tocca un tavolo libero per prenotare.
+                            {t("floorplan_scroll_hint")}
                         </p>
                     </div>
                 </div>

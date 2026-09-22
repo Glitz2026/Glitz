@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, MessageCircle, Send, Loader2, Wine, CircleDollarSign } from "lucide-react";
 import { api } from "../lib/api";
 import { WHATSAPP_NUMBER } from "../lib/constants";
+import { useLanguage } from "../context/LanguageContext";
 import { toast } from "sonner";
 
 export default function BookingModal({
@@ -13,6 +14,7 @@ export default function BookingModal({
     zone = "",
     zoneInfo = null,
 }) {
+    const { t } = useLanguage();
     const [form, setForm] = useState({ name: "", phone: "", email: "", guests: 2, note: "" });
     const [loading, setLoading] = useState(false);
 
@@ -78,12 +80,12 @@ export default function BookingModal({
                 </button>
 
                 <div className="space-y-2 mb-6">
-                    <div className="text-xs uppercase tracking-widest text-lava font-bold">Prenota Tavolo</div>
+                    <div className="text-xs uppercase tracking-widest text-lava font-bold">{t("booking_title")}</div>
                     <h3 className="text-2xl sm:text-3xl font-black">
-                        {tableNumber ? `Tavolo #${tableNumber}` : "Richiesta Tavolo"}
+                        {tableNumber ? `${t("booking_table")} #${tableNumber}` : t("booking_request_title")}
                     </h3>
-                    {eventTitle && <p className="text-white/60 text-sm">Serata: <span className="text-white">{eventTitle}</span></p>}
-                    {zone && <p className="text-white/60 text-sm">Zona: <span className="text-white">{zone}</span></p>}
+                    {eventTitle && <p className="text-white/60 text-sm">{t("booking_night")}: <span className="text-white">{eventTitle}</span></p>}
+                    {zone && <p className="text-white/60 text-sm">{t("booking_zone")}: <span className="text-white">{zone}</span></p>}
                 </div>
 
                 {zoneInfo && (zoneInfo.price_from || zoneInfo.bottles || zoneInfo.description) && (
@@ -91,7 +93,7 @@ export default function BookingModal({
                         {zoneInfo.price_from && (
                             <div className="flex items-center gap-2 text-sm text-white/90">
                                 <CircleDollarSign className="w-4 h-4 text-lava" />
-                                <span className="font-bold">Da {zoneInfo.price_from}</span>
+                                <span className="font-bold">{t("floorplan_from")} {zoneInfo.price_from}</span>
                                 {zoneInfo.min_spend && <span className="text-white/50 text-xs">· {zoneInfo.min_spend}</span>}
                             </div>
                         )}
@@ -103,12 +105,23 @@ export default function BookingModal({
                         {zoneInfo.description && (
                             <p className="text-xs text-white/50 leading-relaxed pt-1">{zoneInfo.description}</p>
                         )}
+                        {zoneInfo.bottle_menu?.length > 0 && (
+                            <div data-testid="booking-zone-bottle-menu" className="pt-2 mt-1 border-t border-white/10 space-y-1">
+                                <div className="text-[10px] uppercase tracking-widest text-white/40">{t("floorplan_bottle_menu")}</div>
+                                {zoneInfo.bottle_menu.map((bm, i) => (
+                                    <div key={i} className="flex items-center justify-between text-xs text-white/70">
+                                        <span>{bm.name}</span>
+                                        <span className="font-bold text-white">{bm.price}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
                 <form onSubmit={submit} className="space-y-3">
                     <div>
-                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">Nome e Cognome *</label>
+                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">{t("booking_name")} *</label>
                         <input
                             data-testid="booking-name"
                             type="text"
@@ -120,7 +133,7 @@ export default function BookingModal({
                         />
                     </div>
                     <div>
-                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">Telefono / WhatsApp *</label>
+                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">{t("booking_phone")} *</label>
                         <input
                             data-testid="booking-phone"
                             type="tel"
@@ -132,7 +145,7 @@ export default function BookingModal({
                         />
                     </div>
                     <div>
-                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">Email (facoltativa)</label>
+                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">{t("booking_email")}</label>
                         <input
                             data-testid="booking-email"
                             type="email"
@@ -143,7 +156,7 @@ export default function BookingModal({
                         />
                     </div>
                     <div>
-                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">Ospiti</label>
+                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">{t("booking_guests")}</label>
                         <input
                             data-testid="booking-guests"
                             type="number"
@@ -155,14 +168,14 @@ export default function BookingModal({
                         />
                     </div>
                     <div>
-                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">Note (facoltative)</label>
+                        <label className="text-xs uppercase tracking-widest text-white/60 block mb-1.5">{t("booking_note")}</label>
                         <textarea
                             data-testid="booking-note"
                             rows="3"
                             value={form.note}
                             onChange={(e) => setForm({ ...form, note: e.target.value })}
                             className={input}
-                            placeholder="Compleanno, allergie, richieste particolari..."
+                            placeholder={t("booking_note_placeholder")}
                         />
                     </div>
                     <button
@@ -172,10 +185,10 @@ export default function BookingModal({
                         className="btn-lava w-full disabled:opacity-50 mt-2"
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
-                        {loading ? "Invio..." : "Invia richiesta + WhatsApp"}
+                        {loading ? t("booking_sending") : t("booking_submit")}
                     </button>
                     <p className="text-[11px] text-white/40 text-center leading-relaxed">
-                        Salviamo la richiesta e apriamo WhatsApp per conferma diretta. Nessuno spam.
+                        {t("booking_disclaimer")}
                     </p>
                 </form>
             </div>

@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { MODEL_ZONES, isTableAvailable, makeInventory } from "./floorplanBridge";
 
-export default function Floorplan3D({ eventId, tables, reservedTables, getTableInfo, activeZone, ready, onSelect, onFallback }) {
+const SLOW_LOAD_MS = 6000;
+
+export default function Floorplan3D({ eventId, tables, reservedTables, getTableInfo, activeZone, ready, onSelect, onFallback, onSlowLoad, onReady }) {
     const frame = useRef(null);
     const latest = useRef(null);
     const request = useRef(0);
@@ -39,6 +41,14 @@ export default function Floorplan3D({ eventId, tables, reservedTables, getTableI
         const timer = setTimeout(() => setFailed(true), 20000);
         return () => clearTimeout(timer);
     }, [map, failed]);
+
+    // Connessione lenta: il 3D è ancora in caricamento dopo qualche secondo.
+    // Non forziamo il cambio vista, segnaliamo solo l'alternativa 2D.
+    useEffect(() => {
+        if (map || failed) return;
+        const timer = setTimeout(() => { if (!map) onSlowLoad?.(); }, SLOW_LOAD_MS);
+        return () => clearTimeout(timer);
+    }, [map, failed, onSlowLoad]);
 
     useEffect(() => {
         if (!map) return;
@@ -89,6 +99,7 @@ export default function Floorplan3D({ eventId, tables, reservedTables, getTableI
             if (!instance?.setBookingHandler) { setFailed(true); return; }
             setMap(instance);
             setFailed(false);
+            onReady?.();
         } catch { setFailed(true); }
     }
 

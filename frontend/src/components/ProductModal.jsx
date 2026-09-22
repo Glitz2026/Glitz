@@ -1,21 +1,19 @@
 import { useState, useEffect } from "react";
-import { X, MessageCircle, Loader2, Minus, Plus, Check } from "lucide-react";
-import { WHATSAPP_NUMBER } from "../lib/constants";
-import { api } from "../lib/api";
+import { X, Minus, Plus, Check, ShoppingBag } from "lucide-react";
+import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { toast } from "sonner";
 
 export default function ProductModal({ product, open, onClose }) {
-    const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", note: "" });
+    const { addItem } = useCart();
+    const { t } = useLanguage();
     const [size, setSize] = useState("");
     const [qty, setQty] = useState(1);
-    const [shipping, setShipping] = useState("spedizione");
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (open && product) {
             setSize(product.sizes ? product.sizes[2] : "");
             setQty(1);
-            setShipping("spedizione");
         }
     }, [open, product]);
 
@@ -23,61 +21,16 @@ export default function ProductModal({ product, open, onClose }) {
 
     const total = product.price * qty;
 
-    const submit = async (e) => {
+    const submit = (e) => {
         e.preventDefault();
-        if (!form.name || !form.phone) {
-            toast.error("Compila nome e telefono");
-            return;
-        }
         if (product.sizes && !size) {
             toast.error("Seleziona una taglia");
             return;
         }
-        setLoading(true);
-        try {
-            // Best-effort save to backend (silently ignore if endpoint missing)
-            await api.post("/orders", {
-                product_id: product.id,
-                product_name: product.name,
-                unit_price: product.price,
-                quantity: qty,
-                size: size || null,
-                total,
-                name: form.name,
-                phone: form.phone,
-                email: form.email || null,
-                address: shipping === "spedizione" ? form.address : null,
-                shipping_method: shipping,
-                note: form.note || null,
-            }).catch(() => {});
-
-            const lines = [
-                `Ciao Glitz! Vorrei ordinare dallo shop:`,
-                ``,
-                `Prodotto: ${product.name}`,
-                size && `Taglia: ${size}`,
-                `Quantità: ${qty}`,
-                `Totale: € ${total}`,
-                `Consegna: ${shipping === "spedizione" ? "Spedizione a domicilio" : "Ritiro in club"}`,
-                ``,
-                `Nome: ${form.name}`,
-                `Telefono: ${form.phone}`,
-                form.email && `Email: ${form.email}`,
-                shipping === "spedizione" && form.address && `Indirizzo: ${form.address}`,
-                form.note && `Note: ${form.note}`,
-            ].filter(Boolean);
-            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
-            window.open(url, "_blank");
-            toast.success("Apriamo WhatsApp per confermare l'ordine");
-            onClose();
-        } catch (err) {
-            toast.error("Errore. Riprova.");
-        } finally {
-            setLoading(false);
-        }
+        addItem(product, { size, quantity: qty });
+        toast.success(`${product.name} aggiunto al carrello`);
+        onClose();
     };
-
-    const input = "w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-lava transition";
 
     return (
         <div
@@ -131,7 +84,7 @@ export default function ProductModal({ product, open, onClose }) {
                         <form onSubmit={submit} className="space-y-3 pt-4 border-t border-white/10">
                             {product.sizes && (
                                 <div>
-                                    <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">Taglia *</label>
+                                    <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">{t("shop_size")} *</label>
                                     <div className="flex flex-wrap gap-2">
                                         {product.sizes.map((s) => (
                                             <button
@@ -149,7 +102,7 @@ export default function ProductModal({ product, open, onClose }) {
                             )}
 
                             <div>
-                                <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">Quantità</label>
+                                <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">{t("shop_quantity")}</label>
                                 <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-2 py-1">
                                     <button type="button" data-testid="product-qty-minus" onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2 text-white/70 hover:text-white"><Minus className="w-4 h-4" /></button>
                                     <span data-testid="product-qty-value" className="text-white font-bold w-6 text-center">{qty}</span>
@@ -157,52 +110,21 @@ export default function ProductModal({ product, open, onClose }) {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="text-[11px] uppercase tracking-widest text-white/60 block mb-2">Consegna</label>
-                                <div className="flex gap-2">
-                                    {[
-                                        { v: "spedizione", l: "Spedizione" },
-                                        { v: "ritiro", l: "Ritiro in club" },
-                                    ].map((o) => (
-                                        <button
-                                            key={o.v}
-                                            type="button"
-                                            data-testid={`product-shipping-${o.v}`}
-                                            onClick={() => setShipping(o.v)}
-                                            className={`flex-1 px-3 py-2 rounded-lg text-xs font-bold border transition ${shipping === o.v ? "bg-lava border-lava text-white" : "bg-white/5 border-white/15 text-white/70 hover:border-white/40"}`}
-                                        >
-                                            {o.l}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                                <input data-testid="product-name" required placeholder="Nome e cognome *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={input} />
-                                <input data-testid="product-phone" required type="tel" placeholder="Telefono *" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={input} />
-                            </div>
-                            <input data-testid="product-email" type="email" placeholder="Email (facoltativa)" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={input} />
-                            {shipping === "spedizione" && (
-                                <input data-testid="product-address" placeholder="Indirizzo di spedizione (Via, CAP, Città)" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={input} />
-                            )}
-
                             <div className="flex items-center justify-between pt-2 border-t border-white/10 pt-4">
                                 <div>
-                                    <div className="text-[11px] uppercase tracking-widest text-white/50">Totale</div>
+                                    <div className="text-[11px] uppercase tracking-widest text-white/50">{t("shop_total")}</div>
                                     <div data-testid="product-total" className="text-2xl font-black text-white">€ {total}</div>
                                 </div>
                                 <button
                                     type="submit"
                                     data-testid="product-submit"
-                                    disabled={loading}
-                                    className="btn-lava !px-5 !py-3 disabled:opacity-50"
+                                    className="btn-lava !px-5 !py-3"
                                 >
-                                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageCircle className="w-4 h-4" />}
-                                    {loading ? "Invio..." : "Ordina via WhatsApp"}
+                                    <ShoppingBag className="w-4 h-4" /> {t("shop_add_to_cart")}
                                 </button>
                             </div>
                             <p className="text-[10px] text-white/40 text-center leading-relaxed">
-                                Apriamo WhatsApp con l'ordine precompilato per confermare disponibilità e pagamento.
+                                {t("shop_cart_checkout_note")}
                             </p>
                         </form>
                     </div>
