@@ -20,10 +20,12 @@ import PaymentCancel from "@/pages/PaymentCancel";
 import PrivateEvents from "@/pages/PrivateEvents";
 import Account from "@/pages/Account";
 import Login from "@/pages/Login";
+import AdminLayout from "@/components/AdminLayout";
 import AuthCallback from "@/pages/AuthCallback";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { ContactProvider } from "@/context/ContactContext";
 import CartDrawer from "@/components/CartDrawer";
 
 function AppRouter() {
@@ -51,8 +53,8 @@ function AppRouter() {
             <Route path="/payment/cancel" element={<Layout><PaymentCancel /></Layout>} />
             <Route path="/account" element={<Layout><Account /></Layout>} />
             <Route path="/accedi" element={<Layout><Login /></Layout>} />
-            <Route path="/admin/login" element={<Layout><AdminLogin /></Layout>} />
-            <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
+            <Route path="/admin/login" element={<AdminLayout><AdminLogin /></AdminLayout>} />
+            <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
             <Route path="*" element={<Layout><div className="max-w-4xl mx-auto px-4 py-32 text-center"><h1 className="text-5xl font-black">404</h1><p className="text-white/60 mt-4">Pagina non trovata</p></div></Layout>} />
         </Routes>
     );
@@ -63,13 +65,15 @@ function App() {
         <div className="App">
             <BrowserRouter>
                 <AuthProvider>
-                    <LanguageProvider>
-                        <CartProvider>
-                            <Toaster theme="dark" richColors position="top-right" />
-                            <AppRouter />
-                            <CartDrawer />
-                        </CartProvider>
-                    </LanguageProvider>
+                    <ContactProvider>
+                        <LanguageProvider>
+                            <CartProvider>
+                                <Toaster theme="dark" richColors position="top-right" />
+                                <AppRouter />
+                                <CartDrawer />
+                            </CartProvider>
+                        </LanguageProvider>
+                    </ContactProvider>
                 </AuthProvider>
             </BrowserRouter>
         </div>

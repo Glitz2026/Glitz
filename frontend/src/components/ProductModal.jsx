@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { X, Minus, Plus, Check, ShoppingBag } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import SafeImage from "./SafeImage";
 import { toast } from "sonner";
 
 export default function ProductModal({ product, open, onClose }) {
@@ -54,7 +55,7 @@ export default function ProductModal({ product, open, onClose }) {
                 <div className="grid md:grid-cols-2">
                     {/* Image */}
                     <div className="aspect-square md:aspect-auto md:min-h-[520px] bg-obsidian relative">
-                        <img src={product.image} alt={product.name} className="absolute inset-0 w-full h-full object-cover" />
+                        <SafeImage src={product.image} alt={product.name} className="absolute inset-0 w-full h-full object-cover" />
                         {product.badge && (
                             <span className="absolute top-4 left-4 text-[10px] uppercase tracking-widest font-black bg-lava text-white px-2.5 py-1 rounded-full">
                                 {product.badge}

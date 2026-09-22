@@ -7,6 +7,7 @@ import { api } from "../lib/api";
 import { formatItalianDateTime, ADDRESS_SHORT } from "../lib/constants";
 import Countdown from "../components/Countdown";
 import Seo from "../components/Seo";
+import SafeImage from "../components/SafeImage";
 import InstagramFeed from "../components/InstagramFeed";
 import BookingModal from "../components/BookingModal";
 
@@ -121,7 +122,7 @@ export default function Home() {
                             className="w-full h-full object-cover opacity-70"
                         />
                     ) : (
-                        <img src={heroImage} alt="Glitz Club arco LED laser" className="w-full h-full object-cover opacity-60" />
+                        <SafeImage src={heroImage} alt="Glitz Club arco LED laser" className="w-full h-full object-cover opacity-60" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/70 to-obsidian/40" />
                     <div className="laser-line" />
@@ -208,7 +209,7 @@ export default function Home() {
                         >
                             <Link to={`/eventi/${ev.id}`} className="group relative block overflow-hidden rounded-2xl bg-surface border border-white/10 hover:border-lava/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(225,6,0,0.25)]">
                                 <div className="aspect-[4/5] w-full overflow-hidden">
-                                    <img src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <SafeImage src={ev.poster_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent" />
                                 </div>
                                 <div className="absolute top-4 left-4 bg-lava text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-1.5">
@@ -227,7 +228,7 @@ export default function Home() {
             {/* Location */}
             <section data-testid="location-section" className="relative py-24 overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <img src={DRONE_IMG} alt="Vista drone tramonto San Nicola Arcella" className="w-full h-full object-cover opacity-40" />
+                    <SafeImage src={DRONE_IMG} alt="Vista drone tramonto San Nicola Arcella" className="w-full h-full object-cover opacity-40" />
                     <div className="absolute inset-0 bg-gradient-to-r from-obsidian via-obsidian/80 to-obsidian/40" />
                 </div>
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
@@ -270,7 +271,7 @@ export default function Home() {
                                     data-testid={`club-zone-card-${i}`}
                                     className="group relative block aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 hover:border-lava/40 transition"
                                 >
-                                    <img src={img} alt={z.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <SafeImage src={img} alt={z.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent" />
                                     <div className="absolute inset-x-0 bottom-0 p-5 space-y-1">
                                         <div className="text-[10px] uppercase tracking-[0.3em] text-lava font-bold">Ambiente {String(i + 1).padStart(2, "0")}</div>
@@ -312,7 +313,7 @@ export default function Home() {
                                     data-testid={`home-gallery-item-${i}`}
                                     className="group relative block aspect-square rounded-xl overflow-hidden border border-white/5 hover:border-lava/40 transition"
                                 >
-                                    <img src={url} alt="Glitz Club anteprima" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <SafeImage src={url} alt="Glitz Club anteprima" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-obsidian/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
                                 </Link>
                             );
@@ -341,7 +342,7 @@ export default function Home() {
                             className="group block rounded-2xl overflow-hidden bg-surface border border-white/10 hover:border-lava/40 transition"
                         >
                             <div className="aspect-square overflow-hidden bg-obsidian flex items-center justify-center">
-                                <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <SafeImage src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
                             <div className="p-6 space-y-2">
                                 {p.badge && <span className="text-[10px] uppercase tracking-widest text-lava font-semibold">{p.badge}</span>}

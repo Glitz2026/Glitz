@@ -3,16 +3,18 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, MessageCircle, Loader2, Minus, Plus, CreditCard, ShoppingBag } from "lucide-react";
 import Seo from "../components/Seo";
-import { WHATSAPP_NUMBER } from "../lib/constants";
+import SafeImage from "../components/SafeImage";
 import { api } from "../lib/api";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useContact } from "../context/ContactContext";
 import { toast } from "sonner";
 
 export default function ProductDetail() {
     const { id } = useParams();
     const { addItem } = useCart();
     const { t } = useLanguage();
+    const { whatsappNumber } = useContact();
     const [product, setProduct] = useState(null);
     const [notFound, setNotFound] = useState(false);
     const [activeImg, setActiveImg] = useState(0);
@@ -72,7 +74,7 @@ export default function ProductDetail() {
             `Quantità: ${qty}`,
             `Totale: € ${total}`,
         ].filter(Boolean);
-        const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
         window.open(url, "_blank");
     };
 
@@ -90,7 +92,7 @@ export default function ProductDetail() {
                             {product.badge && (
                                 <span className="absolute top-4 left-4 z-10 text-[10px] uppercase tracking-widest font-black bg-lava text-white px-2.5 py-1 rounded-full">{product.badge}</span>
                             )}
-                            <img
+                            <SafeImage
                                 data-testid="product-main-image"
                                 src={gallery[activeImg]}
                                 alt={product.name}
@@ -101,7 +103,7 @@ export default function ProductDetail() {
                             {gallery.map((g, i) => (
                                 <button key={i} data-testid={`product-thumb-${i}`} onClick={() => setActiveImg(i)}
                                     className={`aspect-square rounded-xl overflow-hidden border transition ${activeImg === i ? "border-lava" : "border-white/10 hover:border-white/40"}`}>
-                                    <img src={g} alt={`${product.name} ${i + 1}`} className={`w-full h-full ${product.slug === "gift-card" && i === 0 ? "object-contain p-2 bg-black" : "object-cover"}`} />
+                                    <SafeImage src={g} alt={`${product.name} ${i + 1}`} className={`w-full h-full ${product.slug === "gift-card" && i === 0 ? "object-contain p-2 bg-black" : "object-cover"}`} />
                                 </button>
                             ))}
                         </div>

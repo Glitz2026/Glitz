@@ -2,8 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, API } from "../lib/api";
 import { toast } from "sonner";
-import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays, ArrowUp, ArrowDown, ShoppingBag, Download, Unlock, PackageCheck } from "lucide-react";
+import { LogOut, Plus, Trash2, Edit, Upload, Calendar as CalIcon, FileText, HelpCircle, Image as ImgIcon, Settings as SettingsIcon, Video, Users, Phone, Mail as MailIcon, Check, PenLine, Euro, Ticket, CalendarDays, ArrowUp, ArrowDown, ShoppingBag, Download, Unlock, PackageCheck, GripVertical } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
+import SafeImage from "../components/SafeImage";
 
 function resolveMediaUrl(m) {
     if (!m.url) return "";
@@ -199,6 +200,20 @@ export default function AdminDashboard() {
         const r = await api.get("/products", { params: { active_only: false } });
         setProducts(r.data);
     };
+    const moveProductTo = async (fromIdx, toIdx) => {
+        if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0) return;
+        const reordered = [...products];
+        const [moved] = reordered.splice(fromIdx, 1);
+        reordered.splice(toIdx, 0, moved);
+        setProducts(reordered);
+        try {
+            await api.post("/admin/products/reorder", { order: reordered.map((p) => p.id) });
+        } catch { toast.error("Errore riordino"); }
+    };
+    const dragProductIndex = useRef(null);
+    const [dragOverProductIndex, setDragOverProductIndex] = useState(null);
+    const dragNavIndex = useRef(null);
+    const [dragOverNavIndex, setDragOverNavIndex] = useState(null);
     const exportSubscribersCsv = () => {
         const rows = ["email,created_at", ...subscribers.map((s) => `${s.email},${s.created_at}`)].join("\n");
         const blob = new Blob([rows], { type: "text/csv" });
@@ -229,6 +244,19 @@ export default function AdminDashboard() {
             load();
         } catch { toast.error("Errore riordino"); }
     };
+
+    const moveMediaTo = async (list, fromIdx, toIdx) => {
+        if (fromIdx === toIdx || fromIdx < 0 || toIdx < 0) return;
+        const reordered = [...list];
+        const [moved] = reordered.splice(fromIdx, 1);
+        reordered.splice(toIdx, 0, moved);
+        try {
+            await api.post("/admin/media/reorder", { order: reordered.map((m) => m.id) });
+            load();
+        } catch { toast.error("Errore riordino"); }
+    };
+    const dragMediaIndex = useRef(null);
+    const [dragOverMediaIndex, setDragOverMediaIndex] = useState(null);
 
     // Settings
     const saveSettings = async () => {
@@ -468,7 +496,7 @@ export default function AdminDashboard() {
                     <div className="grid gap-3">
                         {events.map((ev) => (
                             <div key={ev.id} className="glass-card rounded-xl p-4 flex items-center gap-4 flex-wrap">
-                                {ev.poster_url && <img src={ev.poster_url} alt="" className="w-16 h-20 rounded object-cover" />}
+                                {ev.poster_url && <SafeImage src={ev.poster_url} alt="" className="w-16 h-20 rounded object-cover" />}
                                 <div className="flex-1 min-w-0">
                                     <div className="font-bold text-white truncate">{ev.title}</div>
                                     <div className="text-xs text-white/50">{new Date(ev.date).toLocaleString("it-IT")}</div>
@@ -490,7 +518,7 @@ export default function AdminDashboard() {
                                 <label className="text-xs uppercase tracking-widest text-white/60 block">Foto copertina evento</label>
                                 <div className="flex items-center gap-3">
                                     {editEvent.poster_url ? (
-                                        <img src={editEvent.poster_url.startsWith("http") ? editEvent.poster_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.poster_url}`} alt="poster" className="w-20 h-24 rounded object-cover border border-white/10" />
+                                        <SafeImage src={editEvent.poster_url.startsWith("http") ? editEvent.poster_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.poster_url}`} alt="poster" className="w-20 h-24 rounded object-cover border border-white/10" />
                                     ) : (
                                         <div className="w-20 h-24 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px]">Nessuna</div>
                                     )}
@@ -518,7 +546,7 @@ export default function AdminDashboard() {
                                 <label className="text-xs uppercase tracking-widest text-white/60 block">Foto artista (senza testo) — usata dal template poster</label>
                                 <div className="flex items-center gap-3">
                                     {editEvent.artist_photo_url ? (
-                                        <img src={editEvent.artist_photo_url.startsWith("http") ? editEvent.artist_photo_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.artist_photo_url}`} alt="artist" className="w-20 h-24 rounded object-cover border border-white/10" />
+                                        <SafeImage src={editEvent.artist_photo_url.startsWith("http") ? editEvent.artist_photo_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.artist_photo_url}`} alt="artist" className="w-20 h-24 rounded object-cover border border-white/10" />
                                     ) : (
                                         <div className="w-20 h-24 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px]">Nessuna</div>
                                     )}
@@ -553,7 +581,7 @@ export default function AdminDashboard() {
                                     <p className="text-[11px] text-white/50">Lascia vuoto per usare la piantina di default. Utile per setup speciali (es. compleanni, matrimoni). Le zone e i tavoli restano gli stessi.</p>
                                     <div className="flex items-center gap-3">
                                         {editEvent.floorplan_image_url ? (
-                                            <img src={editEvent.floorplan_image_url.startsWith("http") ? editEvent.floorplan_image_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.floorplan_image_url}`} alt="floorplan" className="w-20 h-20 rounded object-cover border border-white/10 bg-black" />
+                                            <SafeImage src={editEvent.floorplan_image_url.startsWith("http") ? editEvent.floorplan_image_url : `${process.env.REACT_APP_BACKEND_URL}${editEvent.floorplan_image_url}`} alt="floorplan" className="w-20 h-20 rounded object-cover border border-white/10 bg-black" />
                                         ) : (
                                             <div className="w-20 h-20 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px] bg-black">Default</div>
                                         )}
@@ -604,7 +632,7 @@ export default function AdminDashboard() {
                     <div className="grid gap-3">
                         {posts.map((p) => (
                             <div key={p.id} className="glass-card rounded-xl p-4 flex items-center gap-4 flex-wrap">
-                                {p.cover_url && <img src={p.cover_url} alt="" className="w-20 h-14 rounded object-cover" />}
+                                {p.cover_url && <SafeImage src={p.cover_url} alt="" className="w-20 h-14 rounded object-cover" />}
                                 <div className="flex-1 min-w-0">
                                     <div className="font-bold text-white truncate">{p.title}</div>
                                     <div className="text-xs text-white/50">/{p.slug}</div>
@@ -689,8 +717,23 @@ export default function AdminDashboard() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                         {(mediaCategoryFilter ? media.filter((m) => m.category === mediaCategoryFilter) : media).map((m, idx, arr) => (
-                            <div key={m.id} data-testid={`media-tile-${m.id}`} className="relative group rounded-xl overflow-hidden border border-white/10">
-                                <img src={resolveMediaUrl(m)} alt="" className="w-full aspect-square object-cover" />
+                            <div
+                                key={m.id}
+                                data-testid={`media-tile-${m.id}`}
+                                draggable={!!mediaCategoryFilter}
+                                onDragStart={() => { dragMediaIndex.current = idx; }}
+                                onDragOver={(e) => { if (mediaCategoryFilter) { e.preventDefault(); setDragOverMediaIndex(idx); } }}
+                                onDragLeave={() => setDragOverMediaIndex((cur) => (cur === idx ? null : cur))}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setDragOverMediaIndex(null);
+                                    if (dragMediaIndex.current !== null) moveMediaTo(arr, dragMediaIndex.current, idx);
+                                    dragMediaIndex.current = null;
+                                }}
+                                onDragEnd={() => { dragMediaIndex.current = null; setDragOverMediaIndex(null); }}
+                                className={`relative group rounded-xl overflow-hidden border transition ${dragOverMediaIndex === idx ? "border-lava ring-2 ring-lava/50" : "border-white/10"} ${mediaCategoryFilter ? "cursor-grab active:cursor-grabbing" : ""}`}
+                            >
+                                <SafeImage src={resolveMediaUrl(m)} alt="" className="w-full aspect-square object-cover" />
                                 {mediaCategoryFilter && (
                                     <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition">
                                         <button
@@ -927,7 +970,7 @@ export default function AdminDashboard() {
                                                     <div className="grid gap-3 lg:grid-cols-[160px_1fr]">
                                                         <div className="space-y-2">
                                                             {z.image ? (
-                                                                <img src={z.image.startsWith("http") ? z.image : `${process.env.REACT_APP_BACKEND_URL}${z.image}`} alt="preview" className="w-full aspect-[4/5] object-cover rounded-lg border border-white/10" />
+                                                                <SafeImage src={z.image.startsWith("http") ? z.image : `${process.env.REACT_APP_BACKEND_URL}${z.image}`} alt="preview" className="w-full aspect-[4/5] object-cover rounded-lg border border-white/10" />
                                                             ) : (
                                                                 <div className="w-full aspect-[4/5] rounded-lg border border-dashed border-white/15 flex items-center justify-center text-white/40 text-xs">Nessuna foto</div>
                                                             )}
@@ -1490,7 +1533,27 @@ export default function AdminDashboard() {
                                 <p className="text-xs text-white/50">Rinomina, nascondi o riordina le voci del menu. Non aggiungere voci nuove: il routing è fisso.</p>
                                 <div className="space-y-2">
                                     {(settings.nav_items || []).map((n, i) => (
-                                        <div key={i} className="flex items-center gap-2">
+                                        <div
+                                            key={i}
+                                            draggable
+                                            onDragStart={() => { dragNavIndex.current = i; }}
+                                            onDragOver={(e) => { e.preventDefault(); setDragOverNavIndex(i); }}
+                                            onDragLeave={() => setDragOverNavIndex((cur) => (cur === i ? null : cur))}
+                                            onDrop={(e) => {
+                                                e.preventDefault();
+                                                setDragOverNavIndex(null);
+                                                if (dragNavIndex.current !== null && dragNavIndex.current !== i) {
+                                                    const list = [...settings.nav_items];
+                                                    const [moved] = list.splice(dragNavIndex.current, 1);
+                                                    list.splice(i, 0, moved);
+                                                    setSettings({ ...settings, nav_items: list });
+                                                }
+                                                dragNavIndex.current = null;
+                                            }}
+                                            onDragEnd={() => { dragNavIndex.current = null; setDragOverNavIndex(null); }}
+                                            className={`flex items-center gap-2 rounded-lg cursor-grab active:cursor-grabbing ${dragOverNavIndex === i ? "ring-2 ring-lava" : ""}`}
+                                        >
+                                            <GripVertical className="w-4 h-4 text-white/25 flex-shrink-0" />
                                             <span className="text-xs text-white/40 w-32 truncate">{n.to}</span>
                                             <input data-testid={`nav-label-${i}`} className={`${input} !py-2 flex-1`} placeholder="Etichetta" value={n.label || ""} onChange={(e) => {
                                                 const list = [...settings.nav_items]; list[i] = { ...list[i], label: e.target.value };
@@ -1735,11 +1798,28 @@ export default function AdminDashboard() {
                     <button data-testid="new-product-btn" onClick={() => setEditProduct({ ...emptyProduct })} className="btn-lava !px-5 !py-2.5 !text-xs">
                         <Plus className="w-4 h-4" /> Nuovo Prodotto
                     </button>
+                    <p className="text-xs text-white/50">Trascina una riga per cambiare l'ordine di visualizzazione nello shop.</p>
                     <div className="grid gap-3">
-                        {products.map((p) => (
-                            <div key={p.id} data-testid={`product-row-${p.slug}`} className="glass-card rounded-xl p-4 flex items-center justify-between gap-4">
+                        {products.map((p, idx) => (
+                            <div
+                                key={p.id}
+                                data-testid={`product-row-${p.slug}`}
+                                draggable
+                                onDragStart={() => { dragProductIndex.current = idx; }}
+                                onDragOver={(e) => { e.preventDefault(); setDragOverProductIndex(idx); }}
+                                onDragLeave={() => setDragOverProductIndex((cur) => (cur === idx ? null : cur))}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setDragOverProductIndex(null);
+                                    if (dragProductIndex.current !== null) moveProductTo(dragProductIndex.current, idx);
+                                    dragProductIndex.current = null;
+                                }}
+                                onDragEnd={() => { dragProductIndex.current = null; setDragOverProductIndex(null); }}
+                                className={`glass-card rounded-xl p-4 flex items-center justify-between gap-4 cursor-grab active:cursor-grabbing transition ${dragOverProductIndex === idx ? "border-2 border-lava" : ""}`}
+                            >
                                 <div className="flex items-center gap-4 min-w-0">
-                                    {p.image && <img src={p.image} alt={p.name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />}
+                                    <GripVertical className="w-4 h-4 text-white/25 flex-shrink-0" />
+                                    {p.image && <SafeImage src={p.image} alt={p.name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />}
                                     <div className="min-w-0">
                                         <div className="font-bold truncate">{p.name} {!p.active && <span className="text-xs text-white/40 ml-2">(nascosto)</span>}</div>
                                         <div className="text-xs text-white/50 truncate">{p.subtitle} · € {p.price} · /{p.slug}</div>
@@ -1770,7 +1850,7 @@ export default function AdminDashboard() {
                                 <input data-testid="pf-image" className={input} placeholder="URL immagine principale" value={editProduct.image} onChange={(e) => setEditProduct({ ...editProduct, image: e.target.value })} />
                                 <div className="flex items-center gap-3 -mt-2">
                                     {editProduct.image ? (
-                                        <img src={editProduct.image.startsWith("http") ? editProduct.image : `${process.env.REACT_APP_BACKEND_URL}${editProduct.image}`} alt="preview" className="w-16 h-16 rounded object-cover border border-white/10" />
+                                        <SafeImage src={editProduct.image.startsWith("http") ? editProduct.image : `${process.env.REACT_APP_BACKEND_URL}${editProduct.image}`} alt="preview" className="w-16 h-16 rounded object-cover border border-white/10" />
                                     ) : (
                                         <div className="w-16 h-16 rounded border border-dashed border-white/15 flex items-center justify-center text-white/40 text-[10px]">Nessuna</div>
                                     )}
@@ -1812,7 +1892,7 @@ export default function AdminDashboard() {
                                     </label>
                                     {typeof editProduct.gallery === "string" && editProduct.gallery && editProduct.gallery.split(",").map((u, i) => u.trim() && (
                                         <div key={i} className="relative group">
-                                            <img src={u.trim().startsWith("http") ? u.trim() : `${process.env.REACT_APP_BACKEND_URL}${u.trim()}`} alt="" className="w-12 h-12 rounded object-cover border border-white/10" />
+                                            <SafeImage src={u.trim().startsWith("http") ? u.trim() : `${process.env.REACT_APP_BACKEND_URL}${u.trim()}`} alt="" className="w-12 h-12 rounded object-cover border border-white/10" />
                                             <button type="button" onClick={() => {
                                                 const list = editProduct.gallery.split(",").map((s) => s.trim()).filter((_, j) => j !== i);
                                                 setEditProduct({ ...editProduct, gallery: list.join(", ") });
@@ -1962,7 +2042,7 @@ export default function AdminDashboard() {
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                     {(settings.instagram_posts || []).slice(0, 6).map((p, i) => (
                                         <div key={i} className="space-y-2 border border-white/10 rounded-lg p-3">
-                                            <img src={p.image} alt="" className="w-full aspect-square object-cover rounded" />
+                                            <SafeImage src={p.image} alt="" className="w-full aspect-square object-cover rounded" />
                                             <input className={input} placeholder="Image URL" value={p.image} onChange={(e) => updateInstaPost(i, "image", e.target.value)} />
                                             <input className={input} placeholder="Post URL" value={p.url} onChange={(e) => updateInstaPost(i, "url", e.target.value)} />
                                         </div>

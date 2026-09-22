@@ -6,15 +6,15 @@ export const EMAIL = "glitzclubofficial@gmail.com";
 export const ADDRESS = "Contrada Dino, San Nicola Arcella (CS), 87020";
 export const ADDRESS_SHORT = "San Nicola Arcella (CS)";
 
-export function whatsappTableLink(eventTitle) {
+export function whatsappTableLink(eventTitle, number = WHATSAPP_NUMBER) {
     const msg = encodeURIComponent(
         `Ciao Glitz! Vorrei prenotare un tavolo${eventTitle ? ` per la serata: ${eventTitle}` : ""}. Nome: `
     );
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+    return `https://wa.me/${number}?text=${msg}`;
 }
 
-export function whatsappInfoLink() {
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Ciao Glitz, avrei un'informazione da chiedere.")}`;
+export function whatsappInfoLink(number = WHATSAPP_NUMBER) {
+    return `https://wa.me/${number}?text=${encodeURIComponent("Ciao Glitz, avrei un'informazione da chiedere.")}`;
 }
 
 export function formatItalianDate(iso) {

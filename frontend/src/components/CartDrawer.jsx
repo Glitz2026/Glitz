@@ -3,12 +3,14 @@ import { X, Minus, Plus, Trash2, MessageCircle, Loader2, ShoppingBag } from "luc
 import { toast } from "sonner";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import { useContact } from "../context/ContactContext";
 import { api } from "../lib/api";
-import { WHATSAPP_NUMBER } from "../lib/constants";
+import SafeImage from "./SafeImage";
 
 export default function CartDrawer() {
     const { items, updateQuantity, removeItem, clear, count, total, open, setOpen } = useCart();
     const { t } = useLanguage();
+    const { whatsappNumber } = useContact();
     const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", note: "" });
     const [shipping, setShipping] = useState("spedizione");
     const [loading, setLoading] = useState(false);
@@ -60,7 +62,7 @@ export default function CartDrawer() {
                 shipping === "spedizione" && form.address && `Indirizzo: ${form.address}`,
                 form.note && `Note: ${form.note}`,
             ].filter(Boolean);
-            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
             window.open(url, "_blank");
             toast.success("Apriamo WhatsApp per confermare l'ordine");
             clear();
@@ -95,7 +97,7 @@ export default function CartDrawer() {
                         <p className="text-white/50 text-sm text-center py-12">{t("cart_empty")}</p>
                     ) : items.map((it) => (
                         <div key={`${it.product_id}::${it.size || ""}`} data-testid={`cart-item-${it.product_id}`} className="flex gap-3">
-                            {it.image && <img src={it.image} alt={it.product_name} className="w-16 h-16 rounded-lg object-cover bg-obsidian flex-shrink-0" />}
+                            {it.image && <SafeImage src={it.image} alt={it.product_name} className="w-16 h-16 rounded-lg object-cover bg-obsidian flex-shrink-0" />}
                             <div className="flex-1 min-w-0">
                                 <div className="text-sm font-bold text-white truncate">{it.product_name}</div>
                                 {it.size && <div className="text-[11px] text-white/50">{t("shop_size")} {it.size}</div>}
