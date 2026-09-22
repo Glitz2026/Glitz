@@ -4266,7 +4266,9 @@ three/build/three.module.js:
 </script>
 <style id="glitz-embed-customization">
 /* --- MARKER: solo il numero flottante sopra il tavolo selezionato --- */
-/* Nascondi TUTTI i marker (nessun pallino rosso) */
+/* IMPORTANTE: rendere visibile il container #markers (override dell'originale che lo nasconde in embedded) */
+body.embedded #markers { display: block !important; }
+/* Nascondi tutti i marker per default (nessun pallino su tavoli non selezionati) */
 body.embedded #markers .table-marker { display: none !important; }
 body.embedded #markers .zone-marker { display: none !important; }
 /* Solo il marker del tavolo SELEZIONATO viene mostrato come pill rossa con dot di stato + numero */
