@@ -805,13 +805,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      245,
-      183
+      377,
+      139.7
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.5707963267948966,
-    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "rotation": -1.6704649792860586,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -819,13 +819,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      307,
-      183
+      338,
+      135.8
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.5707963267948966,
-    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "rotation": -1.6704649792860586,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -833,13 +833,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      369,
-      183
+      299,
+      131.9
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.5707963267948966,
-    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "rotation": -1.6704649792860586,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -847,13 +847,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      383,
-      137
+      260,
+      128.0
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
-    "layoutSource": "Foto e annotazioni settembre 2026; disposizione proposta",
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -861,13 +861,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      104,
-      246
+      221,
+      124.1
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.5707963267948966,
-    "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
+    "rotation": -1.6704649792860586,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -875,13 +875,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      151,
-      251
+      182,
+      120.2
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.5707963267948966,
-    "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
+    "rotation": -1.6704649792860586,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -889,13 +889,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      103,
-      182
+      143,
+      116.3
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
     "rotation": -1.6704649792860586,
-    "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -903,13 +903,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      151,
-      178
+      98,
+      151
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
-    "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
+    "rotation": 0,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -917,13 +917,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      236,
-      138
+      98,
+      190
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
-    "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
+    "rotation": 0,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   },
   {
@@ -931,13 +931,13 @@
     "zoneId": "prato-back",
     "schematicPosition": null,
     "planPosition": [
-      305,
-      144
+      98,
+      229
     ],
     "height": 0.02,
     "furniture": "lawn-short-l",
-    "rotation": -1.6704649792860586,
-    "layoutSource": "Sei tavoli aggiuntivi richiesti dal proprietario; disposizione proposta",
+    "rotation": 0,
+    "layoutSource": "Disposizione lungo ringhiera nera e angolo sotto albero, richiesta proprietario v19",
     "idConfirmedBySource": false
   }
 ]

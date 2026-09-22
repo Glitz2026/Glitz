@@ -12,7 +12,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'18.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'19.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -57,7 +57,9 @@ rail([[backStairEnd,322],[355,322],[350,338],[343,349],[345,381]],.92,backGuard)
 const frontGuard=new THREE.Group();frontGuard.name='Ringhiera fronte B3-B4';root.add(frontGuard);
 rail([[388,234],[355,322]],.62,frontGuard);
 rail([[368,532],[374,568],[498,604],[513,618]],.92);
-rail([[345,381],[276,406],[257,430],[265,495],[278,526],[368,531]],.6);
+const stageGuard=new THREE.Group();stageGuard.name='Ringhiera palco sul Back the Stage';root.add(stageGuard);
+const guardPath=[[345,381],[276,406],[257,430],[265,495],[278,526],[368,531]];
+const guardOutside=guardPath.map((p,i)=>{const a=guardPath[Math.max(0,i-1)],b=guardPath[Math.min(guardPath.length-1,i+1)],du=b[0]-a[0],dv=b[1]-a[1],l=Math.hypot(du,dv);return [p[0]-dv/l*3,p[1]+du/l*3];});rail(guardOutside,.92,stageGuard);
 // Side of each stair: all dimensions follow the visible geometry and annotated levels.
 function stairs(name,u,v,y1,y2,width,run,angle=0,count=4){const group=new THREE.Group();group.name=name;group.position.copy(xy(u,v));group.rotation.y=angle;root.add(group);for(let i=0;i<count;i++){let h=y1+(y2-y1)*(i+1)/count;box('Gradino',new THREE.Vector3(0,h/2,(i+.5)*run/count-run/2),width,h,run/count,C.white,group);const led=box('Luce gradino',new THREE.Vector3(0,h-.04,(i+1)*run/count-run/2),width*.95,.025,.02,new THREE.MeshStandardMaterial({color:'#ffe3ad',emissive:'#ffc778',emissiveIntensity:.4}),group);led.castShadow=false}}
 stairs('Scala terrazza laterale',752,474,1.1,.6,3.8,1.1,-Math.atan2(369,34),3);stairs('Seat View scala bassa quattro gradini',958,222,.05,.65,1.7,1.12,-Math.PI/2,4);polygon('Seat View pianerottolo',[[939,235],[977,235],[977,242],[939,242]],.65,.60,C.light);stairs('Seat View scala alta tre gradini',958,249,.65,1.1,1.7,.62,-Math.PI/2,3);

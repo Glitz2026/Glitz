@@ -27,6 +27,6 @@ beam(new THREE.Vector3(0,3.81,-.16),new THREE.Vector3(0,top,rz));
 for(let i=1;i<8;i++){const a=i*Math.PI/8;for(const z of [-.16,.16]){tube(equipment,'Giunto modulo arco',point(a,false,z).add(new THREE.Vector3(0,-.045,0)),point(a,false,z).add(new THREE.Vector3(0,.045,0)),.034,silver);}}
 
 // Original brand silhouette on the exterior LED side, with clear LED space.
-const originalLogo=createLogo(1.85,.045,true);const signMidY=(3.975+3.72)/2;originalLogo.position.set(0,signMidY-originalLogo.userData.height/2,.29);sign.add(originalLogo);
+const originalLogo=createLogo(1.85,.09,true,.0244);const signMidY=(3.975+3.72)/2;originalLogo.position.set(0,signMidY-originalLogo.userData.height/2,.29);sign.add(originalLogo);
 for(const x of [-.65,.65]){tube(sign,'Staffa aggancio logo alla truss',new THREE.Vector3(x,signMidY,.16),new THREE.Vector3(x,signMidY,.31),.012,silver);}
 root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.userData.archComponent=true}});return {root,truss,equipment,sign,rear,spec:ARCH_SPEC};}
