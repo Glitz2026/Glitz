@@ -12,7 +12,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'17.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'18.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -65,14 +65,14 @@ for(const u of [937,979]){polygon('Seat View muretto scala',[[u-2,208],[u+2,208]
 stairs('Scala pista',548,565,.1,.6,Math.hypot(583-513,532-606)*SCALE,1.15,Math.atan2(513-583,606-532),3);stairs('Scala privé giardino',370,660,.8,.9,1.9,.6,Math.PI/2,2);stairs('Due gradini in discesa verso B0-B4',201+backStairWidth/SCALE/2,330,.6,.9,backStairWidth,16*SCALE,-Math.PI/2,2);
 const cornerSteps=new THREE.Group();cornerSteps.name='Scala angolare dietro B0 su due lati';root.add(cornerSteps);for(let i=0;i<4;i++){const d=(4-i)*.31/SCALE;polygon('Gradino angolare',[[201-d,234-d],[240,234-d],[240,270],[201-d,270]],.6*(i+1)/4,.6*(i+1)/4,C.white,cornerSteps)}
 rail([[572,478],[565,516],[583,532]],.6);
-const arch=createArch(xy(343.0,457));arch.root.rotation.y=Math.atan2(23,150);root.add(arch.root);
+const arch=createArch(xy(351.0,457));arch.root.rotation.y=Math.atan2(23,150);root.add(arch.root);
 arch.root.updateMatrixWorld(true);
 // Structural feet sit at the user-confirmed support level (1 m above the dancefloor).
 for(const x of [-4.475,4.475]){const p=arch.root.localToWorld(new THREE.Vector3(x,0,0));p.y=(ARCH_SPEC.supportY+.9)/2;const support=box('Appoggio arco quota confermata',p,.47,ARCH_SPEC.supportY-.9,.47,C.white);support.rotation.y=arch.root.rotation.y;}
 const screen=box('LED wall',new THREE.Vector3(0,(.6+4.65)/2-ARCH_SPEC.supportY,-5.60),5.6,4.05,.12,C.dark,arch.root);screen.userData.sign='GLITZ';const screenLogo=createLogo(4.3,.008);screenLogo.position.set(0,(.6+4.65)/2-ARCH_SPEC.supportY-screenLogo.userData.height/2,-5.53);arch.root.add(screenLogo);
 // Rear portal and central truss are modeled in arch.js; no substitute poles.
-const booth=createDJBooth();booth.rotation.y=arch.root.rotation.y;booth.position.copy(xy(343.0,457,.6)).add(new THREE.Vector3(0,0,-1.02).applyAxisAngle(new THREE.Vector3(0,1,0),booth.rotation.y));root.add(booth);
-for(const v of [405,500])at('Subwoofer',398,v,.39,.7,.58,.62,C.dark);
+const booth=createDJBooth();booth.rotation.y=arch.root.rotation.y;booth.position.copy(xy(351.0,457,.6)).add(new THREE.Vector3(0,0,-1.02).applyAxisAngle(new THREE.Vector3(0,1,0),booth.rotation.y));root.add(booth);
+for(const x of [-3.13,3.13]){const p=arch.root.localToWorld(new THREE.Vector3(x,0,.56));p.y=.39;const sub=box('Sub doppio sotto palco',p,1.4,.58,.62,C.dark);sub.rotation.y=arch.root.rotation.y;sub.userData.alignedWithSuspendedArray=true;}
 
 // New lawn lounges from the annotated photos; draft table IDs await the venue's inventory.
 const lawnBack=[[78,92],[428,127],[428,210],[178,210],[178,282],[78,282]];
@@ -154,7 +154,7 @@ const entranceDirection=xy(720,655).sub(xy(610,952)).normalize(),entranceNormal=
 const entranceMidpoint=xy(665,803.5,.8),entranceAngle=Math.atan2(entranceDirection.x,entranceDirection.z);
 for(const [name,side] of [['Ingresso tavoli',-1],['Ingresso ticket',1]]){const desk=reception(name,0,0,entranceAngle+(side===-1?Math.PI:0));desk.position.copy(entranceMidpoint).addScaledVector(entranceNormal,side*2.05);desk.userData.alignedToEntranceRamp=true;}
 // Vine arch over garden lounge entry.
-const archCenter=xy(480,795,.81);for(let i=0;i<24;i++){let a=i*Math.PI/24,b=(i+1)*Math.PI/24;rod('Pergola garden',archCenter.clone().add(new THREE.Vector3(Math.cos(a)*1.25,1.65+Math.sin(a)*.7,0)),archCenter.clone().add(new THREE.Vector3(Math.cos(b)*1.25,1.65+Math.sin(b)*.7,0)),.022,'#646550')}for(const x of [-1.25,1.25])rod('Montante pergola',archCenter.clone().add(new THREE.Vector3(x,0,0)),archCenter.clone().add(new THREE.Vector3(x,1.65,0)),.025,'#646550');
+const archCenter=xy(480,738.5,.81);for(let i=0;i<24;i++){let a=i*Math.PI/24,b=(i+1)*Math.PI/24;rod('Pergola garden',archCenter.clone().add(new THREE.Vector3(Math.cos(a)*1.58004458,1.65+Math.sin(a)*.7,0)),archCenter.clone().add(new THREE.Vector3(Math.cos(b)*1.58004458,1.65+Math.sin(b)*.7,0)),.022,'#646550')}for(const x of [-1.58004458,1.58004458])rod('Montante pergola',archCenter.clone().add(new THREE.Vector3(x,0,0)),archCenter.clone().add(new THREE.Vector3(x,1.65,0)),.025,'#646550');
 landscape(root,xy);
 // WC blocks drawn as temporary structures in the plan.
 function service(name,u,v,w,d){at(name,u,v,1.15,w,2.3,d,'#e6e6de');at(name+' tetto',u,v,2.34,w+.22,.08,d+.2,'#e6e6de');const count=name==='WC donne'?2:1;for(let j=0;j<count;j++){const vv=v+(j-(count-1)/2)*w*.42/SCALE;at(name+' porta bianca',u+d/SCALE/2+.4,vv,1.1,.85,2.1,.035,'#f1f0e9');at(name+' gradino',u+d/SCALE/2+5,vv,.12,1.0,.24,.45,'#969b97');at(name+' maniglia',u+d/SCALE/2+1.0,vv-6,.98,.15,.025,.025,'#a7adae');}for(let j=0;j<14;j++)at(name+' fuga tavole',u+d/SCALE/2+.43,v,.15+j*.155,w,.007,.01,'#cdd0c9');}

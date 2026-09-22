@@ -344,12 +344,13 @@
     ],
     "planPosition": [
       238.8,
-      361.0123
+      345
     ],
     "height": 0.92,
     "furniture": "beanbag-round",
     "layoutSource": "Pianta schematica monocromatica della venue.png",
-    "idConfirmedBySource": true
+    "idConfirmedBySource": true,
+    "rotation": -1.5707963267948966
   },
   {
     "id": "B6",
@@ -359,7 +360,7 @@
       346
     ],
     "planPosition": [
-      309.36,
+      297.36,
       361.0123
     ],
     "height": 0.92,
@@ -376,7 +377,7 @@
     ],
     "planPosition": [
       238.17,
-      398.7391
+      390.7391
     ],
     "height": 0.92,
     "furniture": "beanbag-round",
@@ -392,7 +393,7 @@
     ],
     "planPosition": [
       230.61,
-      554.2336
+      566.2336
     ],
     "height": 0.92,
     "furniture": "beanbag-round",
