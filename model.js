@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {createEnvironment} from './environment.js';
 import {createDJBooth} from './dj.js';
 import {createLogo} from './logo.js';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -11,7 +12,7 @@ import {landscape} from './landscape.js';
 export const SCALE=1191/1888*25.4/72*200/1000;
 export const xy=(u,v,y=0)=>new THREE.Vector3((440-v)*SCALE,y,(u-580)*SCALE);
 export function createModel(){
-const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'14.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
+const root=new THREE.Group();root.name='GLITZ_CLUB';root.userData={version:'15.0',archDimensions:ARCH_SPEC,layoutSource:'Pianta schematica monocromatica della venue.png',tableIdsFromUserPlan:true,scaleBasis:'A3 PDF, nominal 1:200, hand digitized',surveyVerified:false,up:'Y',units:'metres'};
 const zones=[],tables=[],pickables=[],materials={};
 const mat=(c,roughness=.8)=>materials[c]??(materials[c]=new THREE.MeshStandardMaterial({color:c,roughness,metalness:0}));
 const C={white:'#efede3',stone:'#c5c3b9',light:'#d6d3c7',grass:'#50634d',leaf:'#496247',wood:'#a27549',metal:'#bbc4bf',dark:'#22282c',puff:'#c4c0b3',path:'#b8b1a0'};
@@ -161,5 +162,6 @@ service('WC accessibile',1095,230,1.7,1.9);service('WC donne',1005,980,4.2,6.5);
 const pois=[['Palco DJ',314,457,2.1],['Pista',461,404,.12],['Main Bar',936,613,1.9],['Bar',467,180,1.4],['Gin xp',1165,490,1.6],['Ingresso',610,958,1.1],['WC',1005,980,2.2]];
 const hotspots=[];
 for(const z of zones){z.overlays=[];z.lines=[];for(const part of z.parts||[{coords:z.coords,y:z.y}]){const overlay=polygon('Area '+z.id,part.coords,part.y+.035,.006,new THREE.MeshBasicMaterial({color:'#edcb94',transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));overlay.userData.zoneId=z.id;overlay.castShadow=false;overlay.receiveShadow=false;hotspots.push(overlay);z.overlays.push(overlay);const pts=part.coords.map(p=>xy(...p,part.y+.045));pts.push(pts[0].clone());const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:'#f9eed8',transparent:true,opacity:0}));line.name='Contorno '+z.id;root.add(line);z.lines.push(line)}}
-return {root,zones,tables,pickables,hotspots,pois,materials,arch};
+const environment=createEnvironment(xy);root.add(environment.root);
+return {root,zones,tables,pickables,hotspots,pois,materials,arch,environment};
 }
