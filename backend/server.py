@@ -6,6 +6,8 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import re
+import time
+import secrets
 import ipaddress
 import logging
 import uuid
@@ -219,6 +221,29 @@ async def get_admin(creds: HTTPAuthorizationCredentials = Depends(security)):
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+# ---------- Rate limiting (public write endpoints) ----------
+# In-memory sliding window. Single-process app: no need for Redis for this volume.
+_rate_buckets: dict[str, list[float]] = {}
+
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def check_rate_limit(request: Request, scope: str, limit: int, window_seconds: int) -> None:
+    """Raise 429 if this client made more than `limit` calls to `scope` in the last `window_seconds`."""
+    key = f"{scope}:{_client_ip(request)}"
+    now = time.monotonic()
+    bucket = [t for t in _rate_buckets.get(key, []) if now - t < window_seconds]
+    if len(bucket) >= limit:
+        raise HTTPException(status_code=429, detail="Troppe richieste. Riprova tra qualche minuto.")
+    bucket.append(now)
+    _rate_buckets[key] = bucket
 
 
 # ---------- Models ----------
@@ -520,6 +545,13 @@ DEFAULT_SETTINGS = {
             "min_spend": "€ 400 minimum",
             "bottles": "1 bottiglia inclusa (vodka o gin premium)",
             "description": "L'area privé dietro la consolle: vista frontale sul DJ, servizio bottiglia premium, accesso riservato.",
+            "bottle_menu": [
+                {"name": "Grey Goose", "price": "€ 180"},
+                {"name": "Belvedere", "price": "€ 190"},
+                {"name": "Moët & Chandon", "price": "€ 160"},
+                {"name": "Dom Pérignon", "price": "€ 350"},
+                {"name": "Don Julio 1942", "price": "€ 280"},
+            ],
         },
         {
             "id": "RIVA",
@@ -529,6 +561,12 @@ DEFAULT_SETTINGS = {
             "min_spend": "€ 300 minimum",
             "bottles": "1 bottiglia inclusa (vodka standard)",
             "description": "Tavoli premium vista pista e mare, LED al pavimento. Il cuore lounge del club.",
+            "bottle_menu": [
+                {"name": "Absolut", "price": "€ 130"},
+                {"name": "Grey Goose", "price": "€ 180"},
+                {"name": "Prosecco", "price": "€ 70"},
+                {"name": "Moët & Chandon", "price": "€ 160"},
+            ],
         },
         {
             "id": "BAR",
@@ -538,6 +576,37 @@ DEFAULT_SETTINGS = {
             "min_spend": "€ 200 minimum",
             "bottles": "Consumazione dedicata",
             "description": "Tavoli di prossimità al Glitz Bar, ideali per gruppi che vogliono ballare senza rinunciare al comfort.",
+            "bottle_menu": [
+                {"name": "Cocktail signature", "price": "€ 12"},
+                {"name": "Superalcolico premium", "price": "€ 10"},
+                {"name": "Prosecco al calice", "price": "€ 8"},
+            ],
+        },
+        {
+            "id": "SEAVIEW",
+            "label": "Seat View",
+            "color": "#FFFFFF",
+            "price_from": "€ 150",
+            "min_spend": "€ 150 minimum",
+            "bottles": "Consumazione dedicata, bottiglia su richiesta",
+            "description": "Sedute panoramiche e salottini sul prato affacciati sul mare. Ideali per aperitivo e dopo cena.",
+            "bottle_menu": [
+                {"name": "Prosecco", "price": "€ 70"},
+                {"name": "Absolut", "price": "€ 130"},
+            ],
+        },
+        {
+            "id": "PRATO_BACK",
+            "label": "Prato Back the Stage",
+            "color": "#FFFFFF",
+            "price_from": "€ 150",
+            "min_spend": "€ 150 minimum",
+            "bottles": "Consumazione dedicata, bottiglia su richiesta",
+            "description": "Salottini sul prato, vicino alla pista e alla consolle, comodi e informali.",
+            "bottle_menu": [
+                {"name": "Prosecco", "price": "€ 70"},
+                {"name": "Absolut", "price": "€ 130"},
+            ],
         },
     ],
     "about_zones": [
@@ -767,7 +836,11 @@ async def admin_stats(admin=Depends(get_admin)):
 
 # --- Table reservations (floorplan) ---
 @api.post("/bookings")
-async def create_booking(data: BookingIn):
+async def create_booking(data: BookingIn, request: Request):
+    # Public, unauthenticated endpoint that can flip a table to "reserved" for everyone:
+    # throttle per-IP so it can't be used to lock out every table on an event.
+    check_rate_limit(request, "booking", limit=6, window_seconds=600)
+
     doc = data.model_dump()
     doc["id"] = str(uuid.uuid4())
     doc["status"] = "pending"
@@ -812,13 +885,47 @@ async def list_bookings(admin=Depends(get_admin)):
 
 @api.patch("/admin/bookings/{booking_id}")
 async def update_booking_status(booking_id: str, status: str = Query(...), admin=Depends(get_admin)):
+    booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Richiesta non trovata")
     r = await db.bookings.update_one({"id": booking_id}, {"$set": {"status": status}})
+
+    # A rejected/cancelled request must not leave the table permanently blocked.
+    # Only release it if no other pending/confirmed booking still claims the same table.
+    if status in ("cancelled", "rejected") and booking.get("event_id") and booking.get("table_number"):
+        other_active = await db.bookings.find_one({
+            "event_id": booking["event_id"],
+            "table_number": booking["table_number"],
+            "id": {"$ne": booking_id},
+            "status": {"$in": ["pending", "confirmed"]},
+        })
+        if not other_active:
+            await db.events.update_one(
+                {"id": booking["event_id"]},
+                {"$unset": {f"reserved_tables.{booking['table_number']}": ""}}
+            )
+
     return {"updated": r.modified_count}
+
+
+@api.patch("/admin/events/{event_id}/tables/{table_number}/release")
+async def release_table(event_id: str, table_number: str, admin=Depends(get_admin)):
+    """Manually free up a table on an event, regardless of any booking record — for
+    walk-in overrides, stuck states, or requests handled outside the booking flow."""
+    res = await db.events.find_one_and_update(
+        {"id": event_id},
+        {"$unset": {f"reserved_tables.{table_number}": ""}},
+        return_document=True, projection={"_id": 0},
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Evento non trovato")
+    return res
 
 
 # --- Legacy table reservations (floorplan) ---
 @api.post("/table-requests")
-async def create_table_request(data: TableRequestIn):
+async def create_table_request(data: TableRequestIn, request: Request):
+    check_rate_limit(request, "table_request", limit=6, window_seconds=600)
     ev = await db.events.find_one({"id": data.event_id, "floorplan_enabled": True})
     if not ev:
         raise HTTPException(status_code=400, detail="Piantina non attiva per questo evento")
@@ -1005,6 +1112,10 @@ async def create_event(data: EventIn, admin=Depends(get_admin)):
 @api.put("/admin/events/{event_id}", response_model=EventOut)
 async def update_event(event_id: str, data: EventIn, admin=Depends(get_admin)):
     upd = data.model_dump()
+    # reserved_tables is only ever mutated by the booking/release endpoints. If the admin
+    # opened the edit form before a new booking came in, saving here with the stale
+    # snapshot would silently un-reserve that table and allow a double-booking.
+    upd.pop("reserved_tables", None)
     res = await db.events.find_one_and_update(
         {"id": event_id}, {"$set": upd},
         return_document=True, projection={"_id": 0}
@@ -1138,6 +1249,49 @@ async def delete_product(product_id: str, admin=Depends(get_admin)):
     return {"deleted": r.deleted_count}
 
 
+# --- Shop orders (cart, WhatsApp checkout) ---
+class OrderItemIn(BaseModel):
+    product_id: str
+    product_name: str
+    unit_price: float
+    quantity: int = 1
+    size: Optional[str] = None
+
+
+class OrderIn(BaseModel):
+    items: List[OrderItemIn]
+    total: float
+    name: str
+    phone: str
+    email: Optional[EmailStr] = None
+    address: Optional[str] = None
+    shipping_method: str = "spedizione"
+    note: Optional[str] = None
+
+
+@api.post("/orders")
+async def create_order(data: OrderIn, request: Request):
+    check_rate_limit(request, "order", limit=8, window_seconds=600)
+    doc = data.model_dump()
+    doc["id"] = str(uuid.uuid4())
+    doc["status"] = "pending"
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.orders.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/admin/orders")
+async def list_orders(admin=Depends(get_admin)):
+    return await db.orders.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+
+
+@api.patch("/admin/orders/{order_id}")
+async def update_order_status(order_id: str, status: str = Query(...), admin=Depends(get_admin)):
+    r = await db.orders.update_one({"id": order_id}, {"$set": {"status": status}})
+    return {"updated": r.modified_count}
+
+
 @api.get("/admin/newsletter/subscribers")
 async def list_newsletter_subscribers(admin=Depends(get_admin)):
     return await db.newsletter.find({}, {"_id": 0}).sort("created_at", -1).to_list(5000)
@@ -1230,7 +1384,8 @@ async def download_file(path: str):
 
 # --- Newsletter ---
 @api.post("/newsletter/subscribe")
-async def newsletter_subscribe(data: NewsletterIn):
+async def newsletter_subscribe(data: NewsletterIn, request: Request):
+    check_rate_limit(request, "newsletter", limit=5, window_seconds=600)
     existing = await db.newsletter.find_one({"email": data.email})
     if existing:
         return {"status": "already_subscribed"}
@@ -1408,6 +1563,27 @@ async def startup():
         if patch:
             await db.settings.update_one({"id": "main"}, {"$set": patch})
             logging.info(f"Patched settings: {list(patch.keys())}")
+
+        # Fine-grained backfill for floorplan_zones: add zones that don't exist yet
+        # (e.g. SEAVIEW/PRATO_BACK) and add a bottle_menu to zones that predate it,
+        # without touching any price/description an admin already customized.
+        existing_zones = existing.get("floorplan_zones") or []
+        zones_by_id = {z.get("id"): z for z in existing_zones if z.get("id")}
+        zones_changed = False
+        for default_zone in DEFAULT_SETTINGS["floorplan_zones"]:
+            zid = default_zone["id"]
+            if zid not in zones_by_id:
+                zones_by_id[zid] = default_zone
+                zones_changed = True
+            elif not zones_by_id[zid].get("bottle_menu"):
+                zones_by_id[zid] = {**zones_by_id[zid], "bottle_menu": default_zone["bottle_menu"]}
+                zones_changed = True
+        if zones_changed:
+            # Keep original order, append any brand-new zones at the end
+            ordered = [zones_by_id[z["id"]] for z in existing_zones if z.get("id") in zones_by_id]
+            ordered += [z for zid, z in zones_by_id.items() if zid not in {e.get("id") for e in existing_zones}]
+            await db.settings.update_one({"id": "main"}, {"$set": {"floorplan_zones": ordered}})
+            logging.info("Backfilled floorplan_zones with bottle_menu / missing zones")
 
     # Seed Past Events
     if await db.past_events.count_documents({}) == 0:
@@ -1667,7 +1843,7 @@ async def _get_current_user(session_token: Optional[str]):
     if expires_at < datetime.now(timezone.utc):
         await db.user_sessions.delete_one({"session_token": session_token})
         return None
-    user = await db.users.find_one({"user_id": session["user_id"]}, {"_id": 0})
+    user = await db.users.find_one({"user_id": session["user_id"]}, {"_id": 0, "password_hash": 0})
     return user
 
 
@@ -1741,6 +1917,72 @@ async def google_session(body: SessionIn, response: FastResponse):
     return {"user": user}
 
 
+async def _start_user_session(user: dict, response: FastResponse) -> None:
+    now = datetime.now(timezone.utc)
+    session_token = secrets.token_urlsafe(48)
+    await db.user_sessions.insert_one({
+        "user_id": user["user_id"],
+        "session_token": session_token,
+        "expires_at": (now + timedelta(days=SESSION_DAYS)).isoformat(),
+        "created_at": now.isoformat(),
+    })
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        max_age=SESSION_DAYS * 24 * 60 * 60,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+    )
+
+
+class RegisterIn(BaseModel):
+    name: str
+    email: EmailStr
+    password: str = Field(min_length=8)
+
+
+class PasswordLoginIn(BaseModel):
+    email: EmailStr
+    password: str
+
+
+@auth_router.post("/password/register")
+async def register_with_password(body: RegisterIn, request: Request, response: FastResponse):
+    check_rate_limit(request, "user_register", limit=5, window_seconds=600)
+    existing = await db.users.find_one({"email": body.email})
+    if existing:
+        # Don't let a password claim an account that already exists (Google or password) —
+        # avoids account-takeover on an email whose Google session an attacker doesn't hold.
+        raise HTTPException(status_code=409, detail="Email già registrata. Accedi invece di registrarti.")
+    now = datetime.now(timezone.utc)
+    user_id = f"user_{uuid.uuid4().hex[:12]}"
+    user = {
+        "user_id": user_id,
+        "email": body.email,
+        "name": body.name,
+        "picture": "",
+        "is_admin": body.email.lower() == OWNER_EMAIL.lower(),
+        "password_hash": hash_password(body.password),
+        "created_at": now.isoformat(),
+    }
+    await db.users.insert_one(user)
+    await _start_user_session(user, response)
+    return {"user": {k: v for k, v in user.items() if k not in ("_id", "password_hash")}}
+
+
+@auth_router.post("/password/login")
+async def login_with_password(body: PasswordLoginIn, request: Request, response: FastResponse):
+    check_rate_limit(request, "user_login", limit=10, window_seconds=600)
+    user = await db.users.find_one({"email": body.email})
+    if not user or not user.get("password_hash") or not verify_password(body.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Email o password non corretti")
+    await db.users.update_one({"user_id": user["user_id"]}, {"$set": {"last_login_at": datetime.now(timezone.utc).isoformat()}})
+    await _start_user_session(user, response)
+    return {"user": {k: v for k, v in user.items() if k not in ("_id", "password_hash")}}
+
+
 @auth_router.get("/user")
 async def current_user(request: Request):
     user = await get_optional_user(request)
@@ -1792,7 +2034,8 @@ class PrivateEventIn(BaseModel):
 
 
 @private_router.post("")
-async def create_private_event(body: PrivateEventIn):
+async def create_private_event(body: PrivateEventIn, request: Request):
+    check_rate_limit(request, "private_event", limit=5, window_seconds=600)
     doc = {
         "id": str(uuid.uuid4()),
         **body.model_dump(),

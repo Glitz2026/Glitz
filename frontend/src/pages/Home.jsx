@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Ticket, MessageCircle, ChevronDown, MapPin, Calendar, ArrowRight, Sparkles, ShoppingBag } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion";
@@ -21,6 +21,7 @@ function vimeoEmbedUrl(url) {
 }
 
 export default function Home() {
+    const location = useLocation();
     const [upcoming, setUpcoming] = useState(null);
     const [faqs, setFaqs] = useState([]);
     const [posts, setPosts] = useState([]);
@@ -38,6 +39,16 @@ export default function Home() {
         api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
         api.get("/products").then((r) => setProducts(r.data.slice(0, 3))).catch(() => {});
     }, []);
+
+    // Consente di linkare direttamente la sezione FAQ da nav/footer (es. /#faq),
+    // superando lo scrollTo(0,0) che Layout applica ad ogni cambio pagina.
+    useEffect(() => {
+        if (location.hash !== "#faq") return;
+        const t = setTimeout(() => {
+            document.querySelector('[data-testid="faq-section"]')?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 250);
+        return () => clearTimeout(t);
+    }, [location.hash, faqs.length]);
 
     useEffect(() => {
         const firstGroup = settings?.about_gallery_groups?.[0];

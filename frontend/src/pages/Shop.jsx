@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ShoppingBag, MessageCircle } from "lucide-react";
+import { ShoppingBag, MessageCircle, Plus } from "lucide-react";
 import Seo from "../components/Seo";
 import { api } from "../lib/api";
+import ProductModal from "../components/ProductModal";
 
 export default function Shop() {
     const [products, setProducts] = useState([]);
     const [settings, setSettings] = useState({});
+    const [quickAddProduct, setQuickAddProduct] = useState(null);
 
     useEffect(() => {
         api.get("/products").then((r) => setProducts(r.data)).catch(() => {});
@@ -61,15 +63,22 @@ export default function Shop() {
                             viewport={{ once: true, margin: "-80px" }}
                             transition={{ duration: 0.5, delay: i * 0.05 }}
                         >
-                            <Link
-                                to={`/shop/${p.slug}`}
-                                className="group block relative rounded-2xl overflow-hidden bg-surface/40 border border-white/5 hover:border-lava/40 transition duration-500"
-                            >
+                            <div className="group relative rounded-2xl overflow-hidden bg-surface/40 border border-white/5 hover:border-lava/40 transition duration-500">
                                 {p.badge && (
                                     <span className="absolute top-4 left-4 z-10 text-[10px] uppercase tracking-widest font-black bg-lava text-white px-2.5 py-1 rounded-full">
                                         {p.badge}
                                     </span>
                                 )}
+                                <button
+                                    type="button"
+                                    data-testid={`product-quick-add-${p.slug}`}
+                                    onClick={() => setQuickAddProduct(p)}
+                                    aria-label={`Aggiungi ${p.name} al carrello`}
+                                    className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-obsidian/70 hover:bg-lava text-white flex items-center justify-center transition"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </button>
+                                <Link to={`/shop/${p.slug}`} className="block">
                                 <div className="aspect-[4/5] overflow-hidden bg-obsidian">
                                     <img
                                         src={p.image}
@@ -88,7 +97,8 @@ export default function Shop() {
                                         </div>
                                     </div>
                                 </div>
-                            </Link>
+                                </Link>
+                            </div>
                         </motion.div>
                     ))}
                 </div>
@@ -120,6 +130,8 @@ export default function Shop() {
                     </a>
                 </div>
             </section>
+
+            <ProductModal product={quickAddProduct} open={!!quickAddProduct} onClose={() => setQuickAddProduct(null)} />
         </div>
     );
 }

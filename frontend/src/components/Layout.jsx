@@ -1,9 +1,11 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, LogOut, User, Shield } from "lucide-react";
+import { Menu, X, Instagram, MessageCircle, Mail, MapPin, LogIn, LogOut, User, Shield, ShoppingBag } from "lucide-react";
 import { WHATSAPP_DISPLAY, EMAIL, INSTAGRAM, TIKTOK, ADDRESS, whatsappInfoLink } from "../lib/constants";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import Newsletter from "./Newsletter";
 
 function resolveUrl(url) {
@@ -13,14 +15,14 @@ function resolveUrl(url) {
 }
 
 const DEFAULT_NAV = [
-    { to: "/", label: "Home" },
-    { to: "/eventi", label: "Eventi" },
-    { to: "/il-club", label: "Il Club" },
-    { to: "/eventi/passati", label: "Archivio" },
-    { to: "/news", label: "News" },
-    { to: "/shop", label: "Shop" },
-    { to: "/prenota-evento", label: "Eventi Privati" },
-    { to: "/contatti", label: "Contatti" },
+    { to: "/", key: "nav_home" },
+    { to: "/eventi", key: "nav_events" },
+    { to: "/il-club", key: "nav_club" },
+    { to: "/eventi/passati", key: "nav_archive" },
+    { to: "/news", key: "nav_news" },
+    { to: "/shop", key: "nav_shop" },
+    { to: "/prenota-evento", key: "nav_private" },
+    { to: "/contatti", key: "nav_contact" },
 ];
 
 export default function Layout({ children }) {
@@ -29,7 +31,9 @@ export default function Layout({ children }) {
     const [logoUrl, setLogoUrl] = useState("");
     const [settings, setSettings] = useState({});
     const loc = useLocation();
-    const { user, loginWithGoogle, logout } = useAuth();
+    const { user, logout } = useAuth();
+    const { count: cartCount, setOpen: setCartOpen } = useCart();
+    const { lang, setLang, t } = useLanguage();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -43,8 +47,10 @@ export default function Layout({ children }) {
 
     useEffect(() => { setOpen(false); window.scrollTo(0, 0); }, [loc.pathname]);
 
-    const NAV = ((settings.nav_items && settings.nav_items.length ? settings.nav_items : DEFAULT_NAV))
-        .filter((n) => !n.hidden);
+    const NAV = (settings.nav_items && settings.nav_items.length
+        ? settings.nav_items
+        : DEFAULT_NAV.map((n) => ({ ...n, label: t(n.key) }))
+    ).filter((n) => !n.hidden);
 
     return (
         <div className="min-h-screen bg-obsidian text-white">
@@ -107,29 +113,50 @@ export default function Layout({ children }) {
                                     data-testid="header-logout-btn"
                                     className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
                                 >
-                                    <LogOut className="w-4 h-4" /> Esci
+                                    <LogOut className="w-4 h-4" /> {t("header_logout")}
                                 </button>
                             </div>
                         ) : (
                             <div className="flex items-center gap-4">
-                                <button
-                                    onClick={loginWithGoogle}
+                                <Link
+                                    to="/accedi"
                                     data-testid="header-login-btn"
                                     className="flex items-center gap-2 text-sm uppercase tracking-widest font-semibold text-lava hover:text-lava/80 transition"
                                 >
-                                    <LogIn className="w-4 h-4" /> Accedi
-                                </button>
+                                    <LogIn className="w-4 h-4" /> {t("header_login")}
+                                </Link>
                                 <Link
                                     to="/admin/login"
                                     data-testid="header-admin-link"
                                     className="flex items-center gap-1 text-sm uppercase tracking-widest font-semibold text-white/60 hover:text-white transition"
                                 >
-                                    <Shield className="w-4 h-4" /> Area Admin
+                                    <Shield className="w-4 h-4" /> {t("header_admin")}
                                 </Link>
                             </div>
                         )}
+                        <button
+                            onClick={() => setLang(lang === "it" ? "en" : "it")}
+                            data-testid="lang-toggle"
+                            aria-label="Cambia lingua / Change language"
+                            className="flex items-center gap-1 text-xs font-black tracking-widest text-white/50 hover:text-white border border-white/15 rounded-full px-2.5 py-1 transition"
+                        >
+                            {lang === "it" ? "EN" : "IT"}
+                        </button>
                     </nav>
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setCartOpen(true)}
+                            data-testid="header-cart-btn"
+                            aria-label="Carrello"
+                            className="relative p-2 text-white/80 hover:text-white"
+                        >
+                            <ShoppingBag className="w-5 h-5" />
+                            {cartCount > 0 && (
+                                <span data-testid="header-cart-count" className="absolute -top-1 -right-1 bg-lava text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </button>
                         <a
                             href={whatsappInfoLink()}
                             target="_blank"
@@ -189,27 +216,34 @@ export default function Layout({ children }) {
                                         data-testid="mobile-logout"
                                         className="text-lg uppercase tracking-widest font-semibold text-lava flex items-center gap-2 text-left"
                                     >
-                                        <LogOut className="w-4 h-4" /> Esci
+                                        <LogOut className="w-4 h-4" /> {t("header_logout")}
                                     </button>
                                 </>
                             ) : (
                                 <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-4">
-                                    <button
-                                        onClick={loginWithGoogle}
+                                    <Link
+                                        to="/accedi"
                                         data-testid="mobile-login"
                                         className="text-lg uppercase tracking-widest font-semibold text-lava flex items-center gap-2"
                                     >
-                                        <LogIn className="w-4 h-4" /> Accedi con Google
-                                    </button>
+                                        <LogIn className="w-4 h-4" /> {t("header_login")}
+                                    </Link>
                                     <Link
                                         to="/admin/login"
                                         data-testid="mobile-admin-link"
                                         className="text-lg uppercase tracking-widest font-semibold text-white/60 flex items-center gap-2"
                                     >
-                                        <Shield className="w-4 h-4" /> Area Admin
+                                        <Shield className="w-4 h-4" /> {t("header_admin")}
                                     </Link>
                                 </div>
                             )}
+                            <button
+                                onClick={() => setLang(lang === "it" ? "en" : "it")}
+                                data-testid="mobile-lang-toggle"
+                                className="mt-2 self-start flex items-center gap-1 text-xs font-black tracking-widest text-white/50 hover:text-white border border-white/15 rounded-full px-3 py-1.5 transition"
+                            >
+                                {lang === "it" ? "English" : "Italiano"}
+                            </button>
                         </nav>
                     </div>
                 )}
@@ -231,6 +265,7 @@ export default function Layout({ children }) {
                     </div>
                     <div className="space-y-3 text-sm">
                         <h4 className="uppercase tracking-widest text-lava text-xs font-bold">{settings.footer_contact_title || "Contatti"}</h4>
+                        <Link to="/#faq" data-testid="footer-faq-link" className="block text-white/70 hover:text-white transition">FAQ</Link>
                         <a href={`mailto:${EMAIL}`} data-testid="footer-email" className="flex items-center gap-2 text-white/70 hover:text-white transition">
                             <Mail className="w-4 h-4" /> {EMAIL}
                         </a>
