@@ -147,8 +147,8 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     onFallback={() => {}}
                 />
 
-                {/* Zone info compatte su UNA RIGA — nome + prezzo, "+" apre dettagli */}
-                <div data-testid="floorplan-zone-cards" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-3">
+                {/* Zone info ULTRA compatte su UNA RIGA (nome + prezzo, "+" apre dettagli) */}
+                <div data-testid="floorplan-zone-cards" className="grid grid-cols-5 gap-1.5 mb-3">
                     {["STAGE", "RIVA", "BAR", "SEAVIEW", "PRATO_BACK"].map((zid) => {
                         const z = getZone(zid);
                         const isActive = activeZone === zid;
@@ -157,16 +157,16 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                             <div
                                 key={zid}
                                 data-testid={`floorplan-zone-card-${zid}`}
-                                className={`relative flex items-center justify-between gap-1 rounded-lg px-2.5 py-2 border-l-[3px] transition-all cursor-pointer ${isActive ? "bg-white/10 shadow-[0_0_18px_rgba(255,255,255,0.15)]" : "bg-white/[0.03] hover:bg-white/[0.06]"}`}
-                                style={{ borderLeftColor: z.color, boxShadow: isActive ? `inset 0 0 0 1px ${z.color}88, 0 0 18px ${z.color}44` : undefined }}
+                                className={`relative flex items-center justify-between gap-1 rounded-md px-1.5 py-1.5 border-l-[2px] transition-all cursor-pointer ${isActive ? "bg-white/10" : "bg-white/[0.03] hover:bg-white/[0.06]"}`}
+                                style={{ borderLeftColor: z.color, boxShadow: isActive ? `0 0 12px ${z.color}66` : undefined }}
                                 onClick={() => setActiveZone(isActive ? null : zid)}
                                 role="button"
                                 aria-pressed={isActive}
                             >
                                 <div className="min-w-0 flex-1">
-                                    <div className="text-[11px] font-black uppercase tracking-wide text-white truncate leading-tight">{z.label}</div>
+                                    <div className="text-[9px] font-black uppercase tracking-tight text-white truncate leading-none">{z.label}</div>
                                     {z.price_from && (
-                                        <div className="text-[10px] font-bold text-white/70 truncate">Da {z.price_from}</div>
+                                        <div className="text-[9px] font-bold text-white/60 truncate mt-0.5">Da {z.price_from}</div>
                                     )}
                                 </div>
                                 <button
@@ -175,9 +175,9 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                     aria-expanded={isExpanded}
                                     aria-label={isExpanded ? `Chiudi info ${z.label}` : `Info ${z.label}`}
                                     onClick={(e) => { e.stopPropagation(); setExpandedZone(isExpanded ? null : zid); }}
-                                    className={`w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center transition ${isExpanded ? "bg-lava text-white" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
+                                    className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center transition ${isExpanded ? "bg-lava text-white" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
                                 >
-                                    {isExpanded ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                                    {isExpanded ? <Minus className="w-2.5 h-2.5" /> : <Plus className="w-2.5 h-2.5" />}
                                 </button>
                             </div>
                         );

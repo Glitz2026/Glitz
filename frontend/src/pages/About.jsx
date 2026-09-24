@@ -19,6 +19,13 @@ export default function About() {
     const [galleryByCat, setGalleryByCat] = useState({});
     const [settings, setSettings] = useState(null);
     const [activeTab, setActiveTab] = useState(null);
+    const [zonePhotoIdx, setZonePhotoIdx] = useState({});
+
+    function getZonePhotos(z) {
+        const gal = Array.isArray(z.gallery) ? z.gallery.filter(Boolean) : [];
+        if (gal.length > 0) return gal.map(resolveUrl);
+        return z.image ? [resolveUrl(z.image)] : [];
+    }
 
     useEffect(() => {
         api.get("/settings").then((r) => setSettings(r.data)).catch(() => {});
@@ -112,9 +119,51 @@ export default function About() {
                                     ))}
                                 </ul>
                             </div>
-                            <div className="relative aspect-[3/4] lg:aspect-[4/5] rounded-2xl overflow-hidden group cursor-pointer border border-white/5" onClick={() => setLightbox(zImage)}>
-                                <SafeImage src={zImage} alt={z.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-obsidian/50 via-transparent to-transparent" />
+                            <div className="relative">
+                                {(() => {
+                                    const photos = getZonePhotos(z);
+                                    if (photos.length === 0) return null;
+                                    const activeIdx = zonePhotoIdx[z.id || i] || 0;
+                                    const mainPhoto = photos[activeIdx] || photos[0];
+                                    const thumbs = photos.filter((_, idx) => idx !== activeIdx).slice(0, 2);
+                                    // Se solo 1 foto: solo main, senza griglia
+                                    if (photos.length === 1) {
+                                        return (
+                                            <div className="aspect-[3/4] lg:aspect-[4/5] rounded-2xl overflow-hidden group cursor-pointer border border-white/5" onClick={() => setLightbox(mainPhoto)} data-testid={`zone-photo-${z.id || i}-main`}>
+                                                <SafeImage src={mainPhoto} alt={z.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-obsidian/50 via-transparent to-transparent" />
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <div className="grid grid-cols-3 grid-rows-2 gap-2 aspect-[4/3]">
+                                            <div
+                                                className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden group cursor-pointer border border-white/5"
+                                                onClick={() => setLightbox(mainPhoto)}
+                                                data-testid={`zone-photo-${z.id || i}-main`}
+                                            >
+                                                <SafeImage src={mainPhoto} alt={z.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-obsidian/40 via-transparent to-transparent" />
+                                                <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded-full">Ingrandisci</div>
+                                            </div>
+                                            {thumbs.map((t, ti) => (
+                                                <button
+                                                    key={ti}
+                                                    type="button"
+                                                    data-testid={`zone-photo-${z.id || i}-thumb-${ti}`}
+                                                    onClick={() => {
+                                                        const realIdx = photos.indexOf(t);
+                                                        setZonePhotoIdx({ ...zonePhotoIdx, [z.id || i]: realIdx });
+                                                    }}
+                                                    className="relative col-span-1 row-span-1 rounded-xl overflow-hidden border border-white/5 hover:border-lava/40 transition group cursor-pointer"
+                                                >
+                                                    <SafeImage src={t} alt={`${z.title} ${ti + 2}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian/20 via-transparent to-transparent group-hover:opacity-0 transition" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </motion.div>
                     );

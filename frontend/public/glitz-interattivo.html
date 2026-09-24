@@ -4265,7 +4265,59 @@ three/build/three.module.js:
    *)
 */
 </script><style id="glitz-embed-customization">
+/* --- INTRO ANIMATION OVERLAY (obbligatoria all'apertura mappa) --- */
+body.embedded #glitz-intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 70%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    transition: opacity 0.5s ease;
+    color: #fff;
+    font: 900 12px/1 system-ui, -apple-system, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    gap: 18px;
+}
+body.embedded #glitz-intro-overlay .g-intro-label {
+    background: rgba(225, 6, 0, 0.95);
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 40px rgba(225, 6, 0, 0.6);
+}
+body.embedded #glitz-intro-overlay .g-intro-progress {
+    width: 200px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+}
+body.embedded #glitz-intro-overlay .g-intro-progress::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #e10600, #ff5044);
+    width: var(--p, 0%);
+    transition: width 0.15s linear;
+    box-shadow: 0 0 12px rgba(225,6,0,0.9);
+}
+body.embedded.glitz-intro-done #glitz-intro-overlay { opacity: 0; pointer-events: none; }
+
 /* --- MARKER: solo il numero flottante sopra il tavolo selezionato --- */
+/* Nascondi i bottoni della toolbar non voluti in embedded */
+body.embedded #garden-view,
+body.embedded #panorama-view,
+body.embedded #arch-view,
+body.embedded #plan-toggle,
+body.embedded #top {
+    display: none !important;
+}
 /* IMPORTANTE: rendere visibile il container #markers (override dell'originale che lo nasconde in embedded) */
 body.embedded #markers { display: block !important; }
 /* Nascondi tutti i marker per default (nessun pallino su tavoli non selezionati) */
@@ -4468,26 +4520,49 @@ body.embedded #glitz-zoom-hint svg {
                 }, 30);
             });
 
-            // Zoom iniziale sull'arco (leggermente allargato per invitare a zoomare manualmente)
-            var archBtn = document.getElementById("arch-view");
-            if (archBtn) {
-                setTimeout(function () { archBtn.click(); }, 500);
+            // Intro Animation obbligatoria: partenza dall'alto, accensione tavoli uno per uno, poi apri con vista arco
+            function playIntroAnimation() {
+                if (!window.__glitz || !window.__glitz.model) return;
+                var overlay = document.createElement("div");
+                overlay.id = "glitz-intro-overlay";
+                overlay.innerHTML = '<div class="g-intro-label">Preparazione del club</div><div class="g-intro-progress"></div>';
+                document.body.appendChild(overlay);
+                var progress = overlay.querySelector(".g-intro-progress");
+                // Vista drone (dall'alto)
+                var topBtn = document.getElementById("top");
+                if (topBtn) topBtn.click();
+                // Attendi la transizione poi accendi i tavoli
+                setTimeout(function () {
+                    var tables = window.__glitz.model.tables.filter(function (t) { return t.group; });
+                    var i = 0;
+                    var total = tables.length;
+                    var interval = setInterval(function () {
+                        if (i >= total) {
+                            clearInterval(interval);
+                            // Tutti accesi, aspetta poi passa a vista arco e ripulisci
+                            setTimeout(function () {
+                                // Vai a vista arco (usa il bottone anche se nascosto)
+                                var arch = document.getElementById("arch-view");
+                                if (arch) arch.click();
+                                setTimeout(function () {
+                                    tables.forEach(clearTablePaint);
+                                    forceRender();
+                                    document.body.classList.add("glitz-intro-done");
+                                    setTimeout(function () { overlay.remove(); document.body.classList.remove("glitz-intro-done"); }, 600);
+                                }, 900);
+                            }, 800);
+                            return;
+                        }
+                        paintTable(tables[i], { intensity: 1.6, tintColor: 0xff2010, tintAmount: 0.6 });
+                        forceRender();
+                        progress.style.setProperty("--p", Math.round(((i + 1) / total) * 100) + "%");
+                        i++;
+                    }, 80);
+                }, 800);
             }
 
-            // Hint di zoom animato che compare all'apertura e sparisce alla prima interazione
-            try {
-                if (!document.getElementById("glitz-zoom-hint")) {
-                    var mapStage = document.querySelector(".map-stage") || document.body;
-                    var hint = document.createElement("div");
-                    hint.id = "glitz-zoom-hint";
-                    hint.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg><span>Pizzica o scorri per esplorare</span>';
-                    mapStage.appendChild(hint);
-                    var dismiss = function () { document.body.classList.add("glitz-user-interacted"); };
-                    ["wheel", "pointerdown", "touchstart"].forEach(function (ev) {
-                        document.addEventListener(ev, dismiss, { once: true, passive: true });
-                    });
-                }
-            } catch (e) { /* no-op */ }
+            // Avvia l'intro obbligatoria (si sostituisce all'hint di zoom manuale)
+            setTimeout(playIntroAnimation, 400);
         } catch (e) { /* no-op */ }
     }
     if (document.readyState === "complete" || document.readyState === "interactive") boot();
