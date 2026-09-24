@@ -22,40 +22,47 @@ YEAR = '2026'
 IG_URL = 'https://www.instagram.com/osso_vincenzo'
 IG = '@osso_vincenzo'
 
-# ---------------------------------------------------------------- mockup: ritaglio sull'alfa
-def crop_mockups():
-    out = B / 'mockups-c'
-    out.mkdir(exist_ok=True)
-    for p in sorted((B / 'mockups').glob('*.png')):
-        im = Image.open(p)
-        bb = im.getchannel('A').point(lambda a: 255 if a > 6 else 0).getbbox()
-        m = int(max(im.size) * 0.015)
+# ---------------------------------------------------------------- mockup: ritaglio e fondo pieno (JPEG leggeri)
+BG = {'stage': (238, 244, 240), 'navy': (10, 42, 57), 'white': (255, 255, 255)}
+_made = set()
+
+
+def mk(name, bg='stage'):
+    """Ritaglia il render sull'alfa, lo appoggia sul colore di fondo della pagina e lo salva in JPEG."""
+    out = B / 'mockups-c' / f'{name}-{bg}.jpg'
+    if out not in _made:
+        out.parent.mkdir(exist_ok=True)
+        im = Image.open(B / 'mockups' / f'{name}.png').convert('RGBA')
+        # elimina il velo quasi trasparente del piano d'ombra (evita il "riquadro" sullo sfondo)
+        a = im.getchannel('A').point(lambda v: 0 if v < 16 else min(255, int((v - 16) * 255 / 239)))
+        im.putalpha(a)
+        bb = a.point(lambda v: 255 if v > 0 else 0).getbbox()
+        m = int(max(im.size) * 0.02)
         im = im.crop((max(bb[0] - m, 0), max(bb[1] - m, 0), min(bb[2] + m, im.width), min(bb[3] + m, im.height)))
-        im.thumbnail((2000, 2000) if p.stem.startswith('hero') else (1300, 1300), Image.LANCZOS)
-        im.save(out / p.name, optimize=True)
-
-
-def mk(name):
-    return f'mockups-c/{name}.png'
+        im.thumbnail((2000, 2000) if name.startswith('hero') else (1150, 1150), Image.LANCZOS)
+        flat = Image.new('RGB', im.size, BG[bg]); flat.paste(im, (0, 0), im)
+        flat.save(out, 'JPEG', quality=86, optimize=True, progressive=True)
+        _made.add(out)
+    return f'mockups-c/{out.name}'
 
 
 # ---------------------------------------------------------------- sezioni
 SECTIONS = [
-    ('panini', 'Porta panini', 'burger-box',
+    ('panini', 'Porta panini', 'pack-PP01',
      'Conchiglia, fiore, scatto o vaschetta: il panino arriva caldo e intatto, e il tuo marchio si vede prima ancora del primo morso.'),
     ('fritti', 'Porta fritti & street food', 'hero-food',
      'Vaschette, coni, lunchbox e porta hot dog pensati per il take away. Superfici ampie, ideali per logo, colori e messaggi del tuo locale.'),
-    ('accessori', 'Accessori', 'placemat',
+    ('accessori', 'Accessori', 'pack-AC01',
      'Tovagliette, porta bicchieri e bauletti: i dettagli che completano il servizio e rendono coerente tutta l’esperienza del cliente.'),
-    ('etnica', 'Box cucina etnica', 'sushi',
+    ('etnica', 'Box cucina etnica', 'pack-CE01',
      'Sushi, noodle, tacos e piadine: confezioni studiate per ogni formato, con divisori e aperture a scorrimento o a strappo.'),
     ('pasticceria', 'Pasticceria', 'hero-pastry',
      'Porta paste, porta torte, cake box e monoporzioni. Ordine componibile scegliendo tra più misure: bastano 300 pezzi per formato.'),
-    ('regalo', 'Box regalo', 'bottle',
+    ('regalo', 'Box regalo', 'hero-gift',
      'Porta bottiglie, bauletti e porta vivande per ricorrenze, cantine e gastronomie. Il regalo diventa un biglietto da visita.'),
-    ('ecommerce', 'Box e-commerce', 'mailer',
+    ('ecommerce', 'Box e-commerce', 'pack-EC02',
      'Scatole in teso e accoppiate per spedire con cura: l’unboxing è il primo contatto fisico del cliente con il tuo brand.'),
-    ('bicchieri', 'Bicchieri e bowl', 'bowl',
+    ('bicchieri', 'Bicchieri e bowl', 'pack-BB01',
      'Bicchieri in carta con coperchio e bowl con coperchio in R-PET: dal caffè alla poke, sempre con il tuo marchio in mano al cliente.'),
     ('shopper', 'Shopper in carta', 'hero-bags',
      'Più di cinquanta modelli pronti a magazzino: anonimi, colorati, take away, fantasia, Natale e speciali. Tutti personalizzabili, anche in piccole quantità.'),
@@ -125,14 +132,14 @@ def table(p):
         note = '<p class="note">7 oz disponibile anche imbustato singolarmente, neutro o personalizzato.</p>'
     elif p['id'] == 'BB02':
         note = '<p class="note">Coperchio trasparente in R-PET, adatto al contatto con alimenti.</p>'
+    tiers = rows[0].get('tiers') or []
+    if len(tiers) > 1 and not p['pasticceria']:
+        note = f'<p class="note"><b>Scaglioni d’ordine</b> · {" · ".join(tiers)} pz</p>' + note
     return f'<table class="t">{h}{"".join(body)}</table>{note}'
 
 
-def gallery(p, full=False):
-    imgs = p['images'][:3]
-    n = len(imgs)
-    cells = ''.join(f'<div class="ph"><img src="{i["src"]}" alt=""></div>' for i in imgs)
-    return f'<div class="gal n{n}">{cells}</div>'
+def stage(p):
+    return f'<div class="stage3d"><img src="{mk("pack-" + p["id"])}" alt=""><span class="wm">Mockup · marchio Waste Management</span></div>'
 
 
 def product_block(p, full=False):
@@ -141,10 +148,10 @@ def product_block(p, full=False):
     cta = ('<p class="cta-line"><img src="../assets/wm-simbolo-verde.svg" alt="">'
            'Inviaci il tuo logo: ricevi la bozza grafica prima della produzione.</p>')
     if full:
-        return (f'<section class="prod full">{gallery(p, True)}<div class="info"><div class="left">'
+        return (f'<section class="prod full">{stage(p)}<div class="info"><div class="left">'
                 f'<span class="label">{E(cat)}</span><h3>{E(p["name"])}</h3>{sub}<div class="chips">{chips(p)}</div>{cta}</div>'
                 f'<div>{table(p)}</div></div></section>')
-    return (f'<section class="prod">{gallery(p)}<div class="info"><span class="label">{E(cat)}</span>'
+    return (f'<section class="prod">{stage(p)}<div class="info"><span class="label">{E(cat)}</span>'
             f'<h3>{E(p["name"])}</h3>{sub}<div class="chips">{chips(p)}</div>{table(p)}{cta}</div></section>')
 
 
@@ -160,7 +167,7 @@ def p_cover():
 <div class="ed"><span class="label light">Catalogo {YEAR}</span></div>
 <h1>Il tuo marchio,<br><em>su ogni confezione.</em></h1>
 <p class="lead">Packaging personalizzato per il food, la pasticceria, il regalo e l’e-commerce, e oltre cinquanta modelli di shopper in carta. Tutto con il tuo logo.</p>
-<div class="hero"><img src="{mk('hero')}" alt=""></div>
+<div class="hero"><img src="{mk('hero', 'navy')}" alt=""></div>
 <div class="band"><span>Prodotti monouso</span><span>Imballaggi</span><span>Detergenza professionale</span></div>''')
 
 
@@ -182,7 +189,7 @@ def p_intro(n):
     <div class="svc"><img class="ico" src="../assets/wm-simbolo-verde.svg" alt=""><h4>Nobilitazioni</h4><p>Stampa a caldo oro e argento, stampa UV lucida: per un packaging che si fa notare sul banco.</p></div>
   </div>
   <div style="position:absolute;left:0;right:0;bottom:0;height:70mm;display:flex;align-items:flex-end;justify-content:center">
-    <img src="{mk('hero-bags')}" style="max-height:70mm" alt="">
+    <img src="{mk('hero-bags', 'white')}" style="max-height:70mm" alt="">
   </div>
 </div>''' + foot(n))
 
@@ -226,7 +233,7 @@ def p_opener(n, key, items):
 <h2>{E(title)}</h2>
 <p class="txt">{E(text)}</p>
 <div class="list">{lst}</div>
-<div class="render"><img src="{mk(render)}" alt=""><span class="pill">Mockup con marchio Waste Management</span></div>''' + foot(n))
+<div class="render"><img src="{mk(render, 'navy')}" alt=""><span class="pill">Mockup con marchio Waste Management</span></div>''' + foot(n))
 
 
 def p_products(n, key, blocks):
@@ -235,13 +242,29 @@ def p_products(n, key, blocks):
     return page('', head(title) + f'<div class="prod-area">{inner}</div>' + foot(n))
 
 
+def swatch_row(b):
+    out = []
+    for sw in b['swatches']:
+        if sw.get('pattern') and sw.get('palette'):
+            bg = 'linear-gradient(135deg,' + ','.join(sw['palette'][:4]) + ')'
+        else:
+            bg = sw['hex']
+        ref = f'Ref. {sw["ref"]}' if sw.get('ref') else ''
+        out.append(f'<span class="sw"><i style="background:{bg}"></i>{ref}</span>')
+    return ''.join(out)
+
+
+def bag_table(b):
+    rows = ''.join(f'<tr><td>{E(r["f"])}</td><td class="r">{E(r["pcs"])}</td><td class="r">{E(r["gsm"])}</td></tr>' for r in b['rows'])
+    return f'<table class="t bt"><tr><th>Formato (cm)</th><th class="r">Pz/scatola</th><th class="r">g/m²</th></tr>{rows}</table>'
+
+
 def p_bags(n, cards):
     out = []
     for b in cards:
-        f = ''.join(f'<span class="fmt">{E(x)}</span>' for x in b['formats'])
-        out.append(f'''<article class="bag"><div class="ph"><span class="label grp">{E(b["section"])}</span><span class="code">{b["code"]}</span><img src="{b["image"]}" alt=""></div>
-<div><h4>{E(b["title"])}</h4><p class="d">{E(b["desc"])}</p><div class="fmts">{f}</div></div></article>''')
-    return page('', head('Shopper in carta · base + soffietto × altezza, cm') + f'<div class="bag-grid">{"".join(out)}</div>' + foot(n))
+        out.append(f'''<article class="bag"><div class="stage3d"><span class="label grp">{E(b["section"])}</span><span class="code">{b["code"]}</span><img src="{mk(b["render"])}" alt=""></div>
+<div class="bi"><h4>{E(b["title"])}</h4><p class="d">{E(b["desc"])}</p><div class="sws">{swatch_row(b)}</div>{bag_table(b)}</div></article>''')
+    return page('', head('Shopper in carta · base + soffietto × altezza') + f'<div class="bag-grid">{"".join(out)}</div>' + foot(n))
 
 
 def p_files(n):
@@ -290,6 +313,7 @@ def build_catalogo():
     # codici WM shopper
     for i, b in enumerate(BAGS, 1):
         b['code'] = f'WM-SH{i:02d}'
+        b['render'] = f'bag-{i - 1:02d}'
     specs = [('cover',), ('intro',), ('how',), ('toc',)]
     sec_start = {}
     sec_items = {}
@@ -299,9 +323,9 @@ def build_catalogo():
         items = []
         if key == 'shopper':
             groups = {}
-            for k in range(0, len(BAGS), 6):
-                specs.append(('bags', BAGS[k:k + 6]))
-                for b in BAGS[k:k + 6]:
+            for k in range(0, len(BAGS), 4):
+                specs.append(('bags', BAGS[k:k + 4]))
+                for b in BAGS[k:k + 4]:
                     groups.setdefault(b['section'], len(specs))
             items = list(groups.items())
         else:
@@ -374,50 +398,50 @@ def selection():
     take = bag_by('Take away senza stampa', 'avana e bianca')
     green = bag_by('Colorati pastello', 'arancio, verde chiaro')
     return [
-        dict(r='shopper-kraft', cat='Shopper', name='Shopper avana con maniglia ritorta',
+        dict(r='sel-shopper-kraft', cat='Shopper', name='Shopper avana con maniglia ritorta',
              why='Il grande classico che non passa mai di moda: carta avana naturale, maniglia ritorta resistente e il tuo logo in un solo colore. Il modo più semplice per dare identità a ogni vendita.',
              pts=['Disponibile anche in carta bianca', 'Personalizzabile anche in piccole quantità', 'Resa naturale con inchiostri ad acqua'],
-             spec=[('Formati', ' · '.join(kraft['formats'][:5]) + ' …'), ('Carta', 'Avana o bianca, maniglia ritorta'), ('Stampa', SHOP_TECH), ('Codice', kraft['code'])]),
-        dict(r='shopper-navy', cat='Shopper', name='Shopper colorata bordo risvoltato', dark=True,
+             spec=[('Formati', ' · '.join(kraft['formats'][2:7]) + ' …'), ('Carta', 'Avana o bianca, maniglia ritorta'), ('Stampa', SHOP_TECH), ('Codice', kraft['code'])]),
+        dict(r='sel-shopper-navy', cat='Shopper', name='Shopper colorata bordo risvoltato', dark=True,
              why='Fondo pieno, bordo superiore risvoltato e maniglia rivestita in cotone: la shopper da boutique che trasforma un acquisto in un regalo.',
              pts=['Fondi colorati pieni, anche blu e nero', 'Logo in stampa a caldo oro, argento o bianco', 'Maniglia in cotone coordinata'],
              spec=[('Formati', ' · '.join(navy['formats'][:4]) + ' …'), ('Carta', 'Bianca con fondo colorato'), ('Stampa', 'Stampa a caldo (foil), serigrafia'), ('Codice', navy['code'])]),
-        dict(r='shopper-white', cat='Shopper', name='Shopper take away',
+        dict(r='sel-shopper-white', cat='Shopper', name='Shopper take away',
              why='Fondo largo e maniglia piatta: tiene dritti vassoi, box e bicchieri. È la shopper che il delivery e l’asporto portano in giro per la città.',
              pts=['Soffietto ampio per contenitori alimentari', 'Carta bianca o avana', 'Superficie frontale ideale per il logo'],
              spec=[('Formati', ' · '.join(take['formats'])), ('Carta', 'Avana o bianca, maniglia piatta'), ('Stampa', SHOP_TECH), ('Codice', take['code'])]),
-        dict(r='shopper-green', cat='Shopper', name='Shopper colorata pastello',
+        dict(r='sel-shopper-green', cat='Shopper', name='Shopper colorata pastello',
              why='Colori tenui e maniglia ritorta a contrasto: una shopper fresca e riconoscibile, perfetta per negozi, profumerie e concept store.',
              pts=['Palette di tinte pastello a scelta', 'Maniglia ritorta colorata', 'Logo in bianco o a caldo'],
              spec=[('Formati', ' · '.join(green['formats'][:5]) + ' …'), ('Carta', 'Bianca con fondo colorato'), ('Stampa', SHOP_TECH), ('Codice', green['code'])]),
-        dict(r='burger-box', cat='Porta panini', name='Porta panino a conchiglia', p=pk('PP01'),
+        dict(r='pack-PP01', cat='Porta panini', name='Porta panino a conchiglia', p=pk('PP01'),
              why='Il burger box che si chiude a scatto e protegge il panino fino all’ultimo morso. Il coperchio è una piccola insegna: stampaci sopra il tuo simbolo.',
              pts=['Tre misure, da 12 a 16,5 cm', 'Coperchio stampabile a tutta superficie', 'Perfetto per burger e panini gourmet']),
-        dict(r='cup', cat='Bicchieri', name='Bicchiere in carta con coperchio', p=pk('BB01'),
+        dict(r='sel-cup', cat='Bicchieri', name='Bicchiere in carta con coperchio', p=pk('BB01'),
              why='Il bicchiere viaggia con il cliente: in ufficio, in strada, sui social. Ogni caffè da asporto diventa una vetrina del tuo marchio.',
              pts=['3, 7 e 8 oz con coperchio coordinato', '7 oz anche imbustato singolarmente', 'Grafica a 360° sul corpo del bicchiere']),
-        dict(r='bowl', cat='Bowl', name='Bowl con coperchio in R-PET', p=pk('BB02'),
+        dict(r='pack-BB02', cat='Bowl', name='Bowl con coperchio in R-PET', p=pk('BB02'),
              why='Poke, insalate, primi da asporto: la bowl in carta con coperchio trasparente mostra il piatto e il tuo marchio insieme.',
              pts=['Da 500 a 1300 ml', 'Coperchio trasparente in R-PET', 'Lavorazione 60 giorni']),
-        dict(r='noodle', cat='Cucina etnica', name='Noodle box', p=pk('CE03'),
+        dict(r='pack-CE03', cat='Cucina etnica', name='Noodle box', p=pk('CE03'),
              why='Iconica, pratica, instagrammabile. La noodle box è il contenitore simbolo dello street food asiatico, e con il tuo logo diventa un oggetto da collezione.',
              pts=['Capacità 500 ml', 'Chiusura a falde', 'Stampa su tutte le facce']),
-        dict(r='sushi', cat='Cucina etnica', name='Box sushi a scorrimento', p=pk('CE02'),
+        dict(r='pack-CE02', cat='Cucina etnica', name='Box sushi a scorrimento', p=pk('CE02'),
              why='Vassoio e fascia scorrevole: la confezione si apre come un piccolo regalo. La fascia è lo spazio ideale per il marchio del ristorante.',
              pts=['Apertura a scorrimento', 'Disponibile anche con divisorio (S · M · L)', 'Interno bianco, fascia personalizzata']),
-        dict(r='pastry-box', cat='Pasticceria', name='Porta paste classico', p=pk('PA01'),
+        dict(r='pack-PA01', cat='Pasticceria', name='Porta paste classico', p=pk('PA01'),
              why='Il vassoio della domenica. Con la stampa diffusa il tuo simbolo si ripete su tutta la superficie, elegante e riconoscibile anche da lontano.',
              pts=['Da 350 a 1000 gr', 'Stampa diffusa 1–3 colori o offset 4 colori', 'Ordine componibile: da 300 pz per formato']),
-        dict(r='cake-box', cat='Pasticceria', name='Cake box', p=pk('PA08'), dark=True,
+        dict(r='pack-PA08', cat='Pasticceria', name='Cake box', p=pk('PA08'), dark=True,
              why='Per torte a piani, cake design e ricorrenze importanti. Un cubo pieno di colore che fa scena prima ancora di essere aperto.',
              pts=['Small, medium e large: da 30 a 50 cm', 'Stampa offset in quadricromia', 'Da 300 pezzi']),
-        dict(r='mailer', cat='E-commerce', name='Box e-commerce', p=pk('EC01'),
+        dict(r='pack-EC01', cat='E-commerce', name='Box e-commerce', p=pk('EC01'),
              why='L’unboxing è il primo contatto fisico con il tuo negozio online. Una scatola avana con il marchio stampato vale più di mille recensioni.',
              pts=['Quattro formati in teso, dieci accoppiati', 'Chiusura a incastro, senza nastro', 'Da 500 pezzi']),
-        dict(r='bottle', cat='Box regalo', name='Porta bottiglie', p=pk('BR01'),
+        dict(r='pack-BR01', cat='Box regalo', name='Porta bottiglie', p=pk('BR01'),
              why='Per cantine, enoteche e gastronomie: il porta bottiglie con il tuo marchio trasforma una bottiglia in un regalo pronto da consegnare.',
              pts=['Singolo, doppio e triplo', 'Maniglia integrata', 'Da 500 pezzi']),
-        dict(r='placemat', cat='Accessori', name='Tovagliette personalizzate', p=pk('AC01'),
+        dict(r='pack-AC01', cat='Accessori', name='Tovagliette personalizzate', p=pk('AC01'),
              why='La tovaglietta è il biglietto da visita del tavolo: il cliente la guarda per tutto il pasto. Logo, menu, social e promozioni in un unico foglio.',
              pts=['Formato 30 × 40 cm', 'Stampa a tutta superficie', 'Coordinabile con box e bicchieri']),
     ]
@@ -430,7 +454,7 @@ def p_sel_cover():
 <div class="ed"><span class="label light">Selezione {YEAR}</span></div>
 <h1>Best seller<br><em>personalizzati.</em></h1>
 <p class="lead">I prodotti più richiesti, vestiti con il marchio Waste Management. Immagina il tuo logo al posto del nostro.</p>
-<div class="hero"><img src="{mk('hero-bags')}" alt=""></div>
+<div class="hero"><img src="{mk('hero-bags', 'navy')}" alt=""></div>
 <div class="band"><span>Shopper</span><span>Food packaging</span><span>Pasticceria</span><span>E-commerce</span></div>''')
 
 
@@ -440,7 +464,7 @@ def p_sel_intro(n):
   <span class="label">Prova a immaginarlo</span>
   <h2 class="big-title">Stesso prodotto,<br><em>tutta un’altra percezione.</em></h2>
   <p class="lead-p">In queste pagine abbiamo applicato il nostro marchio ai prodotti che i clienti scelgono di più. Non sono fotografie di magazzino: sono l’anteprima di come apparirebbe il tuo packaging. Sostituisci il simbolo con il tuo logo, scegli colori e tecnica di stampa, al resto pensiamo noi.</p>
-  <div style="margin-top:10mm;height:120mm;display:flex;align-items:center;justify-content:center"><img src="{mk('hero-food')}" style="max-width:100%;max-height:120mm" alt=""></div>
+  <div style="margin-top:10mm;height:120mm;display:flex;align-items:center;justify-content:center"><img src="{mk('hero-food', 'white')}" style="max-width:100%;max-height:120mm" alt=""></div>
   <div class="cols-3" style="margin-top:8mm">
     <div class="step"><div class="n">01</div><h4>Scegli il prodotto</h4><p>Ogni scheda riporta formati, minimi e tecniche consigliate.</p></div>
     <div class="step"><div class="n">02</div><h4>Inviaci il logo</h4><p>Anche solo una foto: prepariamo noi la bozza, in 2–7 giorni.</p></div>
@@ -460,7 +484,7 @@ def p_sel_product(n, i, s):
     pts = ''.join(f'<li>{E(x)}</li>' for x in s['pts'])
     stage = 'stage navy' if s.get('dark') else 'stage'
     return page('sel', f'''
-<div class="{stage}"><div class="idx">{i:02d}</div><span class="pill tag" style="color:{'#73b18d' if s.get('dark') else '#4f8f6b'}">Mockup · marchio Waste Management</span><img src="{mk(s['r'])}" alt=""></div>
+<div class="{stage}"><div class="idx">{i:02d}</div><span class="pill tag" style="color:{'#73b18d' if s.get('dark') else '#4f8f6b'}">Mockup · marchio Waste Management</span><img src="{mk(s['r'], 'navy' if s.get('dark') else 'stage')}" alt=""></div>
 <div class="body">
   <div><span class="label">{E(s['cat'])}</span><h2>{E(s['name'])}</h2><p class="why">{E(s['why'])}</p><ul>{pts}</ul></div>
   <div class="specs"><span class="label" style="display:block;margin:2mm 0 3mm">Scheda</span>{specs}
@@ -474,8 +498,8 @@ def p_sel_line(n):
   <span class="label">Coordina tutto</span>
   <h2 class="big-title">Un marchio,<br><em>una linea completa.</em></h2>
   <p class="lead-p">Shopper, box, bicchieri e vassoi con la stessa grafica: il cliente riconosce il tuo locale da ogni singolo pezzo. Ti aiutiamo a costruire la linea partendo dai prodotti che usi davvero.</p>
-  <div style="margin-top:8mm;height:95mm;display:flex;justify-content:center"><img src="{mk('hero')}" style="max-height:95mm;max-width:100%" alt=""></div>
-  <div style="margin-top:6mm;height:85mm;display:flex;justify-content:center"><img src="{mk('hero-pastry')}" style="max-height:85mm;max-width:100%" alt=""></div>
+  <div style="margin-top:8mm;height:95mm;display:flex;justify-content:center"><img src="{mk('hero', 'white')}" style="max-height:95mm;max-width:100%" alt=""></div>
+  <div style="margin-top:6mm;height:85mm;display:flex;justify-content:center"><img src="{mk('hero-pastry', 'white')}" style="max-height:85mm;max-width:100%" alt=""></div>
 </div>''' + foot(n, 'Selezione'))
 
 
@@ -497,6 +521,7 @@ def write(name, title, pages):
 
 
 if __name__ == '__main__':
-    crop_mockups()
+    import shutil
+    shutil.rmtree(B / 'mockups-c', ignore_errors=True)
     print('catalogo:', build_catalogo(), 'pagine')
     print('selezione:', build_selezione(), 'pagine')

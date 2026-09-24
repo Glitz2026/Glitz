@@ -19,329 +19,91 @@
 <script type="module">
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import * as L from './lib.js';
+import { PRODUCTS, EXTRA } from './products.js';
+import { bag, bagScene } from './bags.js';
 
-// ------------------------------------------------------------------ brand
-const NAVY = '#0a2a39', GREEN = '#73b18d', MINT = '#e8f3ec', WHITE = '#fbfbf8';
-const SYM_W = 195.9, SYM_H = 196.9;
-const SYM = new Path2D(await (await fetch('../assets/symbol_path.txt')).text().then(t => t.split('\n')[1]));
-await document.fonts.load('500 40px Jost'); await document.fonts.load('400 40px Jost');
+await L.init();
+const q = new URLSearchParams(location.search);
+const SCENE = q.get('scene') || 'pack:PP01';
+const SIZE = +(q.get('size') || 1600), ASPECT = +(q.get('aspect') || 1);
 
-const params = new URLSearchParams(location.search);
-const SCENE = params.get('scene') || 'hero';
-const SIZE = +(params.get('size') || 1600);
-const ASPECT = +(params.get('aspect') || 1);
-const TURN = +(params.get('turn') || -0.8);
-const TOPROT = +(params.get('toprot') || 0);
-
-// ------------------------------------------------------------------ canvas helpers
-function cnv(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; }
-
-function paper(ctx, w, h, base, grain = 10, fibers = 0) {
-  ctx.fillStyle = base; ctx.fillRect(0, 0, w, h);
-  const img = ctx.getImageData(0, 0, w, h), d = img.data;
-  for (let i = 0; i < d.length; i += 4) { const n = (Math.random() - 0.5) * grain; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
-  ctx.putImageData(img, 0, 0);
-  ctx.globalAlpha = 0.08;
-  for (let i = 0; i < fibers; i++) {
-    const x = Math.random() * w, y = Math.random() * h, l = 6 + Math.random() * 22, a = Math.random() * Math.PI;
-    ctx.strokeStyle = Math.random() > 0.5 ? '#5a3a1a' : '#fff4e0'; ctx.lineWidth = 0.6 + Math.random();
-    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); ctx.stroke();
-  }
-  ctx.globalAlpha = 1;
-}
-const KRAFT = '#b5875a';
-const kraft = (ctx, w, h) => paper(ctx, w, h, KRAFT, 18, (w * h) / 900);
-const whitePaper = (ctx, w, h) => paper(ctx, w, h, WHITE, 5);
-const navyPaper = (ctx, w, h) => paper(ctx, w, h, NAVY, 5);
-
-// disegna il simbolo con altezza h, centrato in (cx, cy)
-function symbol(ctx, cx, cy, h, fill) {
-  const s = h / SYM_H, w = SYM_W * s;
-  ctx.save(); ctx.translate(cx - w / 2, cy - h / 2); ctx.scale(s, s);
-  ctx.fillStyle = fill === 'gradient' ? (() => { const g = ctx.createLinearGradient(0, 0, SYM_W, 0); g.addColorStop(0, GREEN); g.addColorStop(1, '#fdfefd'); return g; })() : fill;
-  ctx.fill(SYM); ctx.restore();
-}
-function spaced(ctx, text, cx, y, size, color, weight = 500, spacing = 0.32) {
-  ctx.font = `${weight} ${size}px Jost`; ctx.fillStyle = color; ctx.textBaseline = 'alphabetic';
-  const chars = [...text]; const sp = size * spacing;
-  const total = chars.reduce((a, c) => a + ctx.measureText(c).width, 0) + sp * (chars.length - 1);
-  let x = cx - total / 2;
-  for (const c of chars) { ctx.fillText(c, x, y); x += ctx.measureText(c).width + sp; }
-  return total;
-}
-// lockup completo: simbolo + WASTE MANAGEMENT + group
-function lockup(ctx, cx, cy, width, color, symFill) {
-  const symH = width * 0.36;
-  symbol(ctx, cx, cy - width * 0.14, symH, symFill || color);
-  const size = width * 0.075;
-  const tw = spaced(ctx, 'WASTE MANAGEMENT', cx, cy + width * 0.2, size, color, 450, 0.3);
-  ctx.font = `400 ${size * 0.85}px Jost`; ctx.textAlign = 'right'; ctx.fillStyle = color;
-  ctx.fillText('group', cx + tw / 2, cy + width * 0.2 + size * 1.05); ctx.textAlign = 'left';
-}
-function tex(c, rx = 1, ry = 1) {
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-  if (rx !== 1 || ry !== 1) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); }
-  return t;
-}
-const PX = 60; // pixel per cm nelle texture
-
-// ------------------------------------------------------------------ scene
+// ------------------------------------------------------------------ studio: stessa luce per tutti i prodotti
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1); renderer.setSize(SIZE, Math.round(SIZE / ASPECT));
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.setClearColor(0x000000, 0);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.VSMShadowMap;
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.95;
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.setClearColor(0x000000, 0);
 document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-scene.add(new THREE.HemisphereLight(0xffffff, 0xd9e4de, 0.55));
-const key = new THREE.DirectionalLight(0xffffff, 2.1);
-key.position.set(-40, 90, 60); key.castShadow = true;
-key.shadow.mapSize.set(4096, 4096); key.shadow.radius = 14; key.shadow.blurSamples = 25;
-Object.assign(key.shadow.camera, { left: -160, right: 160, top: 160, bottom: -160, near: 1, far: 600 });
-key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
-scene.add(key);
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.ShadowMaterial({ opacity: 0.22 }));
+scene.environmentIntensity = 0.85;
+scene.add(new THREE.HemisphereLight(0xffffff, 0xdfe8e3, 0.45));
+const key = new THREE.DirectionalLight(0xfff8f0, 2.2); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 12; key.shadow.blurSamples = 20; key.shadow.bias = -0.0006;
+scene.add(key, key.target);
+const fill = new THREE.DirectionalLight(0xe8f3ff, 0.5); scene.add(fill, fill.target);
+const rim = new THREE.DirectionalLight(0xffffff, 0.7); scene.add(rim, rim.target);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.ShadowMaterial({ opacity: 0.2 }));
 ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
 
-const std = (opt) => new THREE.MeshStandardMaterial({ roughness: 0.82, metalness: 0, ...opt });
-function shadowAll(o) { o.traverse(m => { if (m.isMesh) { m.castShadow = !m.userData.noShadow; m.receiveShadow = true; } }); return o; }
-
-// ------------------------------------------------------------------ builders
-// Faccia piana con texture esterna e interno a tinta unita
-function panel(w, h, map, inner, pos, rotY = 0, rotX = 0) {
-  const g = new THREE.Group();
-  const outer = new THREE.Mesh(new THREE.PlaneGeometry(w, h), std({ map }));
-  const inn = new THREE.Mesh(new THREE.PlaneGeometry(w, h), std({ color: inner, side: THREE.BackSide, roughness: 0.95 }));
-  g.add(outer, inn); g.position.copy(pos); g.rotation.set(rotX, rotY, 0, 'YXZ'); return g;
-}
-
-function ropeTexture(color) {
-  const [c, x] = cnv(256, 64); x.fillStyle = color; x.fillRect(0, 0, 256, 64);
-  x.strokeStyle = 'rgba(0,0,0,0.22)'; x.lineWidth = 7;
-  for (let i = -64; i < 256 + 64; i += 22) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 40, 64); x.stroke(); }
-  x.strokeStyle = 'rgba(255,255,255,0.18)'; x.lineWidth = 3;
-  for (let i = -64; i < 256 + 64; i += 22) { x.beginPath(); x.moveTo(i + 8, 0); x.lineTo(i + 48, 64); x.stroke(); }
-  return tex(c, 12, 1);
-}
-function ribbon(curve, width, material, segments = 80) {
-  const pos = [], idx = [], uv = [];
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments, p = curve.getPoint(t), tg = curve.getTangent(t);
-    const n = new THREE.Vector3(-tg.y, tg.x, 0).normalize().multiplyScalar(width / 2);
-    pos.push(p.x + n.x, p.y + n.y, p.z, p.x - n.x, p.y - n.y, p.z); uv.push(t, 0, t, 1);
-    if (i < segments) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+// ombra di contatto (occlusione morbida sotto gli oggetti)
+function contact(obj) {
+  const [c, x] = L.cnv(256, 256); const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+  g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(0.55, 'rgba(0,0,0,0.22)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c);
+  obj.updateMatrixWorld(true);
+  const parts = obj.children.length > 1 ? obj.children : [obj];
+  for (const p of parts) {
+    const b = new THREE.Box3().setFromObject(p); if (b.isEmpty()) continue;
+    const s = b.getSize(new THREE.Vector3()), cc = b.getCenter(new THREE.Vector3());
+    if (b.min.y > 1) continue;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(s.x * 1.25 + 1, s.z * 1.25 + 1), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, opacity: 0.55 }));
+    m.rotation.x = -Math.PI / 2; m.position.set(cc.x, 0.02, cc.z); m.renderOrder = -1; scene.add(m);
   }
-  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx); geo.computeVertexNormals();
-  return new THREE.Mesh(geo, material);
 }
 
-// Shopper in carta
-function bag({ w, h, d, paperFn, inner, front, side, handle = 'rope', handleColor = '#d7c3a1', fold = false, foldColor }) {
+// ------------------------------------------------------------------ scene
+const at = (o, x = 0, z = 0, ry = 0, s = 1) => { o.position.set(x, 0, z); o.rotation.y = ry; o.scale.setScalar(s); return o; };
+const SEL_BAGS = {
+  'shopper-kraft': () => bag({ w: 32, h: 41, d: 13, body: '#c29a70', inner: '#c29a70', kraft: true, handle: 'rope', handleColor: '#c9a57a', seedN: 3 }),
+  'shopper-navy': () => bag({ w: 27, h: 37, d: 12, fold: 6, body: L.NAVY, inner: '#f3f1ea', handle: 'cotton', handleColor: '#eef3ef', seedN: 4 }),
+  'shopper-white': () => bag({ w: 32, h: 29, d: 22, body: '#f3f1ea', inner: '#f3f1ea', handle: 'flat', handleColor: '#ece9e1', style: 'takeaway', seedN: 5 }),
+  'shopper-green': () => bag({ w: 22, h: 29, d: 10, body: '#7fb596', inner: '#f3f1ea', handle: 'rope', handleColor: L.NAVY, seedN: 6 }),
+};
+async function build(name) {
+  const [kind, id] = name.split(':');
+  if (kind === 'pack') return PRODUCTS[id][0]();
+  if (kind === 'bag') { const data = await (await fetch('../build/data/shopper.json')).json(); return bagScene(data[+id]); }
+  if (kind === 'sel') return SEL_BAGS[id] ? SEL_BAGS[id]() : (EXTRA[id] || PRODUCTS[id])[0]();
+  const P = (i) => PRODUCTS[i][0]();
   const g = new THREE.Group();
-  const mk = (W, H, draw) => { const [c, x] = cnv(Math.round(W * PX), Math.round(H * PX)); paperFn(x, c.width, c.height); draw && draw(x, c.width, c.height); return tex(c); };
-  const frontTex = mk(w, h, (x, W, H) => { if (fold) { x.fillStyle = foldColor || 'rgba(0,0,0,0.07)'; x.fillRect(0, 0, W, H * 0.085); x.fillStyle = 'rgba(0,0,0,0.12)'; x.fillRect(0, H * 0.085, W, 3); } front && front(x, W, H);
-    // piega del fondo
-    x.fillStyle = 'rgba(0,0,0,0.05)'; x.fillRect(0, H - d / 2 * PX, W, d / 2 * PX); });
-  const backTex = mk(w, h, (x, W, H) => { if (fold) { x.fillStyle = foldColor || 'rgba(0,0,0,0.07)'; x.fillRect(0, 0, W, H * 0.085); } (side?.back || front)?.(x, W, H); });
-  const sideTex = mk(d, h, (x, W, H) => {
-    if (fold) { x.fillStyle = foldColor || 'rgba(0,0,0,0.07)'; x.fillRect(0, 0, W, H * 0.085); }
-    side?.draw && side.draw(x, W, H);
-    // piega centrale del soffietto
-    const gr = x.createLinearGradient(0, 0, W, 0);
-    gr.addColorStop(0, 'rgba(0,0,0,0.10)'); gr.addColorStop(0.5, 'rgba(0,0,0,0.0)'); gr.addColorStop(0.505, 'rgba(0,0,0,0.16)'); gr.addColorStop(1, 'rgba(0,0,0,0.04)');
-    x.fillStyle = gr; x.fillRect(0, 0, W, H);
-    x.strokeStyle = 'rgba(0,0,0,0.18)'; x.lineWidth = 2; x.beginPath(); x.moveTo(W / 2, 0); x.lineTo(W / 2, H - W / 2); x.lineTo(0, H); x.moveTo(W / 2, H - W / 2); x.lineTo(W, H); x.stroke();
-  });
-  g.add(panel(w, h, frontTex, inner, new THREE.Vector3(0, h / 2, d / 2)));
-  g.add(panel(w, h, backTex, inner, new THREE.Vector3(0, h / 2, -d / 2), Math.PI));
-  g.add(panel(d, h, sideTex, inner, new THREE.Vector3(w / 2, h / 2, 0), Math.PI / 2));
-  g.add(panel(d, h, sideTex, inner, new THREE.Vector3(-w / 2, h / 2, 0), -Math.PI / 2));
-  const bottom = new THREE.Mesh(new THREE.PlaneGeometry(w, d), std({ color: inner, side: THREE.DoubleSide })); bottom.rotation.x = -Math.PI / 2; bottom.position.y = 0.05; g.add(bottom);
-  // manici
-  const hw = Math.min(w * 0.24, 6.5), hh = handle === 'flat' ? w * 0.2 : Math.min(w * 0.36, 10);
-  for (const s of [1, -1]) {
-    const z = s * (d / 2 + (handle === 'flat' ? -0.08 : 0.25));
-    const pts = handle === 'flat'
-      ? [[-hw, h - 3.2], [-hw, h + 0.2], [-hw * 0.8, h + hh * 0.75], [0, h + hh], [hw * 0.8, h + hh * 0.75], [hw, h + 0.2], [hw, h - 3.2]]
-      : [[-hw, h - 2.2], [-hw * 1.02, h + hh * 0.45], [-hw * 0.7, h + hh * 0.9], [0, h + hh], [hw * 0.7, h + hh * 0.9], [hw * 1.02, h + hh * 0.45], [hw, h - 2.2]];
-    const curve = new THREE.CatmullRomCurve3(pts.map(([x, y], i) => new THREE.Vector3(x, y, z + s * Math.sin(i / 6 * Math.PI) * (handle === 'flat' ? 0.3 : 1.4))));
-    let m;
-    if (handle === 'flat') m = ribbon(curve, 2.2, std({ color: handleColor, side: THREE.DoubleSide, roughness: 0.9 }));
-    else m = new THREE.Mesh(new THREE.TubeGeometry(curve, 120, 0.33, 12), std({ map: ropeTexture(handleColor), roughness: 0.9 }));
-    m.userData.noShadow = true; g.add(m);
-    if (handle === 'rope') for (const hx of [-hw, hw]) { // nodi di fissaggio
-      const k = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 12), std({ color: handleColor })); k.position.set(hx, h - 2.2, z - s * 0.2); g.add(k);
-    }
-  }
-  return shadowAll(g);
+  if (name === 'hero') g.add(at(SEL_BAGS['shopper-navy'](), -16, -8, 0.32), at(SEL_BAGS['shopper-kraft'](), 14, -12, -0.28), at(P('PP01'), -3, 13, 0.4), at(EXTRA.cup[0](), 13, 15), at(P('BB02'), 27, 8), at(P('CE03'), -25, 13, 0.5));
+  if (name === 'hero-food') g.add(at(P('PP01'), -9, 0, 0.45), at(EXTRA.cup[0](), 8, 6), at(P('CE03'), 20, -4, -0.3), at(P('BB02'), -1, -15), at(P('CE02'), -31, -18, 0.5), at(P('SF08'), 22, 10, -0.2));
+  if (name === 'hero-bags') g.add(at(SEL_BAGS['shopper-kraft'](), -18, -2, 0.35), at(SEL_BAGS['shopper-navy'](), 13, -8, -0.3), at(SEL_BAGS['shopper-white'](), 2, 17, 0.1, 0.8));
+  if (name === 'hero-pastry') g.add(at(P('PA08'), -15, -9, 0.5), at(P('PA01'), 16, 4, -0.4), at(EXTRA['cup-mint'][0](), 0, 21));
+  if (name === 'hero-gift') g.add(at(P('BR04'), -14, -4, 0.35), at(P('EC02'), 14, 6, -0.3), at(P('BR01'), -34, 10, 0.2, 0.9));
+  return g;
 }
+const obj = await build(SCENE); scene.add(obj); contact(obj);
+// camera predefinita del prodotto (se non indicata nell'URL)
+{ const [kind, id] = SCENE.split(':'); const reg = kind === 'pack' ? PRODUCTS[id] : kind === 'sel' ? (EXTRA[id] || PRODUCTS[id]) : null;
+  if (reg && !q.has('az')) for (const [k, v] of new URLSearchParams(reg[1])) q.set(k, v);
+  if (kind === 'bag' && !q.has('az')) { q.set('az', '22'); q.set('el', '14'); } }
 
-// Scatola con texture per faccia: faces = {top, front, back, left, right, bottom} funzioni di disegno
-function box({ w, h, d, paperFn, faces = {}, radius = 0.12, topRot = TOPROT }) {
-  const mk = (W, H, draw) => { const [c, x] = cnv(Math.round(W * PX), Math.round(H * PX)); paperFn(x, c.width, c.height); draw && draw(x, c.width, c.height); return std({ map: tex(c), roughness: 0.7 }); };
-  const top = faces.top && topRot ? (x, W, H) => { x.save(); x.translate(W / 2, H / 2); x.rotate(topRot); x.translate(-H / 2, -W / 2); faces.top(x, H, W); x.restore(); } : faces.top;
-  const mats = [mk(d, h, faces.right), mk(d, h, faces.left), mk(w, d, top), mk(w, d, faces.bottom), mk(w, h, faces.front), mk(w, h, faces.back)];
-  const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, radius), mats);
-  m.position.y = h / 2; return shadowAll(new THREE.Group().add(m));
-}
-
-// Bicchiere in carta con coperchio
-function cup({ rTop = 4, rBot = 2.7, h = 9.4, print, lid = true, lidColor = '#f4f4f2', turn = 0 }) {
-  const g = new THREE.Group();
-  const circ = Math.PI * 2 * rTop;
-  const [c, x] = cnv(Math.round(circ * PX), Math.round(h * PX)); print(x, c.width, c.height);
-  const side = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, h, 96, 1, true), [std({ map: tex(c), roughness: 0.55 })]);
-  side.material = std({ map: tex(c), roughness: 0.55 }); side.position.y = h / 2; g.add(side);
-  const inner = new THREE.Mesh(new THREE.CylinderGeometry(rTop - 0.02, rBot - 0.02, h, 64, 1, true), std({ color: '#f1efe9', side: THREE.BackSide })); inner.position.y = h / 2; g.add(inner);
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(rTop, 0.14, 12, 96), std({ color: '#f5f4f0' })); rim.rotation.x = Math.PI / 2; rim.position.y = h; g.add(rim);
-  if (lid) {
-    const prof = [[0, 0.9], [rTop * 0.55, 0.9], [rTop * 0.62, 0.55], [rTop * 0.9, 0.5], [rTop + 0.12, 0.35], [rTop + 0.25, 0.05], [rTop + 0.2, -0.5], [rTop + 0.02, -0.55]].map(([r, y]) => new THREE.Vector2(r, y));
-    const l = new THREE.Mesh(new THREE.LatheGeometry(prof, 96), new THREE.MeshPhysicalMaterial({ color: lidColor, roughness: 0.35, clearcoat: 0.4, side: THREE.DoubleSide }));
-    l.position.y = h + 0.1; g.add(l);
-    const hole = new THREE.Mesh(new THREE.CapsuleGeometry(0.35, 0.9, 6, 12), std({ color: '#222' })); hole.rotation.z = Math.PI / 2; hole.scale.set(1, 1, 0.3); hole.position.set(rTop * 0.7, h + 0.62, 0); g.add(hole);
-  }
-  g.rotation.y = turn; const o = new THREE.Group().add(g); return shadowAll(o);
-}
-
-// Bowl con coperchio trasparente
-function bowl({ rTop = 7.8, rBot = 5.6, h = 6.2, print }) {
-  const g = new THREE.Group();
-  const [c, x] = cnv(Math.round(Math.PI * 2 * rTop * PX), Math.round(h * PX)); print(x, c.width, c.height);
-  const side = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, h, 96, 1, true), std({ map: tex(c), roughness: 0.8 })); side.position.y = h / 2; g.add(side);
-  const inn = new THREE.Mesh(new THREE.CylinderGeometry(rTop - .03, rBot - .03, h, 64, 1, true), std({ color: '#b98e62', side: THREE.BackSide })); inn.position.y = h / 2; g.add(inn);
-  // insalata
-  const [fc, fx] = cnv(1024, 1024); fx.fillStyle = '#6f9a3a'; fx.fillRect(0, 0, 1024, 1024);
-  const cols = ['#8fbf4a', '#5c8a2c', '#b7d86a', '#d94a3a', '#f2c14e', '#f6efe0', '#3f6b22', '#e8793a'];
-  for (let i = 0; i < 1400; i++) { fx.fillStyle = cols[i % cols.length]; fx.beginPath(); fx.ellipse(Math.random() * 1024, Math.random() * 1024, 10 + Math.random() * 38, 8 + Math.random() * 24, Math.random() * 3, 0, 7); fx.fill(); }
-  const food = new THREE.Mesh(new THREE.SphereGeometry(rTop - 0.4, 64, 24, 0, Math.PI * 2, 0, Math.PI / 2), std({ map: tex(fc), roughness: 0.6 }));
-  food.scale.y = 0.18; food.position.y = h - 1.1; g.add(food);
-  const lid = new THREE.Mesh(new THREE.SphereGeometry(rTop + 0.15, 96, 24, 0, Math.PI * 2, 0, Math.PI / 2),
-    new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, roughness: 0.04, thickness: 0.15, ior: 1.5, transparent: true, opacity: 0.35, clearcoat: 1 }));
-  lid.scale.y = 0.28; lid.position.y = h; g.add(lid);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(rTop + 0.1, 0.18, 12, 96), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, roughness: 0.1, transparent: true, opacity: 0.5 }));
-  ring.rotation.x = Math.PI / 2; ring.position.y = h; g.add(ring);
-  shadowAll(g); lid.castShadow = false; return g;
-}
-
-// Noodle box (tronco di piramide) con manico metallico
-function noodle({ a = 9.2, b = 7.4, h = 8.5, print }) {
-  const g = new THREE.Group();
-  const [c, x] = cnv(Math.round(a * 4 * PX), Math.round(h * PX)); print(x, c.width, c.height);
-  const geo = new THREE.CylinderGeometry(a / Math.SQRT2, b / Math.SQRT2, h, 4, 1, false);
-  const body = new THREE.Mesh(geo, [std({ map: tex(c), roughness: 0.6 }), std({ color: WHITE }), std({ color: WHITE })]);
-  body.rotation.y = Math.PI / 4; body.position.y = h / 2; g.add(body);
-  // falde di chiusura
-  for (const s of [1, -1]) {
-    const f = new THREE.Mesh(new THREE.PlaneGeometry(a, a * 0.55), std({ color: WHITE, side: THREE.DoubleSide, roughness: 0.6 }));
-    f.position.set(0, h + a * 0.2, s * a * 0.16); f.rotation.x = -s * 1.0; g.add(f);
-  }
-  const hc = new THREE.CatmullRomCurve3([new THREE.Vector3(-a / 2 - .05, h - 1, 0), new THREE.Vector3(-a / 2.3, h + 3.5, 0), new THREE.Vector3(0, h + 5.3, 0), new THREE.Vector3(a / 2.3, h + 3.5, 0), new THREE.Vector3(a / 2 + .05, h - 1, 0)]);
-  g.add(new THREE.Mesh(new THREE.TubeGeometry(hc, 80, 0.09, 8), new THREE.MeshStandardMaterial({ color: '#c9ccd0', metalness: 1, roughness: 0.25 })));
-  return shadowAll(g);
-}
-
-// ------------------------------------------------------------------ stampe
-const printLockup = (color, symFill, scale = 0.62, dy = 0) => (x, W, H) => lockup(x, W / 2, H * (0.5 + dy), W * scale, color, symFill);
-const printSymbol = (fill, scale = 0.45, dy = 0) => (x, W, H) => symbol(x, W / 2, H * (0.5 + dy), Math.min(W, H) * scale, fill);
-function pattern(x, W, H, color, step = 110, h = 34, alpha = 1) {
-  x.globalAlpha = alpha;
-  for (let j = 0, y = step / 2; y < H + step; y += step * 0.8, j++)
-    for (let i = 0, xx = (j % 2) * step / 2; xx < W + step; xx += step, i++) symbol(x, xx, y, h, color);
-  x.globalAlpha = 1;
-}
-
-// ------------------------------------------------------------------ scene builders
-const S = {};
-S['shopper-kraft'] = () => bag({ w: 32, h: 41, d: 13, paperFn: kraft, inner: '#b38a5e', handleColor: '#c8a57a',
-  front: printLockup(NAVY, NAVY, 0.6, -0.04), side: { draw: printSymbol(NAVY, 0.35, -0.2) } });
-S['shopper-navy'] = () => bag({ w: 27, h: 37, d: 12, paperFn: navyPaper, inner: '#0d3344', handleColor: '#eef3ef', fold: true, foldColor: 'rgba(255,255,255,0.03)',
-  front: printLockup('#e9f2ec', 'gradient', 0.6, -0.02), side: { draw: printSymbol(GREEN, 0.35, -0.2) } });
-S['shopper-white'] = () => bag({ w: 32, h: 29, d: 22, paperFn: whitePaper, inner: '#ecebe6', handle: 'flat', handleColor: '#f4f3ef',
-  front: (x, W, H) => { x.fillStyle = MINT; x.fillRect(0, H * 0.72, W, H * 0.28); lockup(x, W / 2, H * 0.4, W * 0.5, NAVY, NAVY); x.fillStyle = GREEN; x.fillRect(0, H * 0.72, W, 6); },
-  side: { draw: (x, W, H) => { x.fillStyle = MINT; x.fillRect(0, H * 0.72, W, H * 0.28); } } });
-S['shopper-green'] = () => bag({ w: 22, h: 29, d: 10, paperFn: (x, W, H) => paper(x, W, H, '#7fb596', 6), inner: '#6aa283', handleColor: '#0a2a39',
-  front: printSymbol(WHITE, 0.3, -0.05), side: {} });
-
-S['burger-box'] = () => box({ w: 13, h: 8.5, d: 13, paperFn: whitePaper, radius: 0.18, faces: {
-  top: (x, W, H) => { navyPaper(x, W, H); symbol(x, W / 2, H / 2, H * 0.48, 'gradient'); },
-  front: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, 0, W, H * 0.42); spaced(x, 'WASTE MANAGEMENT', W / 2, H * 0.72, H * 0.085, NAVY, 500, 0.28); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(0, H * 0.42, W, 2); },
-  back: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, 0, W, H * 0.42); },
-  left: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, 0, W, H * 0.42); symbol(x, W / 2, H * 0.72, H * 0.3, GREEN); },
-  right: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, 0, W, H * 0.42); symbol(x, W / 2, H * 0.72, H * 0.3, GREEN); } } });
-
-S['cup'] = () => cup({ print: (x, W, H) => { whitePaper(x, W, H); x.fillStyle = NAVY; x.fillRect(0, H * 0.62, W, H * 0.38); x.fillStyle = GREEN; x.fillRect(0, H * 0.62, W, 8);
-  for (const k of [0.25, 0.75]) { symbol(x, W * k, H * 0.36, H * 0.26, NAVY); spaced(x, 'WASTE', W * k, H * 0.84, H * 0.075, '#e9f2ec', 500, 0.4); } }, lidColor: '#0f3140', turn: TURN });
-S['cup-mint'] = () => cup({ rTop: 3.6, rBot: 2.5, h: 8.2, print: (x, W, H) => { paper(x, W, H, MINT, 4); pattern(x, W, H, GREEN, 150, 46, 0.9); }, lidColor: '#f4f4f2' });
-S['bowl'] = () => bowl({ print: (x, W, H) => { kraft(x, W, H); for (const k of [0.25, 0.75]) { symbol(x, W * k, H * 0.42, H * 0.46, NAVY); spaced(x, 'WASTE MANAGEMENT', W * k, H * 0.86, H * 0.075, NAVY, 500, 0.3); } } });
-
-S['pastry-box'] = () => box({ w: 24, h: 6.5, d: 32, paperFn: whitePaper, radius: 0.1, faces: {
-  top: (x, W, H) => { paper(x, W, H, WHITE, 4); pattern(x, W, H, GREEN, 150, 44, 0.85); x.fillStyle = WHITE; x.fillRect(W * 0.2, H * 0.38, W * 0.6, H * 0.24); lockup(x, W / 2, H * 0.5, W * 0.34, NAVY, NAVY); },
-  front: (x, W, H) => { x.fillStyle = GREEN; x.fillRect(0, H * 0.28, W, 4); }, back: (x, W, H) => { x.fillStyle = GREEN; x.fillRect(0, H * 0.28, W, 4); },
-  left: (x, W, H) => { x.fillStyle = GREEN; x.fillRect(0, H * 0.28, W, 4); }, right: (x, W, H) => { x.fillStyle = GREEN; x.fillRect(0, H * 0.28, W, 4); } } });
-
-S['cake-box'] = () => box({ w: 30, h: 30, d: 30, paperFn: navyPaper, radius: 0.15, faces: {
-  front: printLockup('#e9f2ec', 'gradient', 0.62), right: printSymbol('gradient', 0.4), left: printSymbol('gradient', 0.4),
-  top: (x, W, H) => { symbol(x, W / 2, H / 2, H * 0.3, GREEN); x.strokeStyle = 'rgba(255,255,255,0.14)'; x.lineWidth = 3; x.strokeRect(W * 0.06, H * 0.06, W * 0.88, H * 0.88); } } });
-
-S['mailer'] = () => box({ w: 35, h: 10, d: 26, paperFn: kraft, radius: 0.2, faces: {
-  top: (x, W, H) => { lockup(x, W * 0.5, H * 0.5, W * 0.36, NAVY, NAVY); x.strokeStyle = 'rgba(60,35,10,0.35)'; x.lineWidth = 3; x.beginPath(); x.moveTo(0, H - 30); x.lineTo(W, H - 30); x.stroke(); },
-  front: (x, W, H) => { spaced(x, 'IL TUO BRAND, OVUNQUE.', W / 2, H * 0.62, H * 0.16, NAVY, 400, 0.25); x.fillStyle = 'rgba(60,35,10,0.35)'; x.beginPath(); x.ellipse(W / 2, 2, 60, 26, 0, 0, Math.PI); x.fill(); },
-  right: printSymbol(NAVY, 0.5), left: printSymbol(NAVY, 0.5) } });
-
-S['bottle'] = () => { const g = box({ w: 9, h: 38.5, d: 9, paperFn: kraft, radius: 0.12, faces: {
-  front: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, H * 0.3, W, H * 0.7); symbol(x, W / 2, H * 0.55, W * 0.5, 'gradient'); spaced(x, 'WASTE', W / 2, H * 0.78, W * 0.1, '#e9f2ec', 500, 0.35); },
-  back: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, H * 0.3, W, H * 0.7); },
-  left: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, H * 0.3, W, H * 0.7); x.fillStyle = '#2b1a0c'; x.beginPath(); x.ellipse(W / 2, H * 0.08, W * 0.2, W * 0.06, 0, 0, 7); x.fill(); },
-  right: (x, W, H) => { x.fillStyle = NAVY; x.fillRect(0, H * 0.3, W, H * 0.7); x.fillStyle = '#2b1a0c'; x.beginPath(); x.ellipse(W / 2, H * 0.08, W * 0.2, W * 0.06, 0, 0, 7); x.fill(); } } }); return g; };
-
-S['sushi'] = () => { const g = new THREE.Group();
-  g.add(box({ w: 20, h: 5, d: 14, paperFn: whitePaper, radius: 0.1, faces: { top: (x, W, H) => pattern(x, W, H, MINT, 120, 40) } }));
-  const sl = box({ w: 9, h: 5.25, d: 14.3, paperFn: navyPaper, radius: 0.08, faces: {
-    top: (x, W, H) => { symbol(x, W / 2, H * 0.45, W * 0.42, 'gradient'); spaced(x, 'WASTE', W / 2, H * 0.78, W * 0.085, '#e9f2ec', 500, 0.4); },
-    front: (x, W, H) => { x.fillStyle = GREEN; x.fillRect(0, H * 0.45, W, 4); } } });
-  sl.position.x = 2.5; sl.position.y = -0.12; g.add(sl); return g; };
-
-S['noodle'] = () => noodle({ print: (x, W, H) => { whitePaper(x, W, H); const fw = W / 4; for (let i = 0; i < 4; i++) { if (i % 2 === 0) { symbol(x, fw * i + fw / 2, H * 0.48, H * 0.42, NAVY); } else { x.fillStyle = MINT; x.fillRect(fw * i, H * 0.75, fw, H * 0.25); } } } });
-
-S['placemat'] = () => { const g = new THREE.Group();
-  const [c, x] = cnv(40 * PX, 30 * PX); whitePaper(x, c.width, c.height); const W = c.width, H = c.height;
-  pattern(x, W, H, GREEN, 170, 52, 0.35); x.fillStyle = NAVY; x.fillRect(0, 0, W, 90); x.fillRect(0, H - 90, W, 90);
-  x.fillStyle = WHITE; x.fillRect(W * 0.05, H * 0.14, W * 0.34, H * 0.34); lockup(x, W * 0.22, H * 0.31, W * 0.28, NAVY, NAVY);
-  spaced(x, 'BUON APPETITO', W / 2, H - 30, 44, '#e9f2ec', 400, 0.5);
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(40, 30), std({ map: tex(c), roughness: 0.9 })); m.rotation.x = -Math.PI / 2; m.position.y = 0.03; m.receiveShadow = true; g.add(m);
-  const bb = S['burger-box'](); bb.position.set(2, 0, 2); bb.rotation.y = 0.25; g.add(bb);
-  const cp = S['cup'](); cp.position.set(15, 0, 7); g.add(cp);
-  return g; };
-
-// Composizioni
-function add(name, x, z, ry = 0, s = 1) { const o = S[name](); o.position.set(x, 0, z); o.rotation.y = ry; o.scale.setScalar(s); return o; }
-S['hero'] = () => { const g = new THREE.Group();
-  g.add(add('shopper-navy', -14, -6, 0.32), add('shopper-kraft', 15, -10, -0.28), add('burger-box', -3, 14, 0.4), add('cup', 14, 15, 0), add('bowl', 28, 9, 0), add('noodle', -24, 14, 0.5));
-  return g; };
-S['hero-food'] = () => { const g = new THREE.Group();
-  g.add(add('burger-box', -9, 0, 0.45), add('cup', 7, 5, 0), add('noodle', 19, -4, -0.3), add('bowl', -2, -14, 0), add('sushi', -30, -20, 0.5));
-  return g; };
-S['hero-bags'] = () => { const g = new THREE.Group();
-  g.add(add('shopper-kraft', -17, -2, 0.35), add('shopper-navy', 13, -8, -0.3), add('shopper-white', 2, 16, 0.1, 0.8));
-  return g; };
-S['hero-pastry'] = () => { const g = new THREE.Group();
-  g.add(add('cake-box', -14, -8, 0.5), add('pastry-box', 14, 6, -0.4), add('cup-mint', 2, 20, 0));
-  return g; };
-
-// ------------------------------------------------------------------ camera
-const obj = S[SCENE](); scene.add(obj);
-const bbox = new THREE.Box3().setFromObject(obj); const sphere = bbox.getBoundingSphere(new THREE.Sphere());
-const camera = new THREE.PerspectiveCamera(+(params.get('fov') || 24), ASPECT, 1, 2000);
-const az = +(params.get('az') || 28) * Math.PI / 180, el = +(params.get('el') || 22) * Math.PI / 180;
-const dist = sphere.radius / Math.sin(camera.fov * Math.PI / 360) * +(params.get('zoom') || 1.0);
-camera.position.set(sphere.center.x + dist * Math.cos(el) * Math.sin(az), sphere.center.y + dist * Math.sin(el), sphere.center.z + dist * Math.cos(el) * Math.cos(az));
-camera.lookAt(sphere.center);
-key.position.copy(sphere.center).add(new THREE.Vector3(-60, 110, 70)); key.target.position.copy(sphere.center); scene.add(key.target);
+// ------------------------------------------------------------------ camera: inquadratura automatica
+const box = new THREE.Box3().setFromObject(obj), sphere = box.getBoundingSphere(new THREE.Sphere());
+const camera = new THREE.PerspectiveCamera(+(q.get('fov') || 22), ASPECT, 1, 3000);
+const az = +(q.get('az') || 28) * Math.PI / 180, el = +(q.get('el') || 22) * Math.PI / 180;
+const dist = sphere.radius / Math.sin(camera.fov * Math.PI / 360) * 1.02;
+const dir = new THREE.Vector3(Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az));
+camera.position.copy(sphere.center).addScaledVector(dir, dist); camera.lookAt(sphere.center);
+const R = sphere.radius;
+key.position.copy(sphere.center).add(new THREE.Vector3(-1.1 * R, 2.4 * R, 1.3 * R)); key.target.position.copy(sphere.center);
+Object.assign(key.shadow.camera, { left: -R * 1.8, right: R * 1.8, top: R * 1.8, bottom: -R * 1.8, near: 0.1, far: R * 8 }); key.shadow.camera.updateProjectionMatrix();
+fill.position.copy(sphere.center).add(new THREE.Vector3(2 * R, 0.8 * R, 1.2 * R)); fill.target.position.copy(sphere.center);
+rim.position.copy(sphere.center).add(new THREE.Vector3(0.5 * R, 1.5 * R, -2 * R)); rim.target.position.copy(sphere.center);
 renderer.render(scene, camera);
 window.__done = true;
 </script>
