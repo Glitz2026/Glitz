@@ -1,0 +1,198 @@
+codice_wm;prodotto;formato;minimo;catalogo_fornitore;rif_fornitore;pagina_fornitore
+WM-PP01.1;Porta panino a conchiglia;12 × 12 × 7 h;10.000;Custom packaging grossisti;23P039;9
+WM-PP01.2;Porta panino a conchiglia;12,5 × 12,5 × 10 h;10.000;Custom packaging grossisti;HB002;9
+WM-PP01.3;Porta panino a conchiglia;16,5 × 15,5 × 9 h;10.000;Custom packaging grossisti;42-318;9
+WM-PP02.1;Porta panino a fiore;15 × 15 × 9,5 h;5.000;Custom packaging grossisti;SIBO5;10
+WM-PP03.1;Porta panino a scatto;15 × 15 × 10 h;5.000;Custom packaging grossisti;23P170;11
+WM-PP03.2;Porta panino a scatto;22 × 12 × 7 h;5.000;Custom packaging grossisti;SIBO1;11
+WM-PP04.1;Porta panino a vaschetta;10 × 5,5 × 8 h;5.000;Custom packaging grossisti;24P016;12
+WM-SF01.1;Porta fritti;S · 14 × 8 × 7 h;5.000;Custom packaging grossisti;42-325;14
+WM-SF01.2;Porta fritti;M · 14,5 × 14,5 × 6,5 h;5.000;Custom packaging grossisti;SIBO6;14
+WM-SF01.3;Porta fritti;L · 22 × 12 × 7 h;5.000;Custom packaging grossisti;SIBO1;14
+WM-SF02.1;Vaschetta porta fritti;S · 10 × 5,5 × 8 h;5.000;Custom packaging grossisti;22P102;15
+WM-SF02.2;Vaschetta porta fritti;M · 14,5 × 8,5 × 4,5 h;5.000;Custom packaging grossisti;24P014;15
+WM-SF02.3;Vaschetta porta fritti;L · 16,5 × 13 × 4 h;5.000;Custom packaging grossisti;23P104;15
+WM-SF03.1;Food box;750 ml · 12,5 × 9 × 6,5 h;5.000;Custom packaging grossisti;700-424;16
+WM-SF03.2;Food box;1200 ml · 15 × 12 × 6,5 h;5.000;Custom packaging grossisti;42-270;16
+WM-SF04.1;Lunchbox;S · 11 × 9 × 6 h;5.000;Custom packaging grossisti;22P107;17
+WM-SF04.2;Lunchbox;M · 12,5 × 12,5 × 7 h;5.000;Custom packaging grossisti;22P135;17
+WM-SF04.3;Lunchbox;M · 14 × 9,5 × 6 h;5.000;Custom packaging grossisti;22P133;17
+WM-SF04.4;Lunchbox;L · 22 × 8,5 × 7 h;5.000;Custom packaging grossisti;22P134;17
+WM-SF05.1;Porta pollo;S · 6 × 6 × 10 h;5.000;Custom packaging grossisti;680-52;18
+WM-SF05.2;Porta pollo;M · 8 × 8 × 13,5 h;5.000;Custom packaging grossisti;680-51;18
+WM-SF05.3;Porta pollo;L · 9 × 9 × 19 h;5.000;Custom packaging grossisti;680-50;18
+WM-SF06.1;Box porta pollo;20 × 14 × 5 h;5.000;Custom packaging grossisti;23P175;19
+WM-SF07.1;Cono;S · 16 × 8 × 22 h;5.000;Custom packaging grossisti;42-274;20
+WM-SF07.2;Cono;L · 19 × 9 × 26 h;5.000;Custom packaging grossisti;42-273;20
+WM-SF08.1;Porta patatine;9,2 × 4,4 × 11 h;5.000;Custom packaging grossisti;23P083;21
+WM-SF09.1;Porta hot dog;5 × 5 × 17 h;5.000;Custom packaging grossisti;23P042;22
+WM-SF09.2;Porta hot dog;18 × 7 × 5 h;5.000;Custom packaging grossisti;24P045;22
+WM-SF10.1;Porta hot dog con coperchio;22 × 7 × 7 h;5.000;Custom packaging grossisti;24P047;23
+WM-AC01.1;Tovagliette;30 × 40 h;5.000;Custom packaging grossisti;WPT34;25
+WM-AC02.1;Porta bicchieri;DA 2 FORI;5.000;Custom packaging grossisti;955-11;26
+WM-AC02.2;Porta bicchieri;DA 4 FORI;5.000;Custom packaging grossisti;955-3;26
+WM-AC03.1;Bauletto colazione;35,8 × 25,8 × 19,5 h;300;Custom packaging grossisti;42-375A/B;27
+WM-AC04.1;Box colazione a scorrimento;30 × 30 × 10 h;500;Custom packaging grossisti;42-SCOR;28
+WM-AC05.1;Bauletto Happy Meal;21 × 12,5 × 13,5 h;5.000;Custom packaging grossisti;680-79;29
+WM-CE01.1;Box sushi con divisorio;S · 13 × 18 × 5 h;2.000;Custom packaging grossisti;680-17;31
+WM-CE01.2;Box sushi con divisorio;M · 28 × 18 × 5,5 h;2.000;Custom packaging grossisti;680-38;31
+WM-CE01.3;Box sushi con divisorio;L · 30 × 25 × 5,5 h;2.000;Custom packaging grossisti;680-14A;31
+WM-CE01.4;Box sushi con divisorio – Divisorio;S · 13 × 18 × 5 h;2.000;Custom packaging grossisti;DIV13;31
+WM-CE01.5;Box sushi con divisorio – Divisorio;M · 28 × 18 × 5,5 h;2.000;Custom packaging grossisti;DIV18;31
+WM-CE01.6;Box sushi con divisorio – Divisorio;L · 30 × 25 × 5,5 h;2.000;Custom packaging grossisti;DIV30;31
+WM-CE02.1;Box sushi a scorrimento;20 × 14 × 5 h;5.000;Custom packaging grossisti;680-35;32
+WM-CE03.1;Noodle box;9,2 × 7,4 × 8,5 h;5.000;Custom packaging grossisti;FB004;33
+WM-CE04.1;Box porta tacos;12 × 9 × 6,5 h;5.000;Custom packaging grossisti;42-188;34
+WM-CE05.1;Box porta piadina;20 × 14 × 5 h;5.000;Custom packaging grossisti;BK001;35
+WM-CE05.2;Box porta piadina;9 × 6,5 × 21 h;5.000;Custom packaging grossisti;24P048;35
+WM-PA01.1;Porta paste classico;350 gr · 15,5 × 22 × 6,5 h;300;Custom packaging grossisti;60-04;38
+WM-PA01.2;Porta paste classico;500 gr · 17 × 24 × 6,5 h;300;Custom packaging grossisti;60-03;38
+WM-PA01.3;Porta paste classico;750 gr · 21 × 29 × 6,5 h;300;Custom packaging grossisti;60-02;38
+WM-PA01.4;Porta paste classico;1000 gr · 24 × 32 × 6,5 h;300;Custom packaging grossisti;60-01;38
+WM-PA02.1;Porta paste 6 angoli;350 gr · 15,5 × 22 × 6,5 h;300;Custom packaging grossisti;42-440;39
+WM-PA02.2;Porta paste 6 angoli;500 gr · 17 × 24 × 6,5 h;300;Custom packaging grossisti;42-142;39
+WM-PA02.3;Porta paste 6 angoli;750 gr · 21 × 29 × 6,5 h;300;Custom packaging grossisti;42-439;39
+WM-PA02.4;Porta paste 6 angoli;1000 gr · 24 × 32 × 6,5 h;300;Custom packaging grossisti;42-438;39
+WM-PA02.5;Porta paste 6 angoli;1500 gr · 26 × 36 × 7 h;300;Custom packaging grossisti;42-442;39
+WM-PA03.1;Porta torta 6 angoli;20 × 20 × 9 h;300;Custom packaging grossisti;42-428;40
+WM-PA03.2;Porta torta 6 angoli;22 × 22 × 9 h;300;Custom packaging grossisti;42-429;40
+WM-PA03.3;Porta torta 6 angoli;24 × 24 × 9 h;300;Custom packaging grossisti;42-430;40
+WM-PA03.4;Porta torta 6 angoli;26 × 26 × 9 h;300;Custom packaging grossisti;42-431;40
+WM-PA03.5;Porta torta 6 angoli;28 × 28 × 9 h;300;Custom packaging grossisti;42-432;40
+WM-PA03.6;Porta torta 6 angoli;30 × 30 × 9 h;300;Custom packaging grossisti;42-321;40
+WM-PA03.7;Porta torta 6 angoli;32 × 32 × 9 h;300;Custom packaging grossisti;42-433;40
+WM-PA03.8;Porta torta 6 angoli;34 × 34 × 9 h;300;Custom packaging grossisti;42-434;40
+WM-PA03.9;Porta torta 6 angoli;36 × 36 × 9 h;300;Custom packaging grossisti;42-435;40
+WM-PA03.10;Porta torta 6 angoli;38 × 38 × 9 h;300;Custom packaging grossisti;42-436;40
+WM-PA03.11;Porta torta 6 angoli;40 × 40 × 9 h;300;Custom packaging grossisti;42-437;40
+WM-PA04.1;Porta torta classico incollato;25 × 25 × 7 h;300;Custom packaging grossisti;42-304;41
+WM-PA04.2;Porta torta classico incollato;27 × 27 × 9 h;300;Custom packaging grossisti;42-397;41
+WM-PA04.3;Porta torta classico incollato;29 × 29 × 7 h;300;Custom packaging grossisti;42-10;41
+WM-PA04.4;Porta torta classico incollato;30 × 30 × 7 h;300;Custom packaging grossisti;42-01;41
+WM-PA04.5;Porta torta classico incollato;33 × 33 × 7 h;300;Custom packaging grossisti;42-303;41
+WM-PA04.6;Porta torta classico incollato;35 × 25 × 7 h;300;Custom packaging grossisti;42-04;41
+WM-PA04.7;Porta torta classico incollato;30 × 40 × 7 h;300;Custom packaging grossisti;42-02;41
+WM-PA05.1;Porta torta classico scollato;17 × 17 × 9 h;300;Custom packaging grossisti;42-35;42
+WM-PA05.2;Porta torta classico scollato;19 × 19 × 9 h;300;Custom packaging grossisti;42-36;42
+WM-PA05.3;Porta torta classico scollato;21 × 21 × 9 h;300;Custom packaging grossisti;42-37;42
+WM-PA05.4;Porta torta classico scollato;23 × 23 × 9 h;300;Custom packaging grossisti;42-38;42
+WM-PA05.5;Porta torta classico scollato;25 × 25 × 9 h;300;Custom packaging grossisti;42-39;42
+WM-PA05.6;Porta torta classico scollato;27 × 27 × 9 h;300;Custom packaging grossisti;42-40;42
+WM-PA05.7;Porta torta classico scollato;29 × 29 × 9 h;300;Custom packaging grossisti;42-41;42
+WM-PA05.8;Porta torta classico scollato;31 × 31 × 9 h;300;Custom packaging grossisti;42-42;42
+WM-PA06.1;Porta torta classico paperino;30 × 40 × 10 h;300;Custom packaging grossisti;42-294;43
+WM-PA06.2;Porta torta classico paperino;37 × 47 × 10 h;300;Custom packaging grossisti;42-293;43
+WM-PA06.3;Porta torta classico paperino;40 × 50 × 12 h;300;Custom packaging grossisti;42-300;43
+WM-PA06.4;Porta torta classico paperino;44 × 55 × 12 h;300;Custom packaging grossisti;680-182;43
+WM-PA06.5;Porta torta classico paperino;66 × 46 × 12 h;300;Custom packaging grossisti;680-183;43
+WM-PA07.1;Monoporzione;12 × 12 × 9 h;300;Custom packaging grossisti;680-81;44
+WM-PA08.1;Cake box;S · 30 × 30 × 30 h;300;Custom packaging grossisti;42-453 a/b;45
+WM-PA08.2;Cake box;M · 40 × 40 × 40 h;300;Custom packaging grossisti;42-454 a/b;45
+WM-PA08.3;Cake box;L · 50 × 50 × 50 h;300;Custom packaging grossisti;42-455 a/b;45
+WM-PA09.1;Porta pastiera e porta tronchetto – Pastiera;26,5 × 26,5 × 6,5 h;300;Custom packaging grossisti;42-129;46
+WM-PA09.2;Porta pastiera e porta tronchetto – Tronchetto;35 × 17 × 16 h;300;Custom packaging grossisti;680-90;46
+WM-PA10.1;Porta babà;21 × 21 × 14 h;300;Custom packaging grossisti;WPB21;47
+WM-PA10.2;Porta babà;23 × 23 × 14 h;300;Custom packaging grossisti;WPB23;47
+WM-PA10.3;Porta babà;25 × 25 × 17 h;300;Custom packaging grossisti;WPB25;47
+WM-PA10.4;Porta babà;27 × 27 × 16 h;300;Custom packaging grossisti;WPB27;47
+WM-PA11.1;Porta fetta di torta;11 × 7 × 4,6 h;5.000;Custom packaging grossisti;42-279;48
+WM-PA12.1;Porta crêpes;7 × 2 × 13 h;5.000;Custom packaging grossisti;42-187;49
+WM-BR01.1;Porta bottiglie;S · 9 × 9 × 38,5 h;500;Custom packaging grossisti;24P042;51
+WM-BR01.2;Porta bottiglie;D · 18 × 9 × 38,5 h;500;Custom packaging grossisti;24P043;51
+WM-BR01.3;Porta bottiglie;T · 29 × 9 × 38,5 h;500;Custom packaging grossisti;24P044;51
+WM-BR02.1;Porta bottiglie da 6 – Con divisorio;52 × 32,5 × 9 h;500;Custom packaging grossisti;42-154 A/B;52
+WM-BR02.2;Porta bottiglie da 6 – Stese;33,5 × 25,5 × 17 h;500;Custom packaging grossisti;42-173;52
+WM-BR03.1;Bauletto big;40 × 45 × 13 h;500;Custom packaging grossisti;42-414;53
+WM-BR04.1;Bauletto con manico;30 × 18 × 30 h;500;Custom packaging grossisti;680-209;54
+WM-BR05.1;Porta vivande;S · 28 × 20,5 × 35 h;500;Custom packaging grossisti;42-285;55
+WM-BR05.2;Porta vivande;M · 35 × 28 × 34 h;500;Custom packaging grossisti;42-395;55
+WM-BR05.3;Porta vivande;L · 42,5 × 25,5 × 34 h;500;Custom packaging grossisti;42-284;55
+WM-EC01.1;Box e-commerce in teso;15 × 12 × 6 h;500;Custom packaging grossisti;42-147;57
+WM-EC01.2;Box e-commerce in teso;18 × 9 × 7,5 h;500;Custom packaging grossisti;680-214;57
+WM-EC01.3;Box e-commerce in teso;28 × 25 × 10 h;500;Custom packaging grossisti;42-146;57
+WM-EC01.4;Box e-commerce in teso;46 × 11 × 7,5 h;500;Custom packaging grossisti;42-413;57
+WM-EC02.1;Box e-commerce accoppiato;19,5 × 27 × 6 h;500;Custom packaging grossisti;42-378;58
+WM-EC02.2;Box e-commerce accoppiato;20 × 20 × 10 h;500;Custom packaging grossisti;955-7;58
+WM-EC02.3;Box e-commerce accoppiato;23 × 30 × 7,5 h;500;Custom packaging grossisti;680-224;58
+WM-EC02.4;Box e-commerce accoppiato;24 × 35,5 × 10 h;500;Custom packaging grossisti;42-377;58
+WM-EC02.5;Box e-commerce accoppiato;26 × 26 × 10 h;500;Custom packaging grossisti;42-166;58
+WM-EC02.6;Box e-commerce accoppiato;38 × 30 × 14 h;500;Custom packaging grossisti;42-422;58
+WM-EC02.7;Box e-commerce accoppiato;40 × 35 × 14 h;500;Custom packaging grossisti;42-102;58
+WM-EC02.8;Box e-commerce accoppiato;43 × 40 × 11 h;500;Custom packaging grossisti;42-334;58
+WM-EC02.9;Box e-commerce accoppiato;52 × 32,5 × 9 h;500;Custom packaging grossisti;42-154;58
+WM-EC02.10;Box e-commerce accoppiato;55 × 33 × 15 h;500;Custom packaging grossisti;42-423A/B;58
+WM-BB01.1;Bicchieri in carta;3 oz;10.000;Custom packaging grossisti;WP30Z;60
+WM-BB01.2;Bicchieri in carta;7 oz;10.000;Custom packaging grossisti;WP70Z;60
+WM-BB01.3;Bicchieri in carta;8 oz;10.000;Custom packaging grossisti;WP80Z;60
+WM-BB01.4;Bicchieri in carta – Coperchio;3 oz;10.000;Custom packaging grossisti;COP3OZ;60
+WM-BB01.5;Bicchieri in carta – Coperchio;7 oz;10.000;Custom packaging grossisti;COP7OZ;60
+WM-BB01.6;Bicchieri in carta – Coperchio;8 oz;10.000;Custom packaging grossisti;COP8OZ;60
+WM-BB02.1;Bowl;500 ml;7.500;Custom packaging grossisti;WP500;61
+WM-BB02.2;Bowl;750 ml;7.500;Custom packaging grossisti;WP750;61
+WM-BB02.3;Bowl;1000 ml;7.500;Custom packaging grossisti;WP100;61
+WM-BB02.4;Bowl;1100 ml;7.500;Custom packaging grossisti;WP110;61
+WM-BB02.5;Bowl;1300 ml;7.500;Custom packaging grossisti;WP130;61
+WM-BB02.6;Bowl – Coperchio;500 ml;7.500;Custom packaging grossisti;COP500;61
+WM-BB02.7;Bowl – Coperchio;750 ml;7.500;Custom packaging grossisti;COP750;61
+WM-BB02.8;Bowl – Coperchio;1000 ml;7.500;Custom packaging grossisti;COP1000;61
+WM-BB02.9;Bowl – Coperchio;1100 ml;7.500;Custom packaging grossisti;COP1100;61
+WM-BB02.10;Bowl – Coperchio;1300 ml;7.500;Custom packaging grossisti;COP1300;61
+WM-SH01;Senza stampa;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+13 × 41 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta avana e bianca - maniglia piatta;3
+WM-SH02;Senza stampa;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+13 × 41 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - maniglia piatta;3
+WM-SH03;Senza stampa;14+8,5 × 21,5 | 14+8,5 × 39,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+13 × 41 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta avana e bianca - maniglia ritorta;4
+WM-SH04;Senza stampa;14+8,5 × 21,5 | 14+8,5 × 39,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+13 × 41 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - maniglia ritorta;4
+WM-SH05;Senza stampa Italy;24+11 × 21 | 24+11 × 31 | 32+13 × 28 | 40+12 × 31 | 42+13 × 37 | 55+15 × 39;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta;5
+WM-SH06;Senza stampa Italy;24+11 × 21 | 24+11 × 31 | 32+13 × 28 | 40+12 × 31 | 42+13 × 37 | 55+15 × 39;;Shoppers pronto magazzino 2025;Carta avana - maniglia ritorta;5
+WM-SH07;Senza stampa bordo risvoltato;19+9 × 25+6 | 22+10 × 27+6 | 27+12 × 31+6 | 35+13 × 31+6 | 45+15 × 33+6 | 54+16 × 43+6;;Shoppers pronto magazzino 2025;Carta bianca - maniglia rivestita in cotone;6
+WM-SH08;Senza stampa bordo risvoltato;19+9 × 25+6 | 22+10 × 27+6 | 27+12 × 31+6 | 35+13 × 31+6 | 45+15 × 33+6 | 54+16 × 43+6;;Shoppers pronto magazzino 2025;Carta avana - maniglia rivestita in cotone;6
+WM-SH09;Colorati su avana;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta avana - fondo testa di moro, menta, fragola - maniglia piatta avana;8
+WM-SH10;Colorati;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - fondo arancio, verde chiaro, giallo - maniglia piatta avana;8
+WM-SH11;Colorati;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - fondo verde, rosso, blu scuro - maniglia piatta avana;9
+WM-SH12;Colorati naturali;21+11 × 24 | 32+13 × 28 | 40+12 × 31 | 55+15 × 39;;Shoppers pronto magazzino 2025;Carta bianca - fondo verde acqua, rosa antico, tortora - maniglia ritorta bianca;9
+WM-SH13;Colorati pastello;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - fondo crema, turchese, rosa - maniglia ritorta colorata;10
+WM-SH14;Colorati pastello;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - fondo arancio, verde chiaro, giallo - maniglia ritorta colorata;10
+WM-SH15;Colorati pastello;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - fondo viola, blu elettrico, fucsia - maniglia ritorta colorata;11
+WM-SH16;Colorati pastello;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - fondo nero, grigio, rosso - maniglia ritorta colorata;11
+WM-SH17;Colorati sealing;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - fondo verde scuro, bordeaux, blu notte - maniglia ritorta colorata;12
+WM-SH18;Colorati sealing;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - fondo marrone, avorio, nero - maniglia ritorta colorata;12
+WM-SH19;Colorati bordo risvoltato;19+9 × 25+6 | 22+10 × 27+6 | 27+12 × 31+6 | 35+13 × 31+6 | 45+15 × 33+6 | 54+16 × 43+6;;Shoppers pronto magazzino 2025;Carta bianca - fondo rosso, blu - maniglia rivestita in cotone colorata;13
+WM-SH20;Colorati bordo risvoltato;19+9 × 25+6 | 22+10 × 27+6 | 27+12 × 31+6 | 35+13 × 31+6 | 45+15 × 33+6 | 54+16 × 43+6;;Shoppers pronto magazzino 2025;Carta bianca - fondo caffè, nero - maniglia rivestita in cotone colorata;13
+WM-SH21;Take away senza stampa;27+17 × 29 | 32+17 × 29 | 32+22 × 34 | 35+25 × 27;;Shoppers pronto magazzino 2025;Carta avana e bianca - maniglia piatta;15
+WM-SH22;Take away colorati;27+17 × 29 | 32+22 × 34 | 35+25 × 27;;Shoppers pronto magazzino 2025;Carta bianca - fondo rosso, nero - maniglia piatta colorata;15
+WM-SH23;Take away bicolor;27+17 × 29 | 32+22 × 34 | 35+25 × 27;;Shoppers pronto magazzino 2025;Carta bianca - fondo vaniglia con soffietti cioccolato - maniglia piatta vaniglia;16
+WM-SH24;Take away;27+17 × 29 | 36+22 × 33;;Shoppers pronto magazzino 2025;Carta avana e bianca - maniglia ritorta;16
+WM-SH25;Fascia cammeo blu;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - maniglia piatta blu;18
+WM-SH26;Atene;22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta avana - maniglia piatta nera;18
+WM-SH27;Flores;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+17 × 45;;Shoppers pronto magazzino 2025;Carta bianca - maniglia piatta bianca;19
+WM-SH28;Summer;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia piatta bianca;19
+WM-SH29;Garden;22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia piatta bianca;20
+WM-SH30;Rosette;24+11 × 21 | 32+13 × 28 | 40+12 × 31 | 55+15 × 39;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta bianca;20
+WM-SH31;Fiji;22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta bianca;21
+WM-SH32;Blumen;22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta bianca;21
+WM-SH33;Duo Italy;24+11 × 21 | 32+13 × 28 | 40+12 × 31 | 55+15 × 39;;Shoppers pronto magazzino 2025;Carta bianca - fondo bianco con soffietti neri - maniglia ritorta;22
+WM-SH34;Duo Italy;24+11 × 21 | 32+13 × 28 | 40+12 × 31 | 55+15 × 39;;Shoppers pronto magazzino 2025;Carta bianca - fondo grigio chiaro con soffietti grigio scuro - maniglia ritorta;22
+WM-SH35;Argento e oro;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49 | 55+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - fondo oro, argento - maniglia ritorta colorata;23
+WM-SH36;Bronzo e platino bordo risvoltato;19+9 × 25+6 | 22+10 × 27+6 | 27+12 × 31+6 | 35+13 × 31+6 | 45+15 × 33+6 | 54+16 × 43+6;;Shoppers pronto magazzino 2025;Carta bianca - fondo bronzo, platino - maniglia rivestita in cotone colorata;23
+WM-SH37;Bicolor bordo risvoltato;22+10 × 27+6 | 35+13 × 31+6 | 45+15 × 33+6 | 54+16 × 43+6;;Shoppers pronto magazzino 2025;Carta bianca - fondo nocciola, grigio - maniglia ritorta colorata;24
+WM-SH38;Santa Klaus;18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia piatta rossa;26
+WM-SH39;Merry Christmas;22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia piatta rossa;26
+WM-SH40;Xmas Village;22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia piatta rossa;27
+WM-SH41;Sestriere;22+10 × 29 | 27+12 × 37 | 32+17 × 45 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia piatta rossa;27
+WM-SH42;Stars;22+10 × 29 | 32+13 × 41 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta oro;28
+WM-SH43;Bianco Natale;14+8,5 × 21,5 | 18+8 × 24 | 22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta avana - maniglia ritorta avana;28
+WM-SH44;Dolomiti;22+10 × 29 | 27+12 × 37 | 36+12 × 41 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta rossa;29
+WM-SH45;Cortina rosso;22+10 × 29 | 32+13 × 41 | 45+15 × 49;;Shoppers pronto magazzino 2025;Carta sealing avana - maniglia ritorta rossa;29
+WM-SH46;Christmas bordo risvoltato;22+10 × 27+6 | 35+13 × 31+6 | 45+15 × 33+6;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta rossa;30
+WM-SH47;Xmas bordo risvoltato;22+10 × 27+6 | 35+13 × 31+6 | 45+15 × 33+6;;Shoppers pronto magazzino 2025;Carta bianca - maniglia rivestita in cotone rossa - stampa a caldo;30
+WM-SH48;Porta bottiglie;14+8,5 × 39,5;;Shoppers pronto magazzino 2025;Carta sealing avana - fondo nero, rosso, verde, bordeaux, blu notte, marrone,;32
+WM-SH49;Porta bottiglie argento e oro;14+8,5 × 39,5;;Shoppers pronto magazzino 2025;Carta bianca - fondo oro, argento - maniglia ritorta colorata;32
+WM-SH50;Porta bottiglie Black Lux;14+8,5 × 39,5;;Shoppers pronto magazzino 2025;Carta bianca - fondo nero - maniglia ritorta nera - stampa a caldo;33
+WM-SH51;D-Bag;35+10 × 27+1 | 52+15 × 44+1;;Shoppers pronto magazzino 2025;Carta avana - maniglia a fagiolo;33
+WM-SH52;B-Bags;30+10 × 25+1 | 36+10 × 27+1 | 46+15 × 31+1 | 50+15 × 41+1;;Shoppers pronto magazzino 2025;Carta bianca - maniglia ritorta;34
+WM-SH53;B-Bags;30+10 × 25+1 | 36+10 × 27+1 | 46+15 × 31+1 | 50+15 × 41+1;;Shoppers pronto magazzino 2025;Carta avana - maniglia ritorta;34
+WM-SH54;B-Bags colorati;30+10 × 25+1 | 36+10 × 27+1 | 46+15 × 31+1 | 50+15 × 41+1;;Shoppers pronto magazzino 2025;Carta bianca - fondo fucsia, nero, rosso - maniglia ritorta colorata;35
+WM-SH55;Mini bag;12+6,5 × 25;;Shoppers pronto magazzino 2025;Carta bianca e avana - senza maniglia;35
+WM-SH56;Mini bag colorati;12+6,5 × 25;;Shoppers pronto magazzino 2025;Carta bianca - fondo rosso, nero - senza maniglia;36
+WM-SH57;Shopper box pizza;37+33 × 32;;Shoppers pronto magazzino 2025;Carta avana - maniglia ritorta;37
+WM-SH58;Porta bottiglie 2 posti;16+8 × 39;;Shoppers pronto magazzino 2025;Carta avana - maniglia ritorta;37
+WM-SH59;Busta e-commerce;30+6 × 40+8 | 45+6 × 50+8;;Shoppers pronto magazzino 2025;Carta avana con vernice impermeabile, due bande adesive e apertura facilitata;36

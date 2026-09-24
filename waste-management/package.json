@@ -1,0 +1,19 @@
+{
+  "name": "waste-management-catalogo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Catalogo brochure e selezione best seller personalizzati Waste Management",
+  "type": "module",
+  "scripts": {
+    "extract": "python3 scripts/extract.py",
+    "mockups": "node scripts/render-mockups.mjs",
+    "html": "python3 scripts/build.py",
+    "pdf": "node scripts/make-pdf.mjs",
+    "build": "npm run mockups && npm run html && npm run pdf"
+  },
+  "dependencies": {
+    "playwright": "^1.56.1",
+    "qrcode": "^1.5.4",
+    "three": "^0.169.0"
+  }
+}
