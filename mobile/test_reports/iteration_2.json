@@ -1,0 +1,39 @@
+{
+  "summary": "Iteration 2 — Glitz companion (auth + 5-tab club app + A.I. still active). Backend: 35/35 pytest passed on public URL (auth register/login/me/duplicate/wrong-password/bad-token/profile PATCH, phone OTP guarded 200 configured:false + 503 send, auth-gating 401 across /api/events, /api/events/{id}, /api/menu, /api/tables/zones, /api/my-night, /api/tickets, /api/table-requests, /api/groups, /api/help, events list+detail+404, menu+zones, ticket buy + persistence + my-night next_ticket populated + invalid formula 400, table-requests create+persist+404 bad zone, groups create with invite_code + second-user join with code + listing + bad-code 404, help create + persist, A.I. legacy /api/state + /api/join + /api/press still work). Frontend (390x844 mobile): unauthenticated user is redirected to /(auth)/welcome (welcome-screen visible); registration via testIDs register-name/email/password/submit lands on serata-screen; event-ev-01 → /event/ev-01 → formula-std → buy-ticket creates ticket (verified: QR + code + 'Ingresso · biglietto attivo' pill appears on La mia serata, tickets count 1, 11 SVGs on page for the QR); bottom tabs all reachable via <Link href='/ai|/amici|/aiuto'>; Amici tab has group-name-input, create-group, join-group testIDs and works; Aiuto tab exposes help-type-{disagio,sanitario,persi,responsabile}; A.I. tab shows the 'ENTRA IN A.I.' CTA button (visible in screenshot). No red screen. Only known warning: 'shadow*' style prop deprecation from React Native Web.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "global (web)", "issues": ["Console warning: 'shadow*' style props deprecated; use style.boxShadow (from Welcome/Serata/etc. cards)"]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_glitz_app.py",
+    "/app/backend/tests/test_show_backend.py",
+    "/app/backend/tests/conftest.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional) Replace shadow{Color,Opacity,Radius,Offset} styles with boxShadow to silence RN Web deprecation warnings on web.",
+    "(Optional) A.I. tab's ENTRA CTA testID was not found by [data-testid='ai-enter-cta'] in one probe run even though the button is visible on screen — verify the testID prop is actually set on the correct Pressable so E2E can target it reliably."
+  ],
+  "critical_code_review_comments": [
+    "auth.py: bcrypt password truncation to 72 bytes handled correctly (bcrypt limitation); passwords <6 rejected with 400 and duplicates with 409 — good.",
+    "core.py: get_current_user validates Bearer + JWT + user existence — clean; all club endpoints depend on it so gating is enforced everywhere.",
+    "club.py: SEED_ZONES/MENU are in-memory constants — acceptable for MVP; consider seeding to Mongo if admin editing is planned.",
+    "club.py: _clean helper is unused (all queries already use {'_id': 0} projection) — minor dead code.",
+    "server.py: startup creates unique index on users.email — good idempotency guard vs duplicate emails.",
+    "server.py: A.I. show engine and auth-protected club APIs coexist under same FastAPI app with different routers (/api and /api/auth) — layout is clean.",
+    "core.py: init_storage/put_object/get_object wrap Emergent object storage with retry-on-503 (re-init key) — good defensive pattern for ticket QR + profile photo uploads.",
+    "(tabs)/index.tsx uses react-query with invalidate on refresh — no stale QR tickets observed after buy flow."
+  ],
+  "updated_files": ["/app/backend/tests/test_glitz_app.py", "/app/test_reports/iteration_2.json", "/app/test_reports/pytest/pytest_results.xml"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Test users created dynamically per run with prefix 'TEST_' / unique uuid emails (test_<n>@glitz.test); tickets, table-requests, groups, help-requests created & verified via GET.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Public URL: EXPO_PUBLIC_BACKEND_URL from /app/frontend/.env. Backend routes: /api/auth/{register,login,me,profile,session,phone/status,phone/send}; /api/{events, events/{id}, menu, tables/zones, tickets, table-requests, groups, groups/join, help, my-night, upload, files/{path}}; legacy A.I.: /api/{state,join,vote,press,power/control,power/options,ws}. Auth uses Bearer JWT (30d) from /api/auth/{register|login}. On web the frontend uses same-origin '/api' + ws. Frontend testIDs available: welcome-screen, go-register, go-login, google-login, go-phone, register-{name,email,password,dob,instagram,submit,photo,error}, serata-screen, open-profile, night-hero, quick-events, quick-tables, event-<id>, ticket-<id>, formula-<id>, buy-ticket, amici-screen, group-name-input, create-group, join-group, aiuto-screen, help-type-{disagio,sanitario,persi,responsabile}. Tab bar keeps screens mounted — use .first when multiple tabs share a testID. Phone OTP is intentionally 503 (Twilio not configured). Do NOT attempt interactive Google OAuth.",
+  "rca_of_issue": "N/A — no failures observed."
+}

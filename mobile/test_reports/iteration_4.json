@@ -1,0 +1,44 @@
+{
+  "summary": "Iteration 4 — real Glitz data import (3 events), interactive floor plan, /api/club-info, centered GLITZ logo. Backend: 13/13 pytest passed. GET /api/events returns exactly ev-damante, ev-giada, ev-raul with 2027 dates and covers at https://glitz-nightclub.preview.emergentagent.com/events/*.png; GET /api/events/{id} works for all three and 404 for unknown. GET /api/tables/zones returns 8 tables each with x,y ∈ [0,100], area, seats, price, bottles, available; z-arco-2 is unavailable, z-riva-1 is available. GET /api/club-info returns name='GLITZ CLUB', address contains 'San Nicola Arcella', instagram='glitzclubofficial', 4 areas. POST /api/tickets for ev-damante mints a GLITZ- code (price €25), it appears in GET /api/tickets and is surfaced as next_ticket by /api/my-night. POST /api/waiter-calls and POST /api/orders both require Bearer (401 without) and succeed with a real table zone. Frontend (390x844): registered a fresh iter4_<uuid>@glitz.test user, reached serata-screen. LogoHeader (centered GLITZ) renders on both Serata (1 instance) and Ordina (2 instances because tabs stay mounted). Event cards event-ev-damante / event-ev-giada / event-ev-raul all rendered. Ordina: FloorPlan renders all 8 plan-table-* testIDs; tapping plan-table-z-riva-1 shows banner 'Sei al RIVA 1 · Riva Deck'; tapping waiter-acqua creates a call row 'Acqua · RIVA 1 · INVIATA'; two plus-m-01 taps show cart-bar '2 articoli · RIVA 1 · €24.00'; submit-order posts and I MIEI ORDINI shows '2× Glitz Spritz · €24 · RIVA 1 · RICEVUTO'. Zone name RIVA 1 correctly propagates from the piantina into both the waiter call and the order. Deprecated packages detected: NONE. ISSUE: event cover images are blocked on web preview — upstream https://glitz-nightclub.preview.emergentagent.com/events/*.png returns 'cross-origin-resource-policy: same-origin', so all 3 covers fail to load (console: ERR_BLOCKED_BY_RESPONSE.NotSameOrigin ×3) and the event cards render with an empty/black cover area on Serata.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Serata events carousel (cover images)", "issue": "The 3 real event covers hosted at https://glitz-nightclub.preview.emergentagent.com/events/*.png set the response header 'cross-origin-resource-policy: same-origin'. Chromium (web preview) blocks them (ERR_BLOCKED_BY_RESPONSE.NotSameOrigin), so event cards show a blank/dark cover area. Native builds using expo-image may still render fine, but web preview is broken.", "testID": "event-ev-damante / event-ev-giada / event-ev-raul", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "global (web)", "issues": ["Pre-existing 'shadow*' style-prop deprecation warning from RN Web — cosmetic, unchanged since iter 2."]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration4_glitz_import.py",
+    "/app/backend/tests/test_table_service.py",
+    "/app/backend/tests/test_glitz_app.py",
+    "/app/backend/tests/test_show_backend.py",
+    "/app/test_reports/pytest/pytest_iteration4.xml"
+  ],
+  "action_items": [
+    "Fix event cover blocking on web: either (a) copy the 3 PNGs into /app/frontend/assets/images/ and require() them locally, (b) proxy them through the FastAPI backend (which does not set CORP: same-origin), or (c) upload them to storage without the same-origin CORP header. Update SEED_EVENTS[*].cover in /app/backend/club.py accordingly.",
+    "(Minor) The waiter-* Pressables use disabled={needTable}; on RN-Web this correctly prevents onPress but is_disabled() in Playwright still returns False. Optional: also apply aria-disabled or wrap in a View pointerEvents='none' so automated tools see the state. Functionally the gating already works (verified by clicking before selecting: no call was posted)."
+  ],
+  "critical_code_review_comments": [
+    "club.py: seed_club() upserts on startup so updated real event data always applies; list_events filters to SEED_EVENT_IDS which guarantees exactly the 3 real events regardless of legacy DB rows — good.",
+    "club.py: SEED_ZONES enriched with x,y ∈ [0,100] used by the FloorPlan absolute positioning — matches the frontend rendering.",
+    "club.py: new /api/club-info is auth-gated like the rest; response shape {club: {...}} is consistent with events/tickets.",
+    "ordina.tsx: table state is single source of truth; zone = table?.name flows into both waiter-calls and orders payload; buttons visually dimmed via styles.disabled when needTable=true.",
+    "floor-plan.tsx: absolute positioning with left/top as % and marginLeft/-Top for centering — clean and simple.",
+    "index.tsx: Serata renders LogoHeader at top; events carousel uses ev.cover directly — will break on web if cover origin sets CORP: same-origin (see UI bug)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration4_glitz_import.py",
+    "/app/test_reports/iteration_4.json",
+    "/app/test_reports/pytest/pytest_iteration4.xml"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "90%"},
+  "seed_data_creation": "Fresh test user per run: iter4_<uuid>@glitz.test / secret1. One ticket for ev-damante purchased, one waiter-call and one order created per run.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend seed IDs are ev-damante, ev-giada, ev-raul. Table IDs on the floor plan: z-back-1, z-arco-1, z-arco-2 (unavailable), z-riva-1..3, z-seat-1..2. Ordina flow requires tapping a plan-table before waiter-* buttons or submit-order will act. LogoHeader (testID=logo-header) is present on both Serata and Ordina; because Expo tabs stay mounted, use .first when the same testID exists on multiple tabs. Event covers currently blocked on web preview by upstream CORP header — until fixed, screenshots of Serata carousel will show black/blank cover areas.",
+  "rca_of_issue": "Event cover blank on web = upstream server at glitz-nightclub.preview.emergentagent.com serves the PNGs with 'cross-origin-resource-policy: same-origin'. Repro: `curl -I https://glitz-nightclub.preview.emergentagent.com/events/opening-damante.png` returns 200 + `cross-origin-resource-policy: same-origin`. Browser then blocks the cross-origin <img> load with ERR_BLOCKED_BY_RESPONSE.NotSameOrigin. Mitigation: host covers locally (bundle in /app/frontend/assets or serve via /api/files on the backend). Native platforms are unaffected because CORP is a browser-only policy."
+}

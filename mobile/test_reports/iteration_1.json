@@ -1,0 +1,36 @@
+{
+  "summary": "Full backend + frontend test run for 'A.I. — ATTENZIONE INSTABILE'. Backend: 11/11 pytest passed (state snapshot, join, WebSocket connect+broadcast, vote gating/duplicate/invalid, press increment, takeover at threshold, power holder rejection, power options). Frontend (mobile 390x844): onboarding validation works (empty/1-char rejected), nickname+avatar+mood enables CTA, join navigates to /stage, stage renders AI line + online count + profile chip, NON PREMERE press increments backend press_count via API, and phase auto-cycle observed (idle→music_vote) confirming WS live updates. No blocking issues. Minor: React Native web deprecation warnings (shadow* → boxShadow, props.pointerEvents).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/vote|/api/press|/api/power/control", "issue": "All return HTTP 200 with {ok:false, reason:...} on rejection. Semantically fine but non-idiomatic; consider 400/403/409 for stricter clients."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "global (web)", "issues": ["Console warning: 'shadow*' style props deprecated; use style.boxShadow", "Console warning: props.pointerEvents deprecated; use style.pointerEvents"]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_show_backend.py", "/app/backend/tests/conftest.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "(Optional) Replace shadow* style props with boxShadow across styles to silence RN Web deprecation warnings.",
+    "(Optional) Replace props.pointerEvents with style.pointerEvents on affected components.",
+    "(Optional) Return proper HTTP status codes for rejections in /api/vote, /api/press, /api/power/control (400/403) instead of 200+{ok:false}."
+  ],
+  "critical_code_review_comments": [
+    "server.py: /api/vote|/api/press|/api/power/control return 200 even on failure — clients rely on JSON 'ok' field; acceptable but consider 4xx.",
+    "server.py: engine.press_count is process-global and not reset except after takeover — expected for the design but note single-instance assumption.",
+    "server.py: participants dict is in-memory (Mongo used only for insert) — restarting backend loses power_holder mapping; acceptable for a night-long ephemeral show.",
+    "show-context.tsx: WebSocket reconnect uses fixed 1.8s delay (no backoff) — fine for local network."
+  ],
+  "updated_files": ["/app/backend/tests/conftest.py", "/app/backend/tests/test_show_backend.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Test participants created via /api/join with 'TEST_*' nicknames (persisted in Mongo participants collection).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Show phases auto-cycle: idle(12s)->music_vote(20s)->vote_result(9s)->idle->message_floor(40s)->idle->power(30s). For phase-gated tests, poll /api/state or subscribe WS. PRESS_THRESHOLD=10 triggers 'takeover' (12s) and resets press_count. On web the frontend uses same-origin '/api' + ws://window.location.origin — do not expect the env host in web network requests.",
+  "rca_of_issue": "N/A — no failures."
+}
