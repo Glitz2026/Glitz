@@ -40,6 +40,11 @@ La mia serata · Ordina · A.I. · Amici · Aiuto. Big buttons, night-legible, e
 - Backend image proxy `/api/img?u=` so cross-origin (CORP) site covers load on web.
 - Tested: backend 13/13, frontend flows pass; covers verified rendering after the proxy fix.
 
+### 2026-09 (turn 5)
+- Moved into the website repo under `mobile/`. All website features now live in the app through the backend bridge `/api/site/*` (`site_bridge.py`): events 2027, event detail with the official 40-table piantina (2D + 3D WebView) and table requests, shop + cart + Stripe checkout, news, gallery, Il Club, contacts, private events, newsletter, past events, FAQ.
+- New app-style Home and tabs Home · Eventi · A.I. · Ordina · Altro; Amici and Aiuto moved to stack screens; ticket wallet `biglietti`; profile lists the requests sent from the app.
+- Ordina uses the official piantina (tables B0–B15, R1–R16, G1–G8) instead of the 8 placeholder tables.
+
 ## Personas
 - Guest (primary): organises the night, buys ticket, meets friends, plays with A.I., asks for help.
 

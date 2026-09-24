@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { FloorPlan, type Table } from "@/src/components/floor-plan";
+import { GlitzPlan } from "@/src/components/glitz-plan";
 import { LogoHeader } from "@/src/components/logo-header";
 import { apiGet, apiPost } from "@/src/lib/api";
+import { resolvePlan, type PlanTable } from "@/src/lib/floorplan";
 import { MONO } from "@/src/lib/fonts";
+import { useSettings } from "@/src/lib/site";
 import { makeStyles, useTheme } from "@/src/theme";
 
 const WAITER = [
@@ -30,12 +32,16 @@ export default function Ordina() {
   const insets = useSafeAreaInsets();
   const qc = useQueryClient();
 
-  const [table, setTable] = useState<Table | null>(null);
+  const { width } = useWindowDimensions();
+  const settings = useSettings();
+  const plan = useMemo(() => resolvePlan(settings.data), [settings.data]);
+  const [table, setTable] = useState<PlanTable | null>(null);
   const [cart, setCart] = useState<Record<string, number>>({});
-  const zone = table?.name ?? null;
+  const tableZone = table ? plan.getZone(table.zone).label : null;
+  // Stamped on every waiter call and order so the staff knows where to go.
+  const zone = table ? `Tavolo ${table.id} · ${tableZone}` : null;
 
   const menu = useQuery({ queryKey: ["menu"], queryFn: () => apiGet("/api/menu") });
-  const zones = useQuery({ queryKey: ["zones"], queryFn: () => apiGet("/api/tables/zones") });
   const orders = useQuery({ queryKey: ["orders"], queryFn: () => apiGet("/api/orders"), refetchInterval: 5000 });
   const calls = useQuery({ queryKey: ["waiter-calls"], queryFn: () => apiGet("/api/waiter-calls"), refetchInterval: 5000 });
 
@@ -69,7 +75,6 @@ export default function Ordina() {
 
   const orderList = orders.data?.orders ?? [];
   const callList = calls.data?.calls ?? [];
-  const zoneList: Table[] = zones.data?.zones ?? [];
   const needTable = !table;
 
   return (
@@ -86,10 +91,19 @@ export default function Ordina() {
       >
         {/* Piantina tavoli */}
         <Text style={styles.section}>IL TUO TAVOLO · PIANTINA</Text>
-        <FloorPlan tables={zoneList} selectedId={table?.id ?? null} onSelect={setTable} />
+        <View style={styles.planWrap}>
+          <GlitzPlan
+            width={Math.min(width, 720) - 40}
+            tables={plan.tables}
+            anchors={plan.anchors}
+            getZone={plan.getZone}
+            selectedId={table?.id ?? null}
+            onSelect={setTable}
+          />
+        </View>
         <View style={[styles.selBanner, table ? styles.selBannerOk : null]}>
           <Text style={styles.selText}>
-            {table ? `Sei al ${table.name} · ${table.area}` : "Tocca il tuo tavolo sulla piantina"}
+            {table ? `Sei al tavolo ${table.id} · ${tableZone}` : "Tocca il tuo tavolo sulla piantina"}
           </Text>
         </View>
 
@@ -201,6 +215,7 @@ export default function Ordina() {
 }
 
 const useStyles = makeStyles((colors) => ({
+  planWrap: { borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: colors.border, alignSelf: "center" },
   root: { flex: 1, backgroundColor: colors.surface },
   header: { paddingHorizontal: 20, paddingBottom: 14 },
   kicker: { color: colors.brandPrimary, fontSize: 11, letterSpacing: 4, fontWeight: "800", fontFamily: MONO },

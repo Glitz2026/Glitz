@@ -5,6 +5,7 @@ Questa repository riunisce il sito creato su Emergent e la piantina interattiva 
 ## Dove si trova il codice
 
 - `frontend/`: sito React esistente di Emergent (eventi, account, amministrazione, shop e schermate pagamento).
+- `mobile/`: app Expo del Glitz (iOS, Android, web) con tutte le funzioni del sito e Home in stile app; vedi `mobile/README.md`.
 - `backend/`: backend esistente di Emergent.
 - `glitz-interattivo.html`: piantina 3D autonoma, da scaricare e aprire nel browser.
 - `frontend/public/glitz-interattivo.html`: stessa piantina, disponibile all'indirizzo `/glitz-interattivo.html` quando il frontend viene avviato o pubblicato e serve i file statici.

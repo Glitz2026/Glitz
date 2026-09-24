@@ -4,6 +4,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { BackHeader } from "@/src/components/back-header";
 import { apiGet, apiPost } from "@/src/lib/api";
 import { MONO } from "@/src/lib/fonts";
 import { makeStyles, useTheme } from "@/src/theme";
@@ -38,7 +39,8 @@ export default function Amici() {
 
   return (
     <View style={styles.root} testID="amici-screen">
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <BackHeader />
+      <View style={styles.header}>
         <Text style={styles.kicker}>CHI VIENE CON ME</Text>
         <Text style={styles.title}>Amici</Text>
       </View>

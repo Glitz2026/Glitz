@@ -3,6 +3,8 @@ import { Platform } from "react-native";
 const ENV_BASE = process.env.EXPO_PUBLIC_BACKEND_URL as string;
 // Web shares an origin with the API behind the ingress → relative URLs.
 export const HTTP_BASE = Platform.OS === "web" ? "" : ENV_BASE;
+// The Glitz website: its pages (3D map, Stripe return pages) are opened directly.
+export const SITE_ORIGIN = ((process.env.EXPO_PUBLIC_SITE_URL as string) || "https://glitz-nightclub.preview.emergentagent.com").replace(/\/$/, "");
 
 let authToken: string | null = null;
 

@@ -16,3 +16,11 @@ export function formatDay(iso: string): string {
     return iso;
   }
 }
+
+export function formatItalianDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" });
+  } catch {
+    return iso;
+  }
+}
