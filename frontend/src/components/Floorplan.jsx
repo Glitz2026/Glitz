@@ -147,7 +147,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                     onFallback={() => {}}
                 />
 
-                {/* Zone info ULTRA compatte su UNA RIGA (nome + prezzo, "+" apre dettagli) */}
+                {/* Zone info compatte — su UNA RIGA, mobile leggermente più alte per far entrare più info */}
                 <div data-testid="floorplan-zone-cards" className="grid grid-cols-5 gap-1.5 mb-3">
                     {["STAGE", "RIVA", "BAR", "SEAVIEW", "PRATO_BACK"].map((zid) => {
                         const z = getZone(zid);
@@ -157,14 +157,14 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                             <div
                                 key={zid}
                                 data-testid={`floorplan-zone-card-${zid}`}
-                                className={`relative flex items-center justify-between gap-1 rounded-md px-1.5 py-1.5 border-l-[2px] transition-all cursor-pointer ${isActive ? "bg-white/10" : "bg-white/[0.03] hover:bg-white/[0.06]"}`}
+                                className={`relative flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1 rounded-md px-1.5 py-2 sm:py-1.5 min-h-[54px] sm:min-h-0 border-l-[2px] transition-all cursor-pointer ${isActive ? "bg-white/10" : "bg-white/[0.03] hover:bg-white/[0.06]"}`}
                                 style={{ borderLeftColor: z.color, boxShadow: isActive ? `0 0 12px ${z.color}66` : undefined }}
                                 onClick={() => setActiveZone(isActive ? null : zid)}
                                 role="button"
                                 aria-pressed={isActive}
                             >
                                 <div className="min-w-0 flex-1">
-                                    <div className="text-[9px] font-black uppercase tracking-tight text-white truncate leading-none">{z.label}</div>
+                                    <div className="text-[9px] sm:text-[9px] font-black uppercase tracking-tight text-white leading-tight line-clamp-2 sm:truncate">{z.label}</div>
                                     {z.price_from && (
                                         <div className="text-[9px] font-bold text-white/60 truncate mt-0.5">Da {z.price_from}</div>
                                     )}
@@ -175,7 +175,7 @@ export default function Floorplan({ eventTitle, eventId, reservedTables = {}, cu
                                     aria-expanded={isExpanded}
                                     aria-label={isExpanded ? `Chiudi info ${z.label}` : `Info ${z.label}`}
                                     onClick={(e) => { e.stopPropagation(); setExpandedZone(isExpanded ? null : zid); }}
-                                    className={`w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center transition ${isExpanded ? "bg-lava text-white" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
+                                    className={`w-5 h-5 self-end sm:self-auto flex-shrink-0 rounded-full flex items-center justify-center transition ${isExpanded ? "bg-lava text-white" : "bg-white/10 text-white/80 hover:bg-white/20"}`}
                                 >
                                     {isExpanded ? <Minus className="w-2.5 h-2.5" /> : <Plus className="w-2.5 h-2.5" />}
                                 </button>
