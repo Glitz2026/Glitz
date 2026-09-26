@@ -1,0 +1,4 @@
+Type,Name,Value,TTL
+A,@,162.159.142.117,3600
+A,@,172.66.2.113,3600
+CNAME,www,glitzclub.it.,3600
