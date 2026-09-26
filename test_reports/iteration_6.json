@@ -1,0 +1,44 @@
+{
+  "summary": "Iteration 6 — Conto & Pagamento (Cassa), Incassi reconciliation, Turni/Presenze + guest 'CONTO DELLA SERATA'. Backend: 10/10 pytest passed on /app/backend/tests/test_iteration6_incassi_shifts.py (shift check-in/checkout/roster, direzione-only /shifts 403 for cambusa; payment methods contanti+pos recorded on cassa complete, /api/staff/incassi returns date/totale/contanti/pos/count/payments with 403 for cambusa and 200 for cassiere; double-complete returns 400; regression: waiter-call take/complete for non-payment tickets still works). Frontend on 390x844 mobile viewport: (1) Direzione staff-login lands on staff-board; shift-toggle button flips between 'TIMBRA ENTRATA' and '● IN SERVIZIO · TIMBRA USCITA' correctly. (2) nav-incassi + nav-presenze chips both visible for direzione and route to /staff/incassi (TOTALE INCASSATO €72.00, CONTANTI €24.00, POS €48.00, 6 transazioni + transaction rows shown) and /staff/presenze (IN SERVIZIO ORA card, DIREZIONE · 1 dept head with Gianluca listed 'dalle 14:41'). (3) End-to-end payment: fresh guest → pickup order at Bar centrale via API → barman completed → direzione board shows done-<id> labelled INCASSA → tap reveals pay-contanti-<id> and pay-pos-<id> → tapping pay-contanti clears the ticket from the board (payment recorded). (4) Guest CONTO DELLA SERATA banner: after posting a pickup order, 'I MIEI ORDINI' shows CONTO DELLA SERATA €12.00 with 1× Glitz Spritz · RICEVUTO. (5) Regression: guest 5-tab home loads (Home/Eventi/A.I./Ordina/Altro visible in bottom bar). No deprecated packages detected. No React Native red screen. Only pre-existing web-only console warnings (shadow* deprecation, onResponder* on register-photo Touchable — same as iter 5, non-blocking).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "global (web preview)", "issues": ["Pre-existing 'shadow*' style-props deprecation warning from RN Web (cosmetic)."]},
+      {"screen": "register-screen", "issues": ["Pre-existing web-only warnings 'Unknown event handler property onStartShouldSetResponder / onResponderGrant / onResponderMove / onResponderRelease / onResponderTerminate / onResponderTerminationRequest' from a Touchable inside register-photo — cosmetic, native unaffected. Same as iter 5."]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration6_incassi_shifts.py",
+    "/app/test_reports/pytest/pytest_iteration6.xml"
+  ],
+  "action_items": [
+    "(Cosmetic, non-blocking) Replace the Touchable used inside register-photo with a plain Pressable to silence the web-only 'onResponderXxx' warnings — same as iter 5 recommendation."
+  ],
+  "critical_code_review_comments": [
+    "staff.py PAYMENT_METHODS whitelist {contanti,pos} enforced with 400 on invalid method — good.",
+    "staff.py complete_ticket only inserts a payment when is_last AND department==cassieri AND kind==order — correctly scoped so cambusa/barman/camerieri completions don't accidentally record incassi.",
+    "staff.py _require_cassa gates /incassi to cassieri+direzione with 403 — verified.",
+    "staff.py _get_ticket_for_action raises 400 when status=='done', which is what returns 400 on double-complete — verified end-to-end.",
+    "staff.py shift_checkin is idempotent within a day (returns the existing open shift instead of erroring) — good.",
+    "staff.py /shifts endpoint uses require_direzione so a cambusa staff gets 403 — verified.",
+    "frontend staff/index.tsx `needsPayment` correctly gates the CONTANTI/POS UI to cassieri+order tickets; the two-step INCASSA → contanti/pos flow uses local state (payFor) that's reset in doneMut.onSuccess.",
+    "frontend staff/index.tsx isCassa = isDir || dept==='cassieri' controls the nav-incassi chip; nav-presenze correctly restricted to isDir.",
+    "frontend staff/incassi.tsx uses refetchInterval:5000 to keep totale live; totale is displayed with .toFixed(2) and matches contanti+pos server-side.",
+    "frontend staff/presenze.tsx groups the roster by department using a fixed DEPTS list — direzione group renders the current admin correctly.",
+    "frontend ordina.tsx CONTO DELLA SERATA banner is rendered above 'I MIEI ORDINI' when orderList.length > 0; total is reduce over o.total — matches server order.total. Verified with guest order 1× Glitz Spritz → €12.00."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration6_incassi_shifts.py",
+    "/app/test_reports/iteration_6.json",
+    "/app/test_reports/pytest/pytest_iteration6.xml"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Fresh guests per run (iter6_<hex>@glitz.test / secret1) that place a pickup order at Bar centrale for m-01 Glitz Spritz. Barman advances via API. During the UI payment run a payment was recorded (contanti €12) against the pickup ticket. Direzione was checked in during Presenze verification and left checked in at the end.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 6 fully verified. Notes for next agent: (1) /api/orders payload requires items with id, name AND price (Pydantic strict). (2) The menu endpoint returns {menu:[{category, items:[...]}]} — grab first["items"][0] for a signature drink. (3) On the direzione staff board, cassieri-stage order tickets render an INCASSA button (testID done-<id>) that on tap reveals pay-contanti-<id> and pay-pos-<id>; tap one to post {payment_method:...} which records into db.payments and clears the ticket. (4) /api/staff/incassi is scoped to the current UTC date, so tests should not assume yesterday's totals persist — use before/after deltas. (5) Direzione shift check-in is idempotent (POST twice is safe); /api/staff/shifts is direzione-only (403 for all other departments including cassieri). (6) The bottom tab labels shown are Home/Eventi/A.I./Ordina/Altro; guest Ordina tab shows the pickup mode toggle and CONTO DELLA SERATA banner when at least one order exists.",
+  "rca_of_issue": "N/A — no bugs found this iteration; all 10 backend tests and the 6 UI checks (login, shift toggle, nav-incassi screen, nav-presenze screen, INCASSA→CONTANTI payment closing a real cassa ticket, guest CONTO DELLA SERATA banner) passed."
+}

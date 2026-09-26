@@ -53,6 +53,13 @@ La mia serata · Ordina · A.I. · Amici · Aiuto. Big buttons, night-legible, e
 - Tested: backend 19/19 (RBAC, full routing pipeline, CRUD, tasks, payslips), all frontend flows pass.
 - Deferred (per user, "b"): native push notifications to be configured after the app is published/built. Twilio phone OTP still parked.
 
+### 2026-06 (turn 7) — Conto & Pagamento, Incassi, Turni/Presenze
+- **Conto & Pagamento**: the Cassa closes an order ticket choosing **Contanti** or **POS**; each closure writes a `payments` record. Completing an already-done ticket now returns 400 (no duplicate payments). Guest sees a "CONTO DELLA SERATA" running total in the Ordina tab.
+- **Incassi** (`/staff/incassi`, Cassieri + Direzione): live reconciliation — totale, contanti vs POS split, transaction list (matches the 2026 POS/fiscal reconciliation docs).
+- **Turni/Presenze**: staff `TIMBRA ENTRATA/USCITA` from the board (`db.shifts`); Direzione `/staff/presenze` shows who is on duty now, grouped by department.
+- **Prenotazione tavolo dalla piantina**: already available via `TablePicker` in `event/[id].tsx` (tap a free table on the official piantina → BookingSheet → `/api/site/bookings`), reached from the "Prenota" screen.
+- Tested: backend 10/10 (payment recording, incassi 403/totals, shifts + roster, double-complete guard), all frontend flows pass.
+
 ## Personas
 - Guest (primary): organises the night, buys ticket, meets friends, plays with A.I., asks for help.
 

@@ -220,6 +220,12 @@ export default function Ordina() {
 
         {/* Orders */}
         <Text style={styles.section}>I MIEI ORDINI</Text>
+        {orderList.length > 0 ? (
+          <View style={styles.tabBanner}>
+            <Text style={styles.tabLabel}>CONTO DELLA SERATA</Text>
+            <Text style={styles.tabValue}>€{orderList.reduce((s: number, o: any) => s + (o.total ?? 0), 0).toFixed(2)}</Text>
+          </View>
+        ) : null}
         {orderList.length === 0 ? (
           <Text style={styles.empty}>Nessun ordine ancora. Aggiungi qualcosa dal menu.</Text>
         ) : (
@@ -288,6 +294,9 @@ const useStyles = makeStyles((colors) => ({
   selBanner: { marginTop: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceTertiary, paddingHorizontal: 14, paddingVertical: 12 },
   selBannerOk: { borderColor: colors.brandPrimary, backgroundColor: colors.brandTertiary },
   selText: { color: colors.onSurface, fontSize: 13, fontWeight: "700" },
+  tabBanner: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.brandTertiary, borderRadius: 12, borderWidth: 1, borderColor: colors.borderStrong, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 14 },
+  tabLabel: { color: colors.brandPrimary, fontSize: 11, letterSpacing: 2, fontWeight: "900", fontFamily: MONO },
+  tabValue: { color: colors.onSurface, fontSize: 20, fontWeight: "900", fontFamily: MONO },
   disabled: { opacity: 0.4 },
   chipRow: { gap: 10, paddingRight: 8 },
   chip: { flexShrink: 0, height: 36, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceSecondary, alignItems: "center", justifyContent: "center" },

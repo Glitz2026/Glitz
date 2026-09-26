@@ -381,6 +381,8 @@ async def _get_ticket_for_action(ticket_id: str, current: dict) -> dict:
     t = await db.staff_tickets.find_one({"id": ticket_id})
     if not t:
         raise HTTPException(status_code=404, detail="Ticket non trovato")
+    if t.get("status") == "done":
+        raise HTTPException(status_code=400, detail="Ticket già completato")
     if current["department"] != "direzione" and t["department"] != current["department"]:
         raise HTTPException(status_code=403, detail="Non è un ticket del tuo reparto")
     return t
@@ -398,13 +400,42 @@ async def take_ticket(ticket_id: str, current=Depends(require_staff)):
     return {"ticket": t}
 
 
+class CompleteReq(BaseModel):
+    payment_method: str | None = None  # "contanti" | "pos" (only at cassieri stage for orders)
+
+
+PAYMENT_METHODS = {"contanti", "pos"}
+
+
 @router.post("/tickets/{ticket_id}/complete")
-async def complete_ticket(ticket_id: str, current=Depends(require_staff)):
+async def complete_ticket(ticket_id: str, req: CompleteReq | None = None, current=Depends(require_staff)):
     t = await _get_ticket_for_action(ticket_id, current)
     route = t["route"]
     stage = t["stage"]
+    is_last = stage >= len(route) - 1
     entry = {"department": t["department"], "action": "completato", "by": current.get("name"), "at": now_iso()}
-    if stage < len(route) - 1:
+
+    # Record the payment when the cassa closes an order (fiscal reconciliation).
+    if is_last and t["department"] == "cassieri" and t["kind"] == "order":
+        method = (req.payment_method if req else None) or "pos"
+        if method not in PAYMENT_METHODS:
+            raise HTTPException(status_code=400, detail="Metodo di pagamento non valido")
+        payment = {
+            "id": f"pay-{uuid.uuid4().hex[:10]}",
+            "ticket_id": t["id"],
+            "table": t.get("table"),
+            "mode": t.get("mode"),
+            "bar": t.get("bar"),
+            "total": t.get("total", 0.0),
+            "method": method,
+            "by": current.get("name"),
+            "date": _today(),
+            "created_at": now_iso(),
+        }
+        await db.payments.insert_one({**payment})
+        entry["payment_method"] = method
+
+    if not is_last:
         next_stage = stage + 1
         updates = {"stage": next_stage, "department": route[next_stage], "status": "pending", "updated_at": now_iso()}
     else:
@@ -412,6 +443,31 @@ async def complete_ticket(ticket_id: str, current=Depends(require_staff)):
     await db.staff_tickets.update_one({"id": ticket_id}, {"$set": updates, "$push": {"history": entry}})
     t = await db.staff_tickets.find_one({"id": ticket_id}, {"_id": 0})
     return {"ticket": t}
+
+
+# ---------------------------------------------------------------------------
+# Incassi — cash/POS reconciliation (Cassieri & Direzione)
+# ---------------------------------------------------------------------------
+async def _require_cassa(current: dict = Depends(require_staff)) -> dict:
+    if current.get("department") not in ("cassieri", "direzione"):
+        raise HTTPException(status_code=403, detail="Riservato a Cassieri e Direzione")
+    return current
+
+
+@router.get("/incassi")
+async def incassi(current=Depends(_require_cassa)):
+    date = _today()
+    payments = await db.payments.find({"date": date}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    contanti = round(sum(p["total"] for p in payments if p["method"] == "contanti"), 2)
+    pos = round(sum(p["total"] for p in payments if p["method"] == "pos"), 2)
+    return {
+        "date": date,
+        "totale": round(contanti + pos, 2),
+        "contanti": contanti,
+        "pos": pos,
+        "count": len(payments),
+        "payments": payments,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -453,6 +509,60 @@ async def toggle_task(req: ToggleReq, current=Depends(require_staff)):
     )
     state = await db.staff_checklist.find_one({"department": dept, "date": date}, {"_id": 0})
     return {"done": (state or {}).get("done", {})}
+
+
+# ---------------------------------------------------------------------------
+# Shifts / presenze (timbratura entrata-uscita)
+# ---------------------------------------------------------------------------
+@router.get("/shift/me")
+async def my_shift(current=Depends(require_staff)):
+    date = _today()
+    shift = await db.shifts.find_one(
+        {"user_id": current["user_id"], "date": date, "check_out": None}, {"_id": 0}
+    )
+    return {"on_duty": bool(shift), "shift": shift}
+
+
+@router.post("/shift/checkin")
+async def shift_checkin(current=Depends(require_staff)):
+    date = _today()
+    existing = await db.shifts.find_one({"user_id": current["user_id"], "date": date, "check_out": None})
+    if existing:
+        existing.pop("_id", None)
+        return {"on_duty": True, "shift": existing}
+    shift = {
+        "id": f"sh-{uuid.uuid4().hex[:10]}",
+        "user_id": current["user_id"],
+        "name": current.get("name"),
+        "department": current.get("department"),
+        "date": date,
+        "check_in": now_iso(),
+        "check_out": None,
+    }
+    await db.shifts.insert_one({**shift})
+    shift.pop("_id", None)
+    return {"on_duty": True, "shift": shift}
+
+
+@router.post("/shift/checkout")
+async def shift_checkout(current=Depends(require_staff)):
+    date = _today()
+    await db.shifts.update_one(
+        {"user_id": current["user_id"], "date": date, "check_out": None},
+        {"$set": {"check_out": now_iso()}},
+    )
+    return {"on_duty": False}
+
+
+@router.get("/shifts")
+async def shifts_roster(current=Depends(require_direzione)):
+    date = _today()
+    open_shifts = await db.shifts.find({"date": date, "check_out": None}, {"_id": 0}).to_list(500)
+    grouped: dict[str, list] = {k: [] for k in DEPARTMENTS}
+    for s in open_shifts:
+        grouped.setdefault(s.get("department", "direzione"), []).append(s)
+    return {"date": date, "on_duty": open_shifts, "count": len(open_shifts), "grouped": grouped}
+
 
 
 # ---------------------------------------------------------------------------

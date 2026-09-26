@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { ScrollView, Text, View, Pressable, ActivityIndicator, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -38,19 +39,34 @@ export default function StaffBoard() {
   const me = useQuery<StaffMe>({ queryKey: ["staff-me"], queryFn: () => apiGet("/api/staff/me") });
   const board = useStaffBoard();
   const isDir = me.data?.is_direzione ?? false;
+  const isCassa = isDir || me.data?.department.id === "cassieri";
+  const [payFor, setPayFor] = useState<string | null>(null);
+
+  const shift = useQuery<any>({ queryKey: ["staff-shift"], queryFn: () => apiGet("/api/staff/shift/me") });
+  const onDuty = shift.data?.on_duty ?? false;
+  const shiftMut = useMutation({
+    mutationFn: () => apiPost(onDuty ? "/api/staff/shift/checkout" : "/api/staff/shift/checkin"),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["staff-shift"] }),
+  });
 
   const takeMut = useMutation({
     mutationFn: (id: string) => apiPost(`/api/staff/tickets/${id}/take`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["staff-board"] }),
   });
   const doneMut = useMutation({
-    mutationFn: (id: string) => apiPost(`/api/staff/tickets/${id}/complete`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["staff-board"] }),
+    mutationFn: (v: { id: string; method?: string }) =>
+      apiPost(`/api/staff/tickets/${v.id}/complete`, v.method ? { payment_method: v.method } : {}),
+    onSuccess: () => {
+      setPayFor(null);
+      qc.invalidateQueries({ queryKey: ["staff-board"] });
+    },
   });
 
   const tickets = board.data?.tickets ?? [];
   const sos = tickets.filter((t) => t.kind === "sos");
   const work = tickets.filter((t) => t.kind !== "sos");
+
+  const needsPayment = (t: StaffTicket) => t.department === "cassieri" && t.kind === "order";
 
   const renderTicket = (t: StaffTicket) => {
     const busy = takeMut.isPending || doneMut.isPending;
@@ -108,14 +124,41 @@ export default function StaffBoard() {
               <Text style={styles.actGhostText}>PRESA IN CARICO</Text>
             </Pressable>
           ) : null}
-          <Pressable
-            testID={`done-${t.id}`}
-            style={[styles.actBtn, styles.actPrimary]}
-            disabled={busy}
-            onPress={() => doneMut.mutate(t.id)}
-          >
-            <Text style={styles.actPrimaryText}>{completeLabel(t)}</Text>
-          </Pressable>
+          {needsPayment(t) ? (
+            payFor === t.id ? (
+              <>
+                <Pressable
+                  testID={`pay-contanti-${t.id}`}
+                  style={[styles.actBtn, styles.actGhost]}
+                  disabled={busy}
+                  onPress={() => doneMut.mutate({ id: t.id, method: "contanti" })}
+                >
+                  <Text style={styles.actGhostText}>CONTANTI</Text>
+                </Pressable>
+                <Pressable
+                  testID={`pay-pos-${t.id}`}
+                  style={[styles.actBtn, styles.actPrimary]}
+                  disabled={busy}
+                  onPress={() => doneMut.mutate({ id: t.id, method: "pos" })}
+                >
+                  <Text style={styles.actPrimaryText}>POS</Text>
+                </Pressable>
+              </>
+            ) : (
+              <Pressable testID={`done-${t.id}`} style={[styles.actBtn, styles.actPrimary]} disabled={busy} onPress={() => setPayFor(t.id)}>
+                <Text style={styles.actPrimaryText}>INCASSA</Text>
+              </Pressable>
+            )
+          ) : (
+            <Pressable
+              testID={`done-${t.id}`}
+              style={[styles.actBtn, styles.actPrimary]}
+              disabled={busy}
+              onPress={() => doneMut.mutate({ id: t.id })}
+            >
+              <Text style={styles.actPrimaryText}>{completeLabel(t)}</Text>
+            </Pressable>
+          )}
         </View>
       </View>
     );
@@ -135,6 +178,17 @@ export default function StaffBoard() {
           </Pressable>
         </View>
 
+        <Pressable
+          testID="shift-toggle"
+          style={[styles.shiftBtn, onDuty ? styles.shiftOn : styles.shiftOff]}
+          disabled={shiftMut.isPending}
+          onPress={() => shiftMut.mutate()}
+        >
+          <Text style={[styles.shiftText, onDuty ? styles.shiftTextOn : styles.shiftTextOff]}>
+            {onDuty ? "● IN SERVIZIO · TIMBRA USCITA" : "TIMBRA ENTRATA"}
+          </Text>
+        </Pressable>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
           <Pressable testID="nav-compiti" style={styles.chip} onPress={() => router.push("/staff/checklist")}>
             <Text style={styles.chipText}>Compiti</Text>
@@ -142,9 +196,19 @@ export default function StaffBoard() {
           <Pressable testID="nav-cedolini" style={styles.chip} onPress={() => router.push("/staff/payslips")}>
             <Text style={styles.chipText}>Cedolini</Text>
           </Pressable>
+          {isCassa ? (
+            <Pressable testID="nav-incassi" style={styles.chip} onPress={() => router.push("/staff/incassi")}>
+              <Text style={styles.chipText}>Incassi</Text>
+            </Pressable>
+          ) : null}
           {isDir ? (
             <Pressable testID="nav-team" style={styles.chip} onPress={() => router.push("/staff/team")}>
               <Text style={styles.chipText}>Gestisci staff</Text>
+            </Pressable>
+          ) : null}
+          {isDir ? (
+            <Pressable testID="nav-presenze" style={styles.chip} onPress={() => router.push("/staff/presenze")}>
+              <Text style={styles.chipText}>Presenze</Text>
             </Pressable>
           ) : null}
           <Pressable testID="nav-password" style={styles.chip} onPress={() => router.push("/staff/password")}>
@@ -195,6 +259,12 @@ const useStyles = makeStyles((colors) => ({
   who: { color: colors.muted, fontSize: 13, marginTop: 2 },
   logout: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 },
   logoutText: { color: colors.onSurface, fontSize: 12, fontWeight: "800", letterSpacing: 1 },
+  shiftBtn: { marginTop: 12, borderRadius: 12, paddingVertical: 12, alignItems: "center", borderWidth: 1.5 },
+  shiftOn: { backgroundColor: colors.success, borderColor: colors.success },
+  shiftOff: { backgroundColor: colors.surfaceTertiary, borderColor: colors.borderStrong },
+  shiftText: { fontSize: 13, fontWeight: "900", letterSpacing: 1 },
+  shiftTextOn: { color: "#000000" },
+  shiftTextOff: { color: colors.brandPrimary },
   chips: { gap: 8, paddingTop: 14, paddingRight: 8 },
   chip: { borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: colors.surfaceTertiary },
   chipText: { color: colors.onSurface, fontSize: 13, fontWeight: "800" },
