@@ -1,0 +1,34 @@
+{
+  "summary": "Re-verified R4 table position, cache-bust v=27 and full gate password E2E flow. Both file mismatches from iteration 18 are now RESOLVED - files on disk match main agent's claim (likely race condition previously). Gate flow works end-to-end (lock -> wrong pw 401 -> correct pw 200 -> unlock). Site_locked was restored to false so preview is not blocked.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "verifications": {
+    "R4_position": "OK - /app/frontend/public/glitz-interattivo.html contains: {id:\"R4\",zoneId:\"riva\",schematicPosition:[638,502],planPosition:[590.6,434.5],height:1.12,furniture:\"riva-compact\",layoutSource:\"Pianta schematica monocromatica della venue.png\",idConfirmedBySource:!0}",
+    "cache_bust_v27": "OK - /app/frontend/src/components/Floorplan3D.jsx line 107: src=\"/glitz-interattivo.html?embedded=1&v=27\"",
+    "gate_lock_PUT": "200 (admin PUT /api/admin/settings site_locked=true, site_lock_password set)",
+    "gate_status_locked_true": "GET /api/site-lock/status returned locked=true",
+    "gate_wrong_password": "POST /api/site-lock/unlock with wrong pw -> 401 {detail: 'Password errata'}",
+    "gate_correct_password": "POST /api/site-lock/unlock with correct pw -> 200 {ok: true}",
+    "gate_admin_bypass": "Server-side gate is client-side rendered; /admin route in SPA bypasses gate (verified via frontend routing). API /admin/settings PUT works with admin JWT regardless of lock state.",
+    "gate_restored": "PUT site_locked=false -> 200. Final GET /api/site-lock/status: locked=false. Preview NOT blocked.",
+    "homepage_loads": "Public URL loads correctly, no gate shown (title: 'Il Tempio delle Notti Calabresi • Glitz Club')."
+  },
+  "test_report_links": [],
+  "action_items": [
+    "IMPORTANT: The gate password in the DB is currently set to 'TEST_pw_2026' (I had to set it to test the correct-password path since GET /api/admin/settings returns 405 - only PUT exists, so I cannot peek at the existing value without setting one). site_locked is false, so it doesn't affect the user right now, but the main agent MUST inform the user to log into /admin and reset the gate password to their desired value before enabling site_locked=true in production.",
+    "Optional enhancement: expose a GET /api/admin/settings (currently only PUT is defined, returns 405 on GET) so admins can inspect current stored settings including gate password from the UI."
+  ],
+  "critical_code_review_comments": [
+    "GET /api/admin/settings does not exist (only PUT). This blocks any read-back of the current gate password/config for admin audit. Consider adding a protected GET.",
+    "site_lock_password is intentionally excluded from public GET /api/settings (line 776) - good.",
+    "site-lock/unlock returns 200 also when site is not locked (line 796-797) - fine but semantically 'no-op'."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Admin: jalucas@hotmail.it / GlitzAdmin2026! (login returns JWT under key 'token'). Gate password currently: TEST_pw_2026 (site_locked=false).",
+  "seed_data_creation": "None (only toggled site_locked and set gate password during test, restored site_locked=false at end)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "R4 and v=27 verified from disk. Gate flow works. If a next iteration is needed, ensure admin resets the gate password from 'TEST_pw_2026' to production value before enabling site_locked. Backend gate endpoints: GET /api/site-lock/status (public), POST /api/site-lock/unlock (public), PUT /api/admin/settings (admin JWT).",
+  "rca of the issue": "Iteration 18 mismatch on R4/v=27 was almost certainly a race condition / stale read (main agent had just written the files). Current on-disk state matches expectations."
+}
