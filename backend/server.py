@@ -441,6 +441,12 @@ class SettingsIn(BaseModel):
     # --- Biglietti button label + fallback URL ---
     events_ticket_label: str = "Acquista Biglietto"
     events_ticket_url: str = "https://www.ticketsms.it/it/location/glitz-club"
+    # --- Site lock (coming soon gate) ---
+    site_locked: bool = False
+    site_lock_password: str = ""
+    site_lock_title: str = "Sito in Costruzione"
+    site_lock_subtitle: str = "Stiamo preparando qualcosa di straordinario"
+    site_lock_message: str = "Inserisci la password per accedere all'anteprima."
     # --- Poster frame ---
     poster_club_name: str = "GLITZ"
     poster_club_label: str = "CLUB"
@@ -727,6 +733,11 @@ DEFAULT_SETTINGS = {
     "past_gallery_description": "Momenti immortalati dalle stagioni passate.",
     "events_ticket_label": "Acquista Biglietto",
     "events_ticket_url": "https://www.ticketsms.it/it/location/glitz-club",
+    "site_locked": False,
+    "site_lock_password": "",
+    "site_lock_title": "Sito in Costruzione",
+    "site_lock_subtitle": "Stiamo preparando qualcosa di straordinario",
+    "site_lock_message": "Inserisci la password per accedere all'anteprima.",
     "poster_club_name": "GLITZ",
     "poster_club_label": "CLUB",
     "poster_location": "SAN NICOLA ARCELLA",
@@ -759,7 +770,36 @@ PAST_EVENT_SEED = [
 @api.get("/settings")
 async def get_settings():
     s = await db.settings.find_one({"id": "main"}, {"_id": 0})
-    return s or DEFAULT_SETTINGS
+    if not s:
+        return DEFAULT_SETTINGS
+    # Non esporre mai la password del gate nel payload pubblico
+    s.pop("site_lock_password", None)
+    return s
+
+
+@api.get("/site-lock/status")
+async def site_lock_status():
+    s = await db.settings.find_one({"id": "main"}, {"_id": 0}) or {}
+    return {
+        "locked": bool(s.get("site_locked")),
+        "title": s.get("site_lock_title") or "Sito in Costruzione",
+        "subtitle": s.get("site_lock_subtitle") or "",
+        "message": s.get("site_lock_message") or "",
+    }
+
+
+@api.post("/site-lock/unlock")
+async def site_lock_unlock(body: dict):
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Body non valido")
+    s = await db.settings.find_one({"id": "main"}, {"_id": 0}) or {}
+    if not s.get("site_locked"):
+        return {"ok": True}
+    expected = s.get("site_lock_password") or ""
+    provided = (body.get("password") or "").strip()
+    if not expected or provided != expected:
+        raise HTTPException(status_code=401, detail="Password errata")
+    return {"ok": True}
 
 
 @api.get("/past-events")

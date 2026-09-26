@@ -1732,6 +1732,52 @@ export default function AdminDashboard() {
                                     <input className={input} placeholder="Eventi titolo" value={settings.events_title || ""} onChange={(e) => setSettings({ ...settings, events_title: e.target.value })} />
                                     <input className={input} placeholder="Messaggio vuoto" value={settings.events_empty || ""} onChange={(e) => setSettings({ ...settings, events_empty: e.target.value })} />
                                 </div>
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <div className="text-[10px] uppercase tracking-widest text-lava font-bold mb-2">Gallery strip — Eventi Prossimi</div>
+                                    <div className="grid gap-3 sm:grid-cols-3">
+                                        <input data-testid="events-gallery-kicker" className={input} placeholder="Kicker (es. Momenti)" value={settings.events_gallery_kicker || ""} onChange={(e) => setSettings({ ...settings, events_gallery_kicker: e.target.value })} />
+                                        <input data-testid="events-gallery-title" className={input} placeholder="Titolo" value={settings.events_gallery_title || ""} onChange={(e) => setSettings({ ...settings, events_gallery_title: e.target.value })} />
+                                        <input data-testid="events-gallery-description" className={input} placeholder="Descrizione (opz.)" value={settings.events_gallery_description || ""} onChange={(e) => setSettings({ ...settings, events_gallery_description: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <div className="text-[10px] uppercase tracking-widest text-lava font-bold mb-2">Gallery strip — Eventi Passati</div>
+                                    <div className="grid gap-3 sm:grid-cols-3">
+                                        <input data-testid="past-gallery-kicker" className={input} placeholder="Kicker (es. Flashback)" value={settings.past_gallery_kicker || ""} onChange={(e) => setSettings({ ...settings, past_gallery_kicker: e.target.value })} />
+                                        <input data-testid="past-gallery-title" className={input} placeholder="Titolo" value={settings.past_gallery_title || ""} onChange={(e) => setSettings({ ...settings, past_gallery_title: e.target.value })} />
+                                        <input data-testid="past-gallery-description" className={input} placeholder="Descrizione (opz.)" value={settings.past_gallery_description || ""} onChange={(e) => setSettings({ ...settings, past_gallery_description: e.target.value })} />
+                                    </div>
+                                    <p className="text-[10px] text-white/40 mt-2">Le strip usano le foto della categoria <b className="text-lava">gallery</b> del media manager. Carica foto lì per popolarle.</p>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-white/10">
+                                    <div className="text-[10px] uppercase tracking-widest text-lava font-bold mb-2">Bottone Biglietti (globale)</div>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <input data-testid="events-ticket-label" className={input} placeholder="Testo bottone (es. Acquista Biglietto)" value={settings.events_ticket_label || ""} onChange={(e) => setSettings({ ...settings, events_ticket_label: e.target.value })} />
+                                        <input data-testid="events-ticket-url" className={input} placeholder="URL fallback (TicketSms venue)" value={settings.events_ticket_url || ""} onChange={(e) => setSettings({ ...settings, events_ticket_url: e.target.value })} />
+                                    </div>
+                                    <p className="text-[10px] text-white/40 mt-2">Il testo si applica a tutti gli eventi. L'URL è il fallback usato se l'evento non ha un `ticket_url` specifico.</p>
+                                </div>
+                                <div className="mt-6 pt-6 border-t-2 border-lava/30 rounded-lg bg-lava/5 -mx-2 px-4 py-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div>
+                                            <div className="text-xs uppercase tracking-widest text-lava font-bold flex items-center gap-2">
+                                                🔒 Sito in Costruzione (Gate Password)
+                                            </div>
+                                            <p className="text-[10px] text-white/50 mt-1">Blocca l'accesso pubblico al sito con una password. Tu (admin) resti sempre accessibile via <code className="text-lava">/admin</code> e <code className="text-lava">/accedi</code>.</p>
+                                        </div>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" data-testid="site-lock-toggle" checked={!!settings.site_locked} onChange={(e) => setSettings({ ...settings, site_locked: e.target.checked })} className="w-4 h-4 accent-lava" />
+                                            <span className={`text-xs font-bold uppercase ${settings.site_locked ? "text-lava" : "text-white/40"}`}>{settings.site_locked ? "Attivo" : "Disattivo"}</span>
+                                        </label>
+                                    </div>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        <input data-testid="site-lock-password" type="text" className={input} placeholder="Password (min 4 caratteri)" value={settings.site_lock_password || ""} onChange={(e) => setSettings({ ...settings, site_lock_password: e.target.value })} />
+                                        <input data-testid="site-lock-title" className={input} placeholder="Titolo (es. Sito in Costruzione)" value={settings.site_lock_title || ""} onChange={(e) => setSettings({ ...settings, site_lock_title: e.target.value })} />
+                                        <input data-testid="site-lock-subtitle" className={input} placeholder="Sottotitolo" value={settings.site_lock_subtitle || ""} onChange={(e) => setSettings({ ...settings, site_lock_subtitle: e.target.value })} />
+                                        <input data-testid="site-lock-message" className={input} placeholder="Messaggio (istruzioni)" value={settings.site_lock_message || ""} onChange={(e) => setSettings({ ...settings, site_lock_message: e.target.value })} />
+                                    </div>
+                                    <p className="text-[10px] text-white/40 mt-2">Quando attivo, tutti i visitatori del sito devono inserire la password prima di accedere. Ricorda di condividerla solo con chi vuoi che veda l'anteprima.</p>
+                                </div>
                                 <div className="grid gap-3 md:grid-cols-2 pt-2">
                                     <SectionPreview label="Anteprima Blog" url="/news" kicker={settings.blog_kicker} title={settings.blog_title} description={settings.blog_description} />
                                     <SectionPreview label="Anteprima Gallery" url="/gallery" kicker={settings.gallery_kicker} title={settings.gallery_page_title} description={settings.gallery_description} />

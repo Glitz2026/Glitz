@@ -27,6 +27,7 @@ import { CartProvider } from "@/context/CartContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ContactProvider } from "@/context/ContactContext";
 import CartDrawer from "@/components/CartDrawer";
+import SiteLockGate from "@/components/SiteLockGate";
 
 function AppRouter() {
     const location = useLocation();
@@ -68,9 +69,11 @@ function App() {
                     <ContactProvider>
                         <LanguageProvider>
                             <CartProvider>
-                                <Toaster theme="dark" richColors position="top-right" />
-                                <AppRouter />
-                                <CartDrawer />
+                                <SiteLockGate>
+                                    <Toaster theme="dark" richColors position="top-right" />
+                                    <AppRouter />
+                                    <CartDrawer />
+                                </SiteLockGate>
                             </CartProvider>
                         </LanguageProvider>
                     </ContactProvider>
