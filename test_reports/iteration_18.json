@@ -1,0 +1,36 @@
+{
+  "summary": "Tested GATE password (backend + frontend) and R4/iframe changes. GATE fully working: /api/site-lock/status returns correct payload; /api/settings public strips site_lock_password; POST /api/site-lock/unlock returns 401 Password errata on wrong pw and {ok:true} on correct pw; frontend SiteLockGate renders on / when locked=true with password input & submit button; /admin and /accedi correctly bypass the gate; correct password unlocks the site. HOWEVER two claims from the request are NOT reflected in the code: (a) R4 in /app/frontend/public/glitz-interattivo.html is still at schematicPosition:[615,470] planPosition:[566.256,410.8066] (NOT the requested [638,502]/[590.6,434.5]); (b) /app/frontend/src/components/Floorplan3D.jsx iframe cache-bust is still ?v=26 (NOT v=27).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/site-lock/unlock", "issue": "When site_locked=false, endpoint returns {ok:true} regardless of body (even wrong password). Not a bug per current design/short-circuit, but worth noting."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "code_mismatches_vs_request": [
+    {"file": "/app/frontend/public/glitz-interattivo.html", "expected": "R4 schematicPosition:[638,502], planPosition:[590.6,434.5]", "actual": "R4 schematicPosition:[615,470], planPosition:[566.256,410.8066]", "priority": "HIGH"},
+    {"file": "/app/frontend/src/components/Floorplan3D.jsx", "expected": "iframe src=/glitz-interattivo.html?embedded=1&v=27", "actual": "?embedded=1&v=26 (line 107)", "priority": "MEDIUM"}
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "Update /app/frontend/public/glitz-interattivo.html: change R4 (first zone group, IDs R1..R4) from schematicPosition:[615,470] planPosition:[566.256,410.8066] to schematicPosition:[638,502] planPosition:[590.6,434.5] to align R4 with R1/R2/R3 as user requested.",
+    "Bump cache-bust in /app/frontend/src/components/Floorplan3D.jsx iframe src from v=26 to v=27 to match the new HTML.",
+    "Optional: add a GET /api/admin/settings endpoint so the admin UI can read back site_lock_password (currently only PUT exists)."
+  ],
+  "critical_code_review_comments": [
+    "site_lock_unlock short-circuits when site_locked=false and returns {ok:true} even when password field is empty/missing/wrong. Consider consistent semantics or explicit 200 with reason.",
+    "PUT /api/admin/settings response body includes site_lock_password in cleartext (admin-only, acceptable) but public /api/settings correctly strips it — good."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (site-lock endpoints)", "frontend": "100% (gate UI + bypass routes)"},
+  "test_credentials": "Admin: jalucas@hotmail.it / GlitzAdmin2026!. Test site lock pw used during testing: TEST_pw_2026 (site restored to unlocked=false and pw remains in DB as TEST_pw_2026 — main agent may want to overwrite with user's real pw).",
+  "seed_data_creation": "During testing, set site_lock_password='TEST_pw_2026' via PUT /api/admin/settings. site_locked toggled true then restored to false. Main agent should ask user for real password to restore or overwrite via admin UI before deploy.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend gate endpoints & SiteLockGate frontend work end-to-end. Remaining action items are: (1) R4 coordinates in glitz-interattivo.html were NOT updated to [638,502]/[590.6,434.5] as claimed — still at [615,470]/[566.256,410.8066]; (2) Floorplan3D iframe cache-bust still v=26 not v=27; (3) site_lock_password in DB was overwritten to 'TEST_pw_2026' during testing — main agent should tell user to reset it to her chosen pw via /admin.",
+  "rca of the issue": "R4 coordinates and iframe v=27 were declared as applied by main agent but the current files on disk still contain the previous values. Likely the edits were not saved or overwritten. Fix: apply the edits explicitly."
+}
