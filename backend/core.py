@@ -7,7 +7,7 @@ import bcrypt
 import jwt
 import requests
 from dotenv import load_dotenv
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
 ROOT_DIR = Path(__file__).parent
@@ -67,6 +67,10 @@ def sanitize_user(user: dict) -> dict:
         "date_of_birth": user.get("date_of_birth"),
         "instagram": user.get("instagram"),
         "provider": user.get("provider"),
+        "role": user.get("role", "guest"),
+        "department": user.get("department"),
+        "phone": user.get("phone"),
+        "must_change_password": bool(user.get("must_change_password", False)),
     }
 
 
@@ -85,6 +89,33 @@ async def get_current_user(authorization: str | None = Header(default=None)) -> 
 
 def new_user_id() -> str:
     return f"user_{uuid.uuid4().hex[:12]}"
+
+
+# --- Staff roles / departments --------------------------------------------
+# Each department mirrors a real Glitz reparto (from the staff task docs).
+DEPARTMENTS: dict[str, dict] = {
+    "cambusa": {"label": "Cambusa & Magazzino", "color": "#00F0FF"},
+    "barman": {"label": "Barman & Bar", "color": "#FFCC00"},
+    "camerieri": {"label": "Camerieri & Sala", "color": "#FF0033"},
+    "runner": {"label": "Runner & Barback", "color": "#00FF66"},
+    "cassieri": {"label": "Cassieri & POS", "color": "#C0C0C0"},
+    "direzione": {"label": "Direzione", "color": "#FF3366"},
+}
+STAFF_DEPARTMENTS = [d for d in DEPARTMENTS if d != "direzione"]
+
+
+async def require_staff(current: dict = Depends(get_current_user)) -> dict:
+    if current.get("role") != "staff":
+        raise HTTPException(status_code=403, detail="Accesso riservato allo staff")
+    if not current.get("is_active", True):
+        raise HTTPException(status_code=403, detail="Account disattivato")
+    return current
+
+
+async def require_direzione(current: dict = Depends(require_staff)) -> dict:
+    if current.get("department") != "direzione":
+        raise HTTPException(status_code=403, detail="Accesso riservato alla Direzione")
+    return current
 
 
 # --- Object storage (managed) ---------------------------------------------

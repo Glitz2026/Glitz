@@ -28,6 +28,10 @@ export type User = {
   date_of_birth: string | null;
   instagram: string | null;
   provider: string;
+  role?: string;
+  department?: string | null;
+  phone?: string | null;
+  must_change_password?: boolean;
 };
 
 type RegisterInput = {

@@ -9,6 +9,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/src/components/error-boundary";
 import { AuthProvider, useAuth } from "@/src/lib/auth-context";
+import { CartProvider } from "@/src/lib/cart-context";
 import { ShowProvider } from "@/src/lib/show-context";
 import { queryClient } from "@/src/query-client";
 
@@ -25,7 +26,7 @@ function AuthGate() {
     if (!user && !inAuth) {
       router.replace("/(auth)/welcome");
     } else if (user && inAuth) {
-      router.replace("/(tabs)");
+      router.replace(user.role === "staff" ? "/staff" : "/(tabs)");
     }
   }, [user, loading, segments, router]);
 
@@ -56,8 +57,10 @@ export default function RootLayout() {
             <KeyboardProvider>
               <AuthProvider>
                 <ShowProvider>
-                  <StatusBar style="light" />
-                  <AuthGate />
+                  <CartProvider>
+                    <StatusBar style="light" />
+                    <AuthGate />
+                  </CartProvider>
                 </ShowProvider>
               </AuthProvider>
             </KeyboardProvider>

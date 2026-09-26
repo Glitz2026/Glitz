@@ -60,6 +60,9 @@ export default function Welcome() {
           <Pressable testID="go-phone" style={styles.ghost} onPress={() => router.push("/(auth)/phone")}>
             <Text style={styles.ghostMuted}>Entra con il numero di telefono</Text>
           </Pressable>
+          <Pressable testID="go-staff" style={styles.staffLink} onPress={() => router.push("/(auth)/staff-login")}>
+            <Text style={styles.staffText}>Sei dello staff? Accesso Staff</Text>
+          </Pressable>
         </View>
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </View>
@@ -100,5 +103,7 @@ const useStyles = makeStyles((colors) => ({
   ghost: { paddingVertical: 10, alignItems: "center" },
   ghostText: { color: colors.onSurface, fontSize: 14, fontWeight: "600" },
   ghostMuted: { color: colors.muted, fontSize: 13 },
+  staffLink: { paddingVertical: 8, alignItems: "center", marginTop: 2 },
+  staffText: { color: colors.brandSecondary, fontSize: 13, fontWeight: "700", letterSpacing: 0.5 },
   error: { color: colors.error, fontSize: 13, marginTop: 12, textAlign: "center" },
 }));

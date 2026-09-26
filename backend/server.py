@@ -22,6 +22,8 @@ load_dotenv(ROOT_DIR / ".env")
 from auth import router as auth_router  # noqa: E402
 from club import router as club_router, seed_club  # noqa: E402
 from core import EMERGENT_LLM_KEY, client, db, init_storage  # noqa: E402
+from site_bridge import router as site_router  # noqa: E402
+from staff import router as staff_router, seed_staff  # noqa: E402
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -451,6 +453,8 @@ async def ws_endpoint(ws: WebSocket):
 app.include_router(api_router)
 app.include_router(auth_router)
 app.include_router(club_router)
+app.include_router(site_router)
+app.include_router(staff_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -465,7 +469,11 @@ app.add_middleware(
 async def start_engine():
     await db.users.create_index("email", unique=True, sparse=True)
     await db.users.create_index("user_id", unique=True)
+    await db.site_requests.create_index([("user_id", 1), ("created_at", -1)])
+    await db.staff_tickets.create_index([("department", 1), ("status", 1)])
+    await db.staff_tickets.create_index("source_id")
     await seed_club()
+    await seed_staff()
     try:
         init_storage()
     except Exception as e:  # noqa: BLE001

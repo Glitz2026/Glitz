@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { BackHeader } from "@/src/components/back-header";
 import { apiGet, apiPost } from "@/src/lib/api";
 import { MONO } from "@/src/lib/fonts";
 import { formatEventDate } from "@/src/lib/format";
@@ -39,7 +40,8 @@ export default function Aiuto() {
 
   return (
     <View style={styles.root} testID="aiuto-screen">
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <BackHeader />
+      <View style={styles.header}>
         <Text style={styles.kicker}>SICUREZZA & BENESSERE</Text>
         <Text style={styles.title}>Aiuto</Text>
       </View>

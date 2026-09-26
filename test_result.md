@@ -101,3 +101,73 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+## user_problem_statement: "Staff Panel (Pannello Staff) with role-based login, per-department task management, cross-department order routing with notifications, and a Bar 'ordina e ritira' pickup flow, for the Glitz nightclub companion app. Italian language."
+
+## backend:
+##   - task: "Staff role-based auth + seed"
+##     implemented: true
+##     working: true
+##     file: "backend/core.py, backend/staff.py, backend/server.py"
+##     priority: "high"
+##     needs_retesting: true
+##     status_history:
+##         - working: true
+##           agent: "main"
+##           comment: "Extended users with role/department; require_staff/require_direzione deps; idempotent seed of 19 real staff incl. Direzione admin. Verified via curl login+board."
+##   - task: "Order/waiter/SOS routing into staff_tickets pipeline"
+##     implemented: true
+##     working: true
+##     file: "backend/staff.py, backend/club.py"
+##     priority: "high"
+##     needs_retesting: true
+##     status_history:
+##         - working: true
+##           agent: "main"
+##           comment: "compute_route + create_ticket; bottle→Cambusa→Camerieri→Cassa verified end-to-end via curl; guest order status derived from ticket stage."
+##   - task: "Staff board + take/complete + tasks checklist + team CRUD + payslips"
+##     implemented: true
+##     working: "NA"
+##     file: "backend/staff.py"
+##     priority: "high"
+##     needs_retesting: true
+##     status_history:
+##         - working: "NA"
+##           agent: "main"
+##           comment: "Endpoints implemented; direzione board verified via UI. Needs full CRUD + RBAC (guest 403, cross-dept 403) testing."
+
+## frontend:
+##   - task: "Staff login entry + panel (board, checklist, team, payslips, password)"
+##     implemented: true
+##     working: "NA"
+##     file: "frontend/app/staff/*, frontend/app/(auth)/staff-login.tsx, frontend/src/lib/staff.ts"
+##     priority: "high"
+##     needs_retesting: true
+##     status_history:
+##         - working: "NA"
+##           agent: "main"
+##           comment: "Staff login + board render verified via screenshot (direzione sees routed ticket). Needs flow testing for take/complete, checklist toggle, team add/edit/reset/delete, bar pickup order."
+##   - task: "Bar 'ordina e ritira' pickup toggle in Ordina tab"
+##     implemented: true
+##     working: "NA"
+##     file: "frontend/app/(tabs)/ordina.tsx"
+##     priority: "high"
+##     needs_retesting: true
+
+## metadata:
+##   created_by: "main_agent"
+##   version: "1.0"
+##   test_sequence: 4
+##   run_ui: true
+
+## test_plan:
+##   current_focus:
+##     - "Staff board take/complete pipeline"
+##     - "Direzione team CRUD + RBAC"
+##     - "Bar pickup order → Barman board"
+##   stuck_tasks: []
+##   test_all: false
+##   test_priority: "high_first"
+
+## agent_communication:
+##     - agent: "main"
+##       message: "Implemented full Staff Panel + Bar pickup. Test both backend (RBAC, routing, CRUD) and frontend (staff login, board actions, checklist, team mgmt, pickup order). Credentials in /app/memory/test_credentials.md. Twilio phone OTP intentionally disabled."

@@ -7,6 +7,11 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
 from core import APP_NAME, db, get_current_user, get_object, now_iso, put_object
+from staff import (
+    call_status_from_ticket,
+    create_ticket,
+    guest_status_from_ticket,
+)
 
 router = APIRouter(prefix="/api")
 
@@ -324,6 +329,9 @@ async def create_help(req: HelpReq, current=Depends(get_current_user)):
         "created_at": now_iso(),
     }
     await db.help_requests.insert_one({**h})
+    await create_ticket(
+        kind="sos", user=current, table=req.zone, reason=req.type, note=req.note, source_id=h["id"]
+    )
     return {"request": h}
 
 
@@ -388,15 +396,27 @@ async def create_waiter_call(req: WaiterCallReq, current=Depends(get_current_use
         "zone": req.zone,
         "created_at": now_iso(),
     }
+    ticket = await create_ticket(
+        kind="waiter", user=current, table=req.zone, reason=req.type, source_id=call["id"]
+    )
+    call["ticket_id"] = ticket["id"]
     await db.waiter_calls.insert_one({**call})
-    return {"call": {**call, "status": _call_status(call["created_at"])}}
+    return {"call": {**call, "status": call_status_from_ticket(ticket)}}
+
+
+async def _ticket_map(source_ids: list[str]) -> dict:
+    if not source_ids:
+        return {}
+    tickets = await db.staff_tickets.find({"source_id": {"$in": source_ids}}, {"_id": 0}).to_list(200)
+    return {t["source_id"]: t for t in tickets}
 
 
 @router.get("/waiter-calls")
 async def my_waiter_calls(current=Depends(get_current_user)):
     calls = await db.waiter_calls.find({"user_id": current["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    tmap = await _ticket_map([c["id"] for c in calls])
     for c in calls:
-        c["status"] = _call_status(c["created_at"])
+        c["status"] = call_status_from_ticket(tmap.get(c["id"]))
     return {"calls": calls}
 
 
@@ -410,6 +430,8 @@ class OrderItem(BaseModel):
 class CreateOrderReq(BaseModel):
     items: list[OrderItem]
     zone: str | None = None
+    mode: str = "table"  # "table" | "pickup"
+    bar: str | None = None
 
 
 @router.post("/orders")
@@ -417,6 +439,9 @@ async def create_order(req: CreateOrderReq, current=Depends(get_current_user)):
     items = [i.model_dump() for i in req.items if i.qty > 0]
     if not items:
         raise HTTPException(status_code=400, detail="Carrello vuoto")
+    mode = "pickup" if req.mode == "pickup" else "table"
+    if mode == "table" and not req.zone:
+        raise HTTPException(status_code=400, detail="Seleziona il tuo tavolo")
     total = round(sum(i["price"] * i["qty"] for i in items), 2)
     order = {
         "id": f"or-{uuid.uuid4().hex[:10]}",
@@ -424,17 +449,25 @@ async def create_order(req: CreateOrderReq, current=Depends(get_current_user)):
         "items": items,
         "total": total,
         "zone": req.zone,
+        "mode": mode,
+        "bar": req.bar,
         "created_at": now_iso(),
     }
+    ticket = await create_ticket(
+        kind="order", user=current, table=req.zone, items=items, total=total,
+        mode=mode, bar=req.bar, source_id=order["id"],
+    )
+    order["ticket_id"] = ticket["id"]
     await db.orders.insert_one({**order})
-    return {"order": {**order, "status": _order_status(order["created_at"])}}
+    return {"order": {**order, "status": guest_status_from_ticket(ticket)}}
 
 
 @router.get("/orders")
 async def my_orders(current=Depends(get_current_user)):
     orders = await db.orders.find({"user_id": current["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    tmap = await _ticket_map([o["id"] for o in orders])
     for o in orders:
-        o["status"] = _order_status(o["created_at"])
+        o["status"] = guest_status_from_ticket(tmap.get(o["id"])) or _order_status(o["created_at"])
     return {"orders": orders}
 
 

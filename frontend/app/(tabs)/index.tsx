@@ -1,50 +1,106 @@
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
-import { useCallback } from "react";
-import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter, type Href } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { useCallback, useState } from "react";
+import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { apiGet, coverUrl, mediaUrl } from "@/src/lib/api";
-import { LogoHeader } from "@/src/components/logo-header";
-import { MONO } from "@/src/lib/fonts";
-import { formatEventDate } from "@/src/lib/format";
+import {
+  IconBag,
+  IconCalendar,
+  IconChat,
+  IconChevron,
+  IconImage,
+  IconInstagram,
+  IconMail,
+  IconMusic,
+  IconPin,
+  IconSOS,
+  IconSofa,
+  IconSpark,
+  IconTicket,
+  IconUsers,
+} from "@/src/components/icons";
+import { NewsletterCard } from "@/src/components/newsletter-card";
+import { Countdown, SectionTitle } from "@/src/components/ui";
+import { apiGet, mediaUrl } from "@/src/lib/api";
 import { useAuth } from "@/src/lib/auth-context";
+import { useCart } from "@/src/lib/cart-context";
+import { MONO } from "@/src/lib/fonts";
+import { formatDay, formatEventDate } from "@/src/lib/format";
+import { openWhatsApp, siteImg, useContact, useFaqs, useMedia, usePosts, useProducts, useSettings, useSiteEvents, useUpcoming } from "@/src/lib/site";
 import { makeStyles, useTheme } from "@/src/theme";
 
-export default function Serata() {
+type Action = { key: string; label: string; href: Href; Icon: (p: { color: string; size?: number }) => React.JSX.Element; hot?: boolean };
+
+const ACTIONS: Action[] = [
+  { key: "eventi", label: "Eventi", href: "/eventi", Icon: IconCalendar },
+  { key: "tavoli", label: "Tavoli", href: "/prenota", Icon: IconSofa },
+  { key: "biglietti", label: "Biglietti", href: "/biglietti", Icon: IconTicket },
+  { key: "shop", label: "Shop", href: "/shop", Icon: IconBag },
+  { key: "amici", label: "Amici", href: "/amici", Icon: IconUsers },
+  { key: "aiuto", label: "Aiuto", href: "/aiuto", Icon: IconSOS, hot: true },
+  { key: "gallery", label: "Gallery", href: "/gallery", Icon: IconImage },
+  { key: "club", label: "Il Club", href: "/club", Icon: IconSpark },
+];
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 13) return "BUONGIORNO";
+  if (h >= 13 && h < 18) return "BUON POMERIGGIO";
+  return "BUONASERA";
+}
+
+export default function Home() {
   const styles = useStyles();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user } = useAuth();
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const { count } = useCart();
+  const contact = useContact();
 
+  const settings = useSettings();
+  const upcoming = useUpcoming();
+  const events = useSiteEvents();
+  const products = useProducts();
+  const posts = usePosts();
+  const faqs = useFaqs();
+  const firstGroup = settings.data?.about_gallery_groups?.[0]?.category;
+  const gallery = useMedia(firstGroup);
   const night = useQuery({ queryKey: ["my-night"], queryFn: () => apiGet("/api/my-night") });
-  const events = useQuery({ queryKey: ["events"], queryFn: () => apiGet("/api/events") });
-  const tickets = useQuery({ queryKey: ["tickets"], queryFn: () => apiGet("/api/tickets") });
 
-  const refreshing = night.isFetching && !night.isLoading;
-  const onRefresh = useCallback(() => {
-    qc.invalidateQueries({ queryKey: ["my-night"] });
-    qc.invalidateQueries({ queryKey: ["events"] });
-    qc.invalidateQueries({ queryKey: ["tickets"] });
+  const [refreshing, setRefreshing] = useState(false);
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([qc.invalidateQueries({ queryKey: ["site"] }), qc.invalidateQueries({ queryKey: ["my-night"] })]);
+    setRefreshing(false);
   }, [qc]);
 
+  const next = upcoming.data;
   const nextTicket = night.data?.next_ticket;
-  const eventList = events.data?.events ?? [];
-  const ticketList = tickets.data?.tickets ?? [];
+  const zones: any[] = settings.data?.about_zones ?? [];
+  const s = settings.data;
 
   return (
-    <View style={styles.root} testID="serata-screen">
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <LogoHeader />
-        <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.kicker}>LA MIA SERATA</Text>
-            <Text style={styles.hi}>Ciao, {user?.name?.split(" ")[0] ?? "ospite"}</Text>
-          </View>
+    <View style={styles.root} testID="home-screen">
+      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
+        <Image source={require("../../assets/images/glitz-logo.png")} style={styles.logo} contentFit="contain" />
+        <View style={styles.topActions}>
+          <Pressable testID="open-cart" style={styles.iconBtn} onPress={() => router.push("/carrello")}>
+            <IconBag color={colors.onSurface} size={20} />
+            {count > 0 ? (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{count}</Text>
+              </View>
+            ) : null}
+          </Pressable>
           <Pressable testID="open-profile" style={styles.avatar} onPress={() => router.push("/profile")}>
             {user?.photo_url ? (
               <Image source={{ uri: mediaUrl(user.photo_url) }} style={styles.avatarImg} contentFit="cover" />
@@ -56,81 +112,221 @@ export default function Serata() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brandPrimary} />}
       >
-        {/* Hero */}
-        <Pressable
-          testID="night-hero"
-          style={styles.hero}
-          onPress={() => (nextTicket ? router.push(`/event/${nextTicket.event_id}`) : router.push("/events"))}
-        >
-          {nextTicket ? (
-            <>
-              <Text style={styles.heroKicker}>IL TUO PROSSIMO INGRESSO</Text>
-              <Text style={styles.heroTitle}>{nextTicket.event_title}</Text>
-              <Text style={styles.heroDate}>{formatEventDate(nextTicket.event_date)}</Text>
-              <View style={styles.heroPill}>
-                <Text style={styles.heroPillText}>{nextTicket.formula_label} · biglietto attivo</Text>
+        <View style={styles.pad}>
+          <Text style={styles.kicker}>{greeting()}</Text>
+          <Text style={styles.hi}>{user?.name?.split(" ")[0] ?? "Ospite"}</Text>
+          <Text style={styles.tagline}>{s?.home_hero_line1 || "BEYOND"} {s?.home_hero_line2 || "THE NIGHT"}</Text>
+        </View>
+
+        {/* Next night */}
+        {next ? (
+          <Pressable testID="home-hero" style={styles.hero} onPress={() => router.push(`/event/${next.id}`)}>
+            <Image source={{ uri: siteImg(next.poster_url) }} style={styles.fill} contentFit="cover" transition={300} />
+            <LinearGradient colors={["rgba(0,0,0,0.05)", "rgba(0,0,0,0.7)", "rgba(0,0,0,0.97)"]} style={styles.fill} />
+            <View style={styles.heroBody}>
+              <View style={styles.pill}>
+                <Text style={styles.pillText}>{(s?.home_opening_title || "PROSSIMA SERATA").toUpperCase()}</Text>
               </View>
-            </>
-          ) : (
-            <>
-              <Text style={styles.heroKicker}>NESSUN BIGLIETTO ANCORA</Text>
-              <Text style={styles.heroTitle}>Scegli la tua serata</Text>
-              <Text style={styles.heroDate}>Sfoglia gli eventi e prendi il biglietto</Text>
-              <View style={styles.heroPill}>
-                <Text style={styles.heroPillText}>Vai agli eventi →</Text>
+              <Text style={styles.heroTitle} numberOfLines={2}>{next.title}</Text>
+              <Text style={styles.heroDate}>{formatEventDate(next.date)}</Text>
+              <View style={{ marginTop: 12 }}>
+                <Countdown targetIso={next.date} compact />
               </View>
-            </>
-          )}
-        </Pressable>
+              <View style={styles.heroActions}>
+                {next.ticket_url ? (
+                  <Pressable testID="hero-ticket" style={styles.heroBtn} onPress={() => WebBrowser.openBrowserAsync(next.ticket_url!)}>
+                    <IconTicket color={colors.onBrandPrimary} size={16} />
+                    <Text style={styles.heroBtnText}>BIGLIETTI</Text>
+                  </Pressable>
+                ) : null}
+                <Pressable testID="hero-table" style={styles.heroBtnGhost} onPress={() => router.push({ pathname: "/event/[id]", params: { id: next.id, tavoli: "1" } })}>
+                  <IconSofa color={colors.onSurface} size={16} />
+                  <Text style={styles.heroBtnGhostText}>TAVOLO</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Pressable>
+        ) : null}
+
+        {/* Pass */}
+        {nextTicket ? (
+          <Pressable testID="home-pass" style={styles.pass} onPress={() => router.push("/biglietti")}>
+            <View style={styles.passQr}>
+              <QRCode value={nextTicket.code} size={58} color="#000000" backgroundColor="#FFFFFF" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.passKicker}>IL TUO PASS</Text>
+              <Text style={styles.passTitle} numberOfLines={1}>{nextTicket.event_title}</Text>
+              <Text style={styles.passMeta}>{formatEventDate(nextTicket.event_date)} · {nextTicket.formula_label}</Text>
+            </View>
+            <IconChevron color={colors.muted} />
+          </Pressable>
+        ) : null}
 
         {/* Quick actions */}
-        <View style={styles.quickRow}>
-          <Pressable testID="quick-events" style={styles.quick} onPress={() => router.push("/events")}>
-            <Text style={styles.quickText}>Eventi</Text>
-          </Pressable>
-          <Pressable testID="quick-tables" style={styles.quick} onPress={() => router.push("/tables")}>
-            <Text style={styles.quickText}>Tavoli</Text>
-          </Pressable>
+        <View style={styles.grid}>
+          {ACTIONS.map((a) => (
+            <Pressable key={a.key} testID={`quick-${a.key}`} style={styles.tile} onPress={() => router.push(a.href)}>
+              <View style={[styles.tileIcon, a.hot && styles.tileIconHot]}>
+                <a.Icon color={a.hot ? colors.onBrandPrimary : colors.brandPrimary} size={24} />
+              </View>
+              <Text style={styles.tileText} numberOfLines={1}>{a.label}</Text>
+            </Pressable>
+          ))}
         </View>
 
         {/* Upcoming events */}
-        <Text style={styles.section}>PROSSIMI EVENTI</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventsRow}>
-          {eventList.map((ev: any) => (
-            <Pressable key={ev.id} testID={`event-${ev.id}`} style={styles.eventCard} onPress={() => router.push(`/event/${ev.id}`)}>
-              <Image source={{ uri: coverUrl(ev.cover) }} style={styles.eventCover} contentFit="cover" />
-              <View style={styles.eventBody}>
-                <Text style={styles.eventDate}>{formatEventDate(ev.date)}</Text>
-                <Text style={styles.eventTitle} numberOfLines={2}>{ev.title}</Text>
-                <Text style={styles.eventPrice}>da €{ev.price_from}</Text>
+        <View style={styles.pad}>
+          <SectionTitle title={(s?.home_events_title || "Prossimi eventi").toUpperCase()} action="Tutti" onAction={() => router.push("/eventi")} />
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+          {(events.data ?? []).map((ev) => (
+            <Pressable key={ev.id} testID={`home-event-${ev.id}`} style={styles.poster} onPress={() => router.push(`/event/${ev.id}`)}>
+              <Image source={{ uri: siteImg(ev.poster_url) }} style={styles.fill} contentFit="cover" />
+              <LinearGradient colors={["transparent", "rgba(0,0,0,0.92)"]} style={styles.fill} />
+              <View style={styles.posterDate}>
+                <Text style={styles.posterDateText}>{formatDay(ev.date)}</Text>
               </View>
+              <Text style={styles.posterTitle} numberOfLines={2}>{(ev.title || "").split("—")[0].trim()}</Text>
             </Pressable>
           ))}
         </ScrollView>
 
-        {/* Tickets with QR */}
-        <Text style={styles.section}>I MIEI BIGLIETTI</Text>
-        {ticketList.length === 0 ? (
-          <Text style={styles.empty}>Nessun biglietto. Prendine uno dagli eventi.</Text>
-        ) : (
-          ticketList.map((tk: any) => (
-            <View key={tk.id} testID={`ticket-${tk.id}`} style={styles.ticket}>
-              <View style={styles.qrBox}>
-                <QRCode value={tk.code} size={92} color="#000000" backgroundColor="#FFFFFF" />
-              </View>
-              <View style={styles.ticketInfo}>
-                <Text style={styles.ticketTitle} numberOfLines={2}>{tk.event_title}</Text>
-                <Text style={styles.ticketDate}>{formatEventDate(tk.event_date)}</Text>
-                <Text style={styles.ticketCode}>{tk.code}</Text>
-                <Text style={styles.ticketFormula}>{tk.formula_label}</Text>
-              </View>
+        {/* Table service */}
+        <View style={styles.pad}>
+          <Pressable testID="home-ordina" style={styles.banner} onPress={() => router.push("/ordina")}>
+            <View style={styles.bannerIcon}>
+              <IconMusic color={colors.brandPrimary} size={24} />
             </View>
-          ))
-        )}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.bannerTitle}>Sei già al Glitz?</Text>
+              <Text style={styles.bannerBody}>Ordina dal tavolo e chiama il cameriere in un tocco.</Text>
+            </View>
+            <IconChevron color={colors.brandPrimary} />
+          </Pressable>
+        </View>
+
+        {/* Shop */}
+        {(products.data ?? []).length ? (
+          <>
+            <View style={styles.pad}>
+              <SectionTitle title="SHOP UFFICIALE" action="Vai allo shop" onAction={() => router.push("/shop")} />
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+              {(products.data ?? []).map((p) => (
+                <Pressable key={p.id} testID={`home-product-${p.slug}`} style={styles.product} onPress={() => router.push(`/shop/${p.slug}`)}>
+                  <Image source={{ uri: siteImg(p.image) }} style={styles.productImg} contentFit={p.slug === "gift-card" ? "contain" : "cover"} />
+                  {p.badge ? (
+                    <View style={styles.productBadge}>
+                      <Text style={styles.productBadgeText}>{p.badge}</Text>
+                    </View>
+                  ) : null}
+                  <View style={styles.productBody}>
+                    <Text style={styles.productName} numberOfLines={1}>{p.name}</Text>
+                    <Text style={styles.productPrice}>€ {p.price}</Text>
+                  </View>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
+
+        {/* Club areas */}
+        {zones.length ? (
+          <>
+            <View style={styles.pad}>
+              <SectionTitle title="GLI AMBIENTI" action="Il Club" onAction={() => router.push("/club")} />
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rail}>
+              {zones.map((z, i) => (
+                <Pressable key={z.id || i} style={styles.zone} onPress={() => router.push("/club")}>
+                  <Image source={{ uri: siteImg(z.image) }} style={styles.fill} contentFit="cover" />
+                  <LinearGradient colors={["transparent", "rgba(0,0,0,0.9)"]} style={styles.fill} />
+                  <Text style={styles.zoneNum}>AMBIENTE {String(i + 1).padStart(2, "0")}</Text>
+                  <Text style={styles.zoneTitle} numberOfLines={1}>{z.title}</Text>
+                  {z.subtitle ? <Text style={styles.zoneSub} numberOfLines={1}>{z.subtitle}</Text> : null}
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
+
+        <View style={styles.pad}>
+          {/* News */}
+          {(posts.data ?? []).length ? (
+            <>
+              <SectionTitle title="NEWS" action="Tutte" onAction={() => router.push("/news")} />
+              {(posts.data ?? []).slice(0, 3).map((p) => (
+                <Pressable key={p.id} style={styles.news} onPress={() => router.push(`/news/${p.slug}`)}>
+                  <Image source={{ uri: siteImg(p.cover_url) }} style={styles.newsImg} contentFit="cover" />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.newsTitle} numberOfLines={2}>{p.title}</Text>
+                    <Text style={styles.newsExcerpt} numberOfLines={2}>{p.excerpt}</Text>
+                  </View>
+                </Pressable>
+              ))}
+            </>
+          ) : null}
+
+          {/* Gallery */}
+          {(gallery.data ?? []).length ? (
+            <>
+              <SectionTitle title={(s?.home_gallery_preview_title || "Uno sguardo dentro").toUpperCase()} action="Gallery" onAction={() => router.push("/gallery")} />
+              <View style={styles.galleryGrid}>
+                {(gallery.data ?? []).slice(0, 4).map((m) => (
+                  <Pressable key={m.id} style={styles.galleryCell} onPress={() => router.push("/gallery")}>
+                    <Image source={{ uri: siteImg(m.url) }} style={styles.galleryImg} contentFit="cover" />
+                  </Pressable>
+                ))}
+              </View>
+            </>
+          ) : null}
+
+          {/* FAQ */}
+          {(faqs.data ?? []).length ? (
+            <>
+              <SectionTitle title="INFO RAPIDE" action="Tutte le FAQ" onAction={() => router.push("/faq")} />
+              {(faqs.data ?? []).slice(0, 4).map((f) => {
+                const open = openFaq === f.id;
+                return (
+                  <Pressable key={f.id} style={styles.faq} onPress={() => setOpenFaq(open ? null : f.id)}>
+                    <View style={styles.faqHead}>
+                      <Text style={styles.faqQ}>{f.question}</Text>
+                      <Text style={styles.faqSign}>{open ? "–" : "+"}</Text>
+                    </View>
+                    {open ? <Text style={styles.faqA}>{f.answer}</Text> : null}
+                  </Pressable>
+                );
+              })}
+            </>
+          ) : null}
+
+          <SectionTitle title="RESTA NEL GIRO" />
+          <NewsletterCard />
+
+          <View style={styles.social}>
+            <Pressable style={styles.socialBtn} onPress={() => Linking.openURL(contact.instagram)}>
+              <IconInstagram color={colors.onSurface} size={22} />
+            </Pressable>
+            <Pressable style={styles.socialBtn} onPress={() => Linking.openURL(contact.tiktok)}>
+              <IconMusic color={colors.onSurface} size={22} />
+            </Pressable>
+            <Pressable style={styles.socialBtn} onPress={() => openWhatsApp(contact.whatsappNumber, "Ciao Glitz, avrei un'informazione da chiedere.")}>
+              <IconChat color={colors.onSurface} size={22} />
+            </Pressable>
+            <Pressable style={styles.socialBtn} onPress={() => Linking.openURL(`mailto:${contact.email}`)}>
+              <IconMail color={colors.onSurface} size={22} />
+            </Pressable>
+          </View>
+          <Pressable style={styles.address} onPress={() => router.push("/contatti")}>
+            <IconPin color={colors.muted} size={15} />
+            <Text style={styles.addressText}>{contact.address}</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
@@ -138,83 +334,75 @@ export default function Serata() {
 
 const useStyles = makeStyles((colors) => ({
   root: { flex: 1, backgroundColor: colors.surface },
-  header: {
-    paddingHorizontal: 20,
-    paddingBottom: 14,
-    gap: 10,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  kicker: { color: colors.brandPrimary, fontSize: 11, letterSpacing: 4, fontWeight: "800", fontFamily: MONO },
-  hi: { color: colors.onSurface, fontSize: 26, fontWeight: "900", marginTop: 4 },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 999,
-    backgroundColor: colors.brandTertiary,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
+  pad: { paddingHorizontal: 20 },
+  fill: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  topBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 10 },
+  logo: { width: 96, height: 30 },
+  topActions: { flexDirection: "row", alignItems: "center", gap: 10 },
+  iconBtn: { width: 42, height: 42, borderRadius: 999, backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
+  badge: { position: "absolute", top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 999, backgroundColor: colors.brandPrimary, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
+  badgeText: { color: colors.onBrandPrimary, fontSize: 10, fontWeight: "900" },
+  avatar: { width: 42, height: 42, borderRadius: 999, backgroundColor: colors.brandTertiary, alignItems: "center", justifyContent: "center", overflow: "hidden", borderWidth: 1, borderColor: colors.border },
   avatarImg: { width: "100%", height: "100%" },
-  avatarText: { color: colors.brandPrimary, fontSize: 18, fontWeight: "900" },
-  content: { paddingHorizontal: 20, paddingTop: 4 },
-  hero: {
-    backgroundColor: colors.surfaceSecondary,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: colors.borderStrong,
-    padding: 20,
-    shadowColor: colors.brandPrimary,
-    shadowOpacity: 0.35,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  heroKicker: { color: colors.muted, fontSize: 11, letterSpacing: 3, fontWeight: "700", fontFamily: MONO },
-  heroTitle: { color: colors.onSurface, fontSize: 24, fontWeight: "900", marginTop: 8 },
-  heroDate: { color: colors.brandSecondary, fontSize: 13, marginTop: 6, fontFamily: MONO },
-  heroPill: { alignSelf: "flex-start", marginTop: 14, backgroundColor: colors.brandPrimary, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
-  heroPillText: { color: colors.onBrandPrimary, fontSize: 12, fontWeight: "800", letterSpacing: 1 },
-  quickRow: { flexDirection: "row", gap: 12, marginTop: 14 },
-  quick: {
-    flex: 1,
-    backgroundColor: colors.surfaceTertiary,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    paddingVertical: 18,
-    alignItems: "center",
-  },
-  quickText: { color: colors.onSurface, fontSize: 15, fontWeight: "800", letterSpacing: 1 },
-  section: { color: colors.muted, fontSize: 12, letterSpacing: 3, fontWeight: "700", fontFamily: MONO, marginTop: 28, marginBottom: 14 },
-  eventsRow: { gap: 14, paddingRight: 8 },
-  eventCard: { width: 220, backgroundColor: colors.surfaceSecondary, borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
-  eventCover: { width: "100%", height: 120 },
-  eventBody: { padding: 14 },
-  eventDate: { color: colors.brandPrimary, fontSize: 11, fontWeight: "700", fontFamily: MONO, letterSpacing: 1 },
-  eventTitle: { color: colors.onSurface, fontSize: 16, fontWeight: "800", marginTop: 6 },
-  eventPrice: { color: colors.brandSecondary, fontSize: 13, marginTop: 8, fontFamily: MONO },
-  empty: { color: colors.muted, fontSize: 14 },
-  ticket: {
-    flexDirection: "row",
-    gap: 14,
-    backgroundColor: colors.surfaceSecondary,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 14,
-    marginBottom: 12,
-    alignItems: "center",
-  },
-  qrBox: { backgroundColor: "#FFFFFF", borderRadius: 10, padding: 8 },
-  ticketInfo: { flex: 1 },
-  ticketTitle: { color: colors.onSurface, fontSize: 16, fontWeight: "800" },
-  ticketDate: { color: colors.brandSecondary, fontSize: 12, marginTop: 4, fontFamily: MONO },
-  ticketCode: { color: colors.brandPrimary, fontSize: 15, fontWeight: "900", marginTop: 8, letterSpacing: 1, fontFamily: MONO },
-  ticketFormula: { color: colors.muted, fontSize: 12, marginTop: 2 },
+  avatarText: { color: colors.brandPrimary, fontSize: 17, fontWeight: "900" },
+  kicker: { color: colors.brandPrimary, fontSize: 11, letterSpacing: 4, fontWeight: "800", fontFamily: MONO, marginTop: 6 },
+  hi: { color: colors.onSurface, fontSize: 30, fontWeight: "900", marginTop: 2 },
+  tagline: { color: colors.muted, fontSize: 12, letterSpacing: 3, fontFamily: MONO, marginTop: 2, marginBottom: 16 },
+  hero: { marginHorizontal: 20, height: 400, borderRadius: 24, overflow: "hidden", borderWidth: 1.5, borderColor: colors.borderStrong, backgroundColor: colors.surfaceSecondary },
+  heroBody: { flex: 1, justifyContent: "flex-end", padding: 18 },
+  pill: { alignSelf: "flex-start", backgroundColor: colors.brandPrimary, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, marginBottom: 10 },
+  pillText: { color: colors.onBrandPrimary, fontSize: 10, fontWeight: "900", letterSpacing: 1.5 },
+  heroTitle: { color: colors.onSurface, fontSize: 26, fontWeight: "900", textTransform: "uppercase" },
+  heroDate: { color: colors.brandSecondary, fontSize: 12, fontFamily: MONO, marginTop: 6 },
+  heroActions: { flexDirection: "row", gap: 10, marginTop: 16 },
+  heroBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: colors.brandPrimary, borderRadius: 14, paddingVertical: 13 },
+  heroBtnText: { color: colors.onBrandPrimary, fontSize: 13, fontWeight: "900", letterSpacing: 1.5 },
+  heroBtnGhost: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.25)", borderRadius: 14, paddingVertical: 13 },
+  heroBtnGhostText: { color: colors.onSurface, fontSize: 13, fontWeight: "900", letterSpacing: 1.5 },
+  pass: { marginHorizontal: 20, marginTop: 14, flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: colors.surfaceSecondary, borderRadius: 18, borderWidth: 1, borderColor: colors.border, padding: 12 },
+  passQr: { backgroundColor: "#FFFFFF", borderRadius: 10, padding: 6 },
+  passKicker: { color: colors.brandPrimary, fontSize: 10, letterSpacing: 2.5, fontWeight: "800", fontFamily: MONO },
+  passTitle: { color: colors.onSurface, fontSize: 15, fontWeight: "900", marginTop: 3 },
+  passMeta: { color: colors.muted, fontSize: 11, fontFamily: MONO, marginTop: 3 },
+  grid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 12, marginTop: 22, rowGap: 16 },
+  tile: { width: "25%", alignItems: "center", gap: 8 },
+  tileIcon: { width: 58, height: 58, borderRadius: 18, backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
+  tileIconHot: { backgroundColor: colors.brandPrimary, borderColor: colors.brandPrimary },
+  tileText: { color: colors.onSurface, fontSize: 12, fontWeight: "700" },
+  rail: { gap: 12, paddingHorizontal: 20 },
+  poster: { width: 150, height: 214, borderRadius: 18, overflow: "hidden", backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border, justifyContent: "flex-end", padding: 12 },
+  posterDate: { position: "absolute", top: 10, left: 10, backgroundColor: "rgba(0,0,0,0.7)", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: colors.borderStrong },
+  posterDateText: { color: colors.onSurface, fontSize: 11, fontWeight: "900", fontFamily: MONO },
+  posterTitle: { color: colors.onSurface, fontSize: 15, fontWeight: "900", textTransform: "uppercase" },
+  banner: { marginTop: 24, flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: colors.brandTertiary, borderRadius: 18, borderWidth: 1, borderColor: colors.borderStrong, padding: 16 },
+  bannerIcon: { width: 46, height: 46, borderRadius: 14, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+  bannerTitle: { color: colors.onSurface, fontSize: 16, fontWeight: "900" },
+  bannerBody: { color: colors.onBrandTertiary, fontSize: 13, marginTop: 3 },
+  product: { width: 156, borderRadius: 18, overflow: "hidden", backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border },
+  productImg: { width: "100%", height: 170, backgroundColor: "#000000" },
+  productBadge: { position: "absolute", top: 10, left: 10, backgroundColor: colors.brandPrimary, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3 },
+  productBadgeText: { color: colors.onBrandPrimary, fontSize: 9, fontWeight: "900", letterSpacing: 1 },
+  productBody: { padding: 12 },
+  productName: { color: colors.onSurface, fontSize: 13, fontWeight: "800", textTransform: "uppercase" },
+  productPrice: { color: colors.brandPrimary, fontSize: 15, fontWeight: "900", marginTop: 4, fontFamily: MONO },
+  zone: { width: 240, height: 150, borderRadius: 18, overflow: "hidden", backgroundColor: colors.surfaceSecondary, justifyContent: "flex-end", padding: 14 },
+  zoneNum: { color: colors.brandPrimary, fontSize: 10, letterSpacing: 2, fontWeight: "800", fontFamily: MONO },
+  zoneTitle: { color: colors.onSurface, fontSize: 17, fontWeight: "900", marginTop: 3 },
+  zoneSub: { color: colors.brandSecondary, fontSize: 12, marginTop: 2 },
+  news: { flexDirection: "row", gap: 12, alignItems: "center", backgroundColor: colors.surfaceSecondary, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 10, marginBottom: 10 },
+  newsImg: { width: 76, height: 76, borderRadius: 12, backgroundColor: colors.surfaceTertiary },
+  newsTitle: { color: colors.onSurface, fontSize: 14, fontWeight: "800" },
+  newsExcerpt: { color: colors.muted, fontSize: 12, marginTop: 4, lineHeight: 17 },
+  galleryGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  galleryCell: { width: "48.5%", aspectRatio: 1, borderRadius: 14, overflow: "hidden" },
+  galleryImg: { width: "100%", height: "100%", backgroundColor: colors.surfaceSecondary },
+  faq: { backgroundColor: colors.surfaceSecondary, borderRadius: 14, borderWidth: 1, borderColor: colors.border, padding: 14, marginBottom: 8 },
+  faqHead: { flexDirection: "row", alignItems: "center", gap: 10 },
+  faqQ: { flex: 1, color: colors.onSurface, fontSize: 14, fontWeight: "800" },
+  faqSign: { color: colors.brandPrimary, fontSize: 20, fontWeight: "900" },
+  faqA: { color: colors.brandSecondary, fontSize: 13, lineHeight: 20, marginTop: 10 },
+  social: { flexDirection: "row", justifyContent: "center", gap: 14, marginTop: 28 },
+  socialBtn: { width: 50, height: 50, borderRadius: 999, backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
+  address: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 14 },
+  addressText: { color: colors.muted, fontSize: 12 },
 }));

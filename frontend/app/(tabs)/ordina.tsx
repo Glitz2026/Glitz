@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { FloorPlan, type Table } from "@/src/components/floor-plan";
+import { GlitzPlan } from "@/src/components/glitz-plan";
 import { LogoHeader } from "@/src/components/logo-header";
 import { apiGet, apiPost } from "@/src/lib/api";
+import { resolvePlan, type PlanTable } from "@/src/lib/floorplan";
 import { MONO } from "@/src/lib/fonts";
+import { useSettings } from "@/src/lib/site";
 import { makeStyles, useTheme } from "@/src/theme";
 
 const WAITER = [
@@ -21,8 +23,16 @@ const CALL_LABEL: Record<string, string> = Object.fromEntries(WAITER.map((w) => 
 const ORDER_STATUS: Record<string, { label: string; tone: "warn" | "info" | "ok" }> = {
   received: { label: "RICEVUTO", tone: "warn" },
   preparing: { label: "IN PREPARAZIONE", tone: "info" },
-  ready: { label: "PRONTO", tone: "ok" },
+  ready: { label: "PRONTO · RITIRA AL BANCONE", tone: "ok" },
+  on_the_way: { label: "IN ARRIVO AL TAVOLO", tone: "info" },
+  delivered: { label: "CONSEGNATO", tone: "ok" },
+  completed: { label: "COMPLETATO", tone: "ok" },
 };
+
+const BARS = [
+  { id: "Bar centrale", label: "Bar centrale" },
+  { id: "Bar pista", label: "Bar pista" },
+];
 
 export default function Ordina() {
   const styles = useStyles();
@@ -30,12 +40,18 @@ export default function Ordina() {
   const insets = useSafeAreaInsets();
   const qc = useQueryClient();
 
-  const [table, setTable] = useState<Table | null>(null);
+  const { width } = useWindowDimensions();
+  const settings = useSettings();
+  const plan = useMemo(() => resolvePlan(settings.data), [settings.data]);
+  const [table, setTable] = useState<PlanTable | null>(null);
   const [cart, setCart] = useState<Record<string, number>>({});
-  const zone = table?.name ?? null;
+  const [mode, setMode] = useState<"table" | "pickup">("table");
+  const [bar, setBar] = useState<string>(BARS[0].id);
+  const tableZone = table ? plan.getZone(table.zone).label : null;
+  // Stamped on every waiter call and order so the staff knows where to go.
+  const zone = table ? `Tavolo ${table.id} · ${tableZone}` : null;
 
   const menu = useQuery({ queryKey: ["menu"], queryFn: () => apiGet("/api/menu") });
-  const zones = useQuery({ queryKey: ["zones"], queryFn: () => apiGet("/api/tables/zones") });
   const orders = useQuery({ queryKey: ["orders"], queryFn: () => apiGet("/api/orders"), refetchInterval: 5000 });
   const calls = useQuery({ queryKey: ["waiter-calls"], queryFn: () => apiGet("/api/waiter-calls"), refetchInterval: 5000 });
 
@@ -44,7 +60,8 @@ export default function Ordina() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["waiter-calls"] }),
   });
   const orderMut = useMutation({
-    mutationFn: (items: any[]) => apiPost("/api/orders", { items, zone }),
+    mutationFn: (items: any[]) =>
+      apiPost("/api/orders", mode === "pickup" ? { items, mode: "pickup", bar } : { items, mode: "table", zone }),
     onSuccess: () => {
       setCart({});
       qc.invalidateQueries({ queryKey: ["orders"] });
@@ -69,8 +86,8 @@ export default function Ordina() {
 
   const orderList = orders.data?.orders ?? [];
   const callList = calls.data?.calls ?? [];
-  const zoneList: Table[] = zones.data?.zones ?? [];
-  const needTable = !table;
+  const needTable = mode === "table" && !table;
+  const cartContext = mode === "pickup" ? `Ritiro · ${bar}` : zone ?? "nessun tavolo";
 
   return (
     <View style={styles.root} testID="ordina-screen">
@@ -84,42 +101,92 @@ export default function Ordina() {
         contentContainerStyle={[styles.content, { paddingBottom: (cartCount > 0 ? 96 : 24) + insets.bottom }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Piantina tavoli */}
-        <Text style={styles.section}>IL TUO TAVOLO · PIANTINA</Text>
-        <FloorPlan tables={zoneList} selectedId={table?.id ?? null} onSelect={setTable} />
-        <View style={[styles.selBanner, table ? styles.selBannerOk : null]}>
-          <Text style={styles.selText}>
-            {table ? `Sei al ${table.name} · ${table.area}` : "Tocca il tuo tavolo sulla piantina"}
-          </Text>
+        {/* Modalità: al tavolo o ritira al bancone */}
+        <View style={styles.modeRow}>
+          <Pressable
+            testID="mode-table"
+            style={[styles.modeBtn, mode === "table" && styles.modeOn]}
+            onPress={() => setMode("table")}
+          >
+            <Text style={[styles.modeText, mode === "table" && styles.modeTextOn]}>AL TAVOLO</Text>
+          </Pressable>
+          <Pressable
+            testID="mode-pickup"
+            style={[styles.modeBtn, mode === "pickup" && styles.modeOn]}
+            onPress={() => setMode("pickup")}
+          >
+            <Text style={[styles.modeText, mode === "pickup" && styles.modeTextOn]}>RITIRA AL BANCONE</Text>
+          </Pressable>
         </View>
 
-        {/* Chiama il cameriere */}
-        <Text style={styles.section}>CHIAMA IL CAMERIERE</Text>
-        <View style={[styles.waiterGrid, needTable && styles.disabled]}>
-          {WAITER.map((w) => (
-            <Pressable
-              key={w.id}
-              testID={`waiter-${w.id}`}
-              style={styles.waiterBtn}
-              disabled={needTable}
-              onPress={() => callMut.mutate(w.id)}
-            >
-              <Text style={styles.waiterText}>{w.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-        {callList.length > 0 ? (
-          <View style={styles.callList}>
-            {callList.slice(0, 3).map((c: any) => (
-              <View key={c.id} testID={`call-${c.id}`} style={styles.callRow}>
-                <Text style={styles.callName}>{CALL_LABEL[c.type] ?? c.type} · {c.zone ?? "—"}</Text>
-                <View style={[styles.statusPill, c.status === "taken_in_charge" ? styles.pillOk : styles.pillWarn]}>
-                  <Text style={styles.statusText}>{c.status === "taken_in_charge" ? "PRESA IN CARICO" : "INVIATA"}</Text>
-                </View>
+        {mode === "table" ? (
+          <>
+            {/* Piantina tavoli */}
+            <Text style={styles.section}>IL TUO TAVOLO · PIANTINA</Text>
+            <View style={styles.planWrap}>
+              <GlitzPlan
+                width={Math.min(width, 720) - 40}
+                tables={plan.tables}
+                anchors={plan.anchors}
+                getZone={plan.getZone}
+                selectedId={table?.id ?? null}
+                onSelect={setTable}
+              />
+            </View>
+            <View style={[styles.selBanner, table ? styles.selBannerOk : null]}>
+              <Text style={styles.selText}>
+                {table ? `Sei al tavolo ${table.id} · ${tableZone}` : "Tocca il tuo tavolo sulla piantina"}
+              </Text>
+            </View>
+
+            {/* Chiama il cameriere */}
+            <Text style={styles.section}>CHIAMA IL CAMERIERE</Text>
+            <View style={[styles.waiterGrid, needTable && styles.disabled]}>
+              {WAITER.map((w) => (
+                <Pressable
+                  key={w.id}
+                  testID={`waiter-${w.id}`}
+                  style={styles.waiterBtn}
+                  disabled={needTable}
+                  onPress={() => callMut.mutate(w.id)}
+                >
+                  <Text style={styles.waiterText}>{w.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+            {callList.length > 0 ? (
+              <View style={styles.callList}>
+                {callList.slice(0, 3).map((c: any) => (
+                  <View key={c.id} testID={`call-${c.id}`} style={styles.callRow}>
+                    <Text style={styles.callName}>{CALL_LABEL[c.type] ?? c.type} · {c.zone ?? "—"}</Text>
+                    <View style={[styles.statusPill, c.status === "taken_in_charge" ? styles.pillOk : styles.pillWarn]}>
+                      <Text style={styles.statusText}>{c.status === "taken_in_charge" ? "PRESA IN CARICO" : "INVIATA"}</Text>
+                    </View>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
-        ) : null}
+            ) : null}
+          </>
+        ) : (
+          <>
+            <Text style={styles.section}>SCEGLI IL BANCONE</Text>
+            <View style={styles.barRow}>
+              {BARS.map((b) => (
+                <Pressable
+                  key={b.id}
+                  testID={`bar-${b.id}`}
+                  style={[styles.barBtn, bar === b.id && styles.barOn]}
+                  onPress={() => setBar(b.id)}
+                >
+                  <Text style={[styles.barText, bar === b.id && styles.barTextOn]}>{b.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <View style={styles.selBanner}>
+              <Text style={styles.selText}>Ordina ora, ritira al {bar}. Ti avvisiamo quando è pronto.</Text>
+            </View>
+          </>
+        )}
 
         {/* Menu */}
         <Text style={styles.section}>MENU</Text>
@@ -182,7 +249,7 @@ export default function Ordina() {
         <View style={[styles.cartBar, { bottom: 16 }]} testID="cart-bar">
           <View style={{ flex: 1 }}>
             <Text style={styles.cartCount} numberOfLines={1}>
-              {cartCount} articoli · {zone ?? "nessun tavolo"}
+              {cartCount} articoli · {cartContext}
             </Text>
             <Text style={styles.cartTotal}>€{cartTotal.toFixed(2)}</Text>
           </View>
@@ -201,11 +268,22 @@ export default function Ordina() {
 }
 
 const useStyles = makeStyles((colors) => ({
+  planWrap: { borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: colors.border, alignSelf: "center" },
   root: { flex: 1, backgroundColor: colors.surface },
   header: { paddingHorizontal: 20, paddingBottom: 14 },
   kicker: { color: colors.brandPrimary, fontSize: 11, letterSpacing: 4, fontWeight: "800", fontFamily: MONO },
   title: { color: colors.onSurface, fontSize: 30, fontWeight: "900", marginTop: 4 },
   content: { paddingHorizontal: 20 },
+  modeRow: { flexDirection: "row", gap: 10, marginTop: 18 },
+  modeBtn: { flex: 1, borderWidth: 1.5, borderColor: colors.border, borderRadius: 12, paddingVertical: 13, alignItems: "center", backgroundColor: colors.surfaceSecondary },
+  modeOn: { borderColor: colors.brandPrimary, backgroundColor: colors.brandTertiary },
+  modeText: { color: colors.muted, fontSize: 12, fontWeight: "900", letterSpacing: 1 },
+  modeTextOn: { color: colors.onSurface },
+  barRow: { flexDirection: "row", gap: 10 },
+  barBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 14, alignItems: "center", backgroundColor: colors.surfaceSecondary },
+  barOn: { borderColor: colors.brandPrimary, backgroundColor: colors.brandPrimary },
+  barText: { color: colors.onSurface, fontSize: 14, fontWeight: "800", letterSpacing: 1 },
+  barTextOn: { color: colors.onBrandPrimary },
   section: { color: colors.muted, fontSize: 12, letterSpacing: 3, fontWeight: "700", fontFamily: MONO, marginTop: 24, marginBottom: 14 },
   selBanner: { marginTop: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceTertiary, paddingHorizontal: 14, paddingVertical: 12 },
   selBannerOk: { borderColor: colors.brandPrimary, backgroundColor: colors.brandTertiary },

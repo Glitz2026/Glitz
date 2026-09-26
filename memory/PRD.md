@@ -40,6 +40,19 @@ La mia serata · Ordina · A.I. · Amici · Aiuto. Big buttons, night-legible, e
 - Backend image proxy `/api/img?u=` so cross-origin (CORP) site covers load on web.
 - Tested: backend 13/13, frontend flows pass; covers verified rendering after the proxy fix.
 
+### 2026-09 (turn 5)
+- Moved into the website repo under `mobile/`. All website features now live in the app through the backend bridge `/api/site/*` (`site_bridge.py`): events 2027, event detail with the official 40-table piantina (2D + 3D WebView) and table requests, shop + cart + Stripe checkout, news, gallery, Il Club, contacts, private events, newsletter, past events, FAQ.
+- New app-style Home and tabs Home · Eventi · A.I. · Ordina · Altro; Amici and Aiuto moved to stack screens; ticket wallet `biglietti`; profile lists the requests sent from the app.
+- Ordina uses the official piantina (tables B0–B15, R1–R16, G1–G8) instead of the 8 placeholder tables.
+
+### 2026-06 (turn 6) — Pannello Staff + Bar "Ordina e ritira"
+- **Roles/departments**: users gained `role` (guest|staff) + `department` (cambusa, barman, camerieri, runner, cassieri, direzione). `require_staff`/`require_direzione` deps in `core.py`. Idempotent seed of the 19 real Glitz employees (from the client's task PDFs + tabella riassuntiva) with phones, plus a Direzione admin. Staff log in via the same JWT (`/api/auth/login`); welcome screen shows "Accesso Staff" → `/(auth)/staff-login`; staff land on `/staff`.
+- **Order routing (`staff.py`)**: every guest order / waiter call / SOS spawns a `staff_ticket` with a `route` pipeline. Bottle→table = Cambusa→Camerieri→Cassa; drink→table = Barman→Camerieri→Cassa; bar pickup = Barman→Cassa; waiter acqua/ghiaccio/mixer/pulizia→Runner, else→Camerieri; SOS→Direzione (shown on every board). Each `complete` advances to the next department; guest order status derives from the ticket stage.
+- **Staff panel (`app/staff/*`)**: live board (react-query poll 3s + web beep / native haptic on new ticket), take/complete actions, per-department task checklist (real tasks from the docs, toggle persisted per day), Direzione team CRUD (add/move dept/reset pw/activate/delete), self change-password, payslips (Direzione assigns per employee via PDF upload to object storage; each employee sees only their own; 3 monthly combined docs for Direzione).
+- **Bar "Ordina e ritira"**: Ordina tab has a mode toggle (Al tavolo / Ritira al bancone); pickup hides the piantina and shows a bar picker; order routes to the barman board with live "PRONTO · RITIRA AL BANCONE" status.
+- Tested: backend 19/19 (RBAC, full routing pipeline, CRUD, tasks, payslips), all frontend flows pass.
+- Deferred (per user, "b"): native push notifications to be configured after the app is published/built. Twilio phone OTP still parked.
+
 ## Personas
 - Guest (primary): organises the night, buys ticket, meets friends, plays with A.I., asks for help.
 

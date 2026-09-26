@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 5 — Staff Panel feature (backend + frontend). Backend pytest: 19/19 passed on /app/backend/tests/test_staff_panel.py (RBAC, order routing bottle+drink+pickup, waiter calls, SOS, take/complete with cross-department 403, direzione team CRUD incl. duplicate email 409 and invalid department 400, cannot delete self/direzione, tasks toggle+persist, change-password + re-login, payslips assign+scope+monthly_docs). Frontend on mobile viewport 390x844: welcome → go-staff → staff-login as direzione@glitz.staff/glitzadmin2026 lands on staff-board with 6 tickets (SOS+orders from prior runs). Nav chips nav-compiti/nav-team/nav-cedolini/nav-password work. Checklist toggle persists across page reload (task-prima-0 shows ✓ after refresh). Team screen renders 19 seeded members grouped by dept; add-member flow works (adds 20th member). Staff-logout works. Guest flow: registered fresh iter5 guest, opened Ordina tab, mode-pickup hides piantina (plan-table count went from 8→0), shows bar picker (bar-Bar centrale + bar-Bar pista), submit-order posts an order without a table and I MIEI ORDINI shows '1× Glitz Spritz · €12 · RICEVUTO'. Take/complete on direzione board also verified (5 take- buttons available; clicking take-st-* succeeded, board updated). Deprecated packages detected: NONE. No React Native red screen, no critical console errors (only pre-existing shadow* style-prop deprecation warning and web-only Responder handler warnings unrelated to this feature).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "global (web preview)", "issues": ["Pre-existing 'shadow*' style props deprecation warning from RN Web (cosmetic).", "Register screen prints web-only warnings 'Unknown event handler property onStartShouldSetResponder/…' from a Touchable component still using the legacy Responder API on the photo picker — cosmetic on native, only visible on web."]}
+    ],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_staff_panel.py",
+    "/app/test_reports/pytest/pytest_iteration5.xml"
+  ],
+  "action_items": [
+    "(Minor, non-blocking) In register-photo Pressable (or its child), replace the Touchable subclass using the legacy Responder API with a plain Pressable to silence the web-only 'Unknown event handler property onResponderXxx' warnings and 'TouchableMixin is deprecated' warning.",
+    "(Optional) Add a client hint on ordina.tsx to auto-focus a default bar when switching to mode-pickup (currently the user must tap 'Bar centrale' before submitting — it worked in tests because we tapped it, but a first-visit default would reduce friction)."
+  ],
+  "critical_code_review_comments": [
+    "staff.py compute_route is a pure function with clear branches (waiter→runner/camerieri, sos→direzione, order+pickup→[barman,cassieri], bottle table→[cambusa,camerieri,cassieri], else→[barman,camerieri,cassieri]) — matches all tested pipelines exactly.",
+    "staff.py guest_status_from_ticket correctly maps stage/route to received→on_the_way→delivered→completed for table orders and received→ready for pickup. Verified via /api/orders GET after each staff complete.",
+    "staff.py _get_ticket_for_action enforces cross-department 403 unless caller is direzione — verified with cameriere trying to complete a cambusa-stage ticket.",
+    "staff.py delete_member has correct guards: user_id != admin.user_id and department != 'direzione' — both paths verified (self-delete → 400; deleting a direzione member → 404).",
+    "staff.py create_member returns 400 for invalid dept and 409 for duplicate email — both paths tested.",
+    "staff.py change-password sets must_change_password=false; new login works, old rejected — verified end-to-end.",
+    "staff.py payslips: my_payslips scopes by user_id (only self); payslips/all + monthly_docs Direzione-only. Verified via barman vs cameriere vs direzione views.",
+    "core.py require_staff/require_direzione stack correctly (401 no token, 403 wrong role/wrong dept).",
+    "club.py create_order calls create_ticket with correct kind/mode/bar/items and stores ticket_id on the order — ticket lookup by source_id is O(1) via db.staff_tickets index on source_id (created in server.startup).",
+    "staff/index.tsx nav chips all use router.push and testIDs (nav-compiti, nav-team, nav-cedolini, nav-password). Team chip hidden for non-direzione.",
+    "team.tsx: reset-{uid}, active-{uid}, del-{uid}, move-{uid}-{dept} testIDs present per member card — full team management UI is testable.",
+    "ordina.tsx: mode-pickup toggles a boolean that hides the FloorPlan and renders the bar picker; submit-order gates on cart items only when mode=pickup (not on table selection). Verified visually."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_staff_panel.py",
+    "/app/test_reports/iteration_5.json",
+    "/app/test_reports/pytest/pytest_iteration5.xml"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Fresh guest per run (guest_<hex>@glitz.test / secret1). Test staff members are created with 'TEST_' prefixed name/email and cleaned up (deleted) at the end of each CRUD test. One pickup order + one bottle order + one drink order + waiter calls + SOS are created per run to exercise the pipelines; they are drained through complete() where applicable.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Staff panel is fully verified. Direzione seed uses direzione@glitz.staff / glitzadmin2026 (must_change_password=true — the /staff route DOES render for direzione without forcing a password change first; this is by design). All seeded staff can log in with glitz2026. Emails are firstname.lastname@glitz.staff (accents stripped). Tickets on the board persist across runs (there were 6 on direzione board on this run from prior test residue). Route rules: bottle IDs are m-05..m-10 → cambusa first; other menu ids → barman first; mode=pickup → [barman,cassieri]. Waiter reasons acqua/ghiaccio/mixer/pulizia → runner; nuovo_ordine/assistenza → camerieri. SOS via POST /api/help appears on both direzione and every staff board. When testing the Ordina pickup flow you MUST tap a bar chip (bar-Bar centrale or bar-Bar pista) after mode-pickup before submitting, otherwise the payload has bar=null.",
+  "rca_of_issue": "N/A — no bugs found this iteration."
+}
