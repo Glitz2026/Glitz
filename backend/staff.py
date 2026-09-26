@@ -341,6 +341,21 @@ async def departments(current=Depends(require_staff)):
     return {"departments": [{"id": k, **v} for k, v in DEPARTMENTS.items()]}
 
 
+@router.get("/directory")
+async def directory():
+    """Public: reparti + membri (nome/email) so the staff login screen can offer
+    a reparto → nome picker instead of typing an email. Password still required."""
+    members = await db.users.find(
+        {"role": "staff"}, {"_id": 0, "name": 1, "email": 1, "department": 1}
+    ).sort("name", 1).to_list(500)
+    out = []
+    for k, v in DEPARTMENTS.items():
+        ms = [{"name": m["name"], "email": m["email"]} for m in members if m.get("department") == k]
+        if ms:
+            out.append({"id": k, "label": v["label"], "color": v.get("color"), "members": ms})
+    return {"departments": out}
+
+
 # ---------------------------------------------------------------------------
 # Live board
 # ---------------------------------------------------------------------------
