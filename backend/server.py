@@ -1585,8 +1585,7 @@ async def startup():
             await db.faqs.insert_one({"id": str(uuid.uuid4()), "question": q, "answer": a, "order": i})
         logging.info("Seeded FAQs")
 
-    # Reseed Events with fixed 2027 dates (wipe any previous seed)
-    await db.events.delete_many({"date": {"$lt": "2027-01-01"}})
+    # Seed Events only if collection is empty (idempotent - no destructive delete on startup)
     if await db.events.count_documents({}) == 0:
         now_iso = datetime.now(timezone.utc).isoformat()
         for e in EVENT_SEED:
