@@ -76,6 +76,14 @@ Premium cinematic web app per Glitz Club, club all'aperto 2000 posti. **Lingua: 
 
 ## Deployment History
 - **[Feb 2026]** Deploy in produzione avviato su `glitzclub.it` con Site Lock ATTIVO (password `Glitz20269236!`). Verifiche pre-deploy: `/api/site-lock/status` → locked:true, unlock password errata → 400, password corretta → ok. Free deploy utilizzato.
+- **[Feb 2026]** Deployment readiness fixes:
+  - Rimossa `db.events.delete_many({"date": {"$lt": "2027-01-01"}})` da server.py:1589 (era distruttiva ad ogni restart). Seed eventi ora idempotente.
+  - Rimosso `CORS_ORIGINS="*"` duplicato in backend/.env.
+  - Rimosse credenziali hardcoded (`jalucas@hotmail.it` / `GlitzAdmin2026!`) da 8 file test in `/app/backend/tests/*` e da `seed_events_2027.py`. Ora leggono da `os.environ.get("ADMIN_EMAIL"/"ADMIN_PASSWORD")` con fallback vuoto.
+- **[Feb 2026]** Setup dominio custom `glitzclub.it`:
+  - DNS Aruba riconfigurato: A @ → 162.159.142.117 + 172.66.2.113 (Cloudflare/Emergent), CNAME www → glitzclub.it, rimossi AAAA IPv6 vecchi WP.
+  - DNS propagato correttamente (verificato via `getent hosts`).
+  - PENDING: aggiungere `glitzclub.it` come Custom Domain nel pannello Emergent Deployments per emissione certificato SSL.
 
 ## Backlog
 - **P1** Breakdown `server.py` (>1600 righe)

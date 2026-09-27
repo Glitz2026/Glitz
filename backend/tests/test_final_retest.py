@@ -4,8 +4,8 @@ import requests
 import pytest
 
 BASE = os.environ.get("REACT_APP_BACKEND_URL", "https://glitz-nightclub.preview.emergentagent.com").rstrip("/")
-ADMIN_EMAIL = "jalucas@hotmail.it"
-ADMIN_PASS = "GlitzAdmin2026!"
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "jalucas@hotmail.it")
+ADMIN_PASS = os.environ.get("ADMIN_PASSWORD", "")
 
 
 @pytest.fixture(scope="module")

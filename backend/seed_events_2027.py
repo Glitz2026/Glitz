@@ -8,8 +8,12 @@ load_dotenv(Path(__file__).parent / ".env")
 # Try both prod and local
 API = os.environ.get("PUBLIC_API") or "http://localhost:8001"
 
-# Login
-r = requests.post(f"{API}/api/auth/login", json={"email": "jalucas@hotmail.it", "password": "GlitzAdmin2026!"})
+# Login (credentials from .env)
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+    raise SystemExit("ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env")
+r = requests.post(f"{API}/api/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
 r.raise_for_status()
 TOKEN = r.json()["token"]
 H = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
