@@ -7,6 +7,7 @@ Questa repository riunisce il sito creato su Emergent e la piantina interattiva 
 - `frontend/`: sito React esistente di Emergent (eventi, account, amministrazione, shop e schermate pagamento).
 - `mobile/`: app Expo del Glitz (iOS, Android, web) con tutte le funzioni del sito e Home in stile app; vedi `mobile/README.md`.
 - `backend/`: backend esistente di Emergent.
+- `jarvis/`: assistente personale vocale (Claude), separato dal sito; vedi `jarvis/README.md`.
 - `glitz-interattivo.html`: piantina 3D autonoma, da scaricare e aprire nel browser.
 - `frontend/public/glitz-interattivo.html`: stessa piantina, disponibile all'indirizzo `/glitz-interattivo.html` quando il frontend viene avviato o pubblicato e serve i file statici.
 - `glitz-3d-kit.zip`: kit originale v5, contenente anche il modello GLB.

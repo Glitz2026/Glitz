@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#04070c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Jarvis">
+  <title>Jarvis</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-state="idle">
+  <div class="app" id="app">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" type="button" aria-label="Apri il pannello" aria-controls="drawer" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </button>
+      <div class="brand">J.A.R.V.I.S.</div>
+      <div class="top-actions">
+        <button class="chip" id="wakeBtn" type="button" aria-pressed="false" title="Resta in ascolto e rispondi quando senti «Jarvis»">
+          <span class="dot" aria-hidden="true"></span>Ehi Jarvis
+        </button>
+        <button class="icon-btn" id="newChatBtn" type="button" aria-label="Nuova conversazione" title="Nuova conversazione">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="banner" id="banner" role="alert" hidden></div>
+
+    <main class="stage" id="stage">
+      <div class="hero">
+        <button class="core" id="core" type="button" aria-label="Parla con Jarvis">
+          <span class="ring ring-1" aria-hidden="true"></span>
+          <span class="ring ring-2" aria-hidden="true"></span>
+          <span class="ring ring-3" aria-hidden="true"></span>
+          <span class="ring ring-4" aria-hidden="true"></span>
+          <span class="core-light" aria-hidden="true"></span>
+        </button>
+        <div class="core-status" id="coreStatus" aria-live="polite">Pronto</div>
+        <p class="greeting" id="greeting"></p>
+        <div class="suggestions" id="suggestions">
+          <button type="button" class="suggestion">Che tempo fa domani?</button>
+          <button type="button" class="suggestion">Ricordami di chiamare il commercialista domani alle 10</button>
+          <button type="button" class="suggestion">Cosa ricordi di me?</button>
+          <button type="button" class="suggestion">Salva una nota con la lista della spesa</button>
+        </div>
+      </div>
+      <section class="log" id="log" aria-label="Conversazione"></section>
+    </main>
+
+    <form class="composer" id="composer">
+      <button class="mic" id="micBtn" type="button" aria-label="Parla" title="Parla">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+      <textarea id="input" rows="1" placeholder="Scrivi o parla a Jarvis…" aria-label="Messaggio" enterkeyhint="send"></textarea>
+      <button class="send" id="sendBtn" type="submit" aria-label="Invia">
+        <svg class="icon-send" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        <svg class="icon-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer" aria-label="Pannello di Jarvis" hidden>
+    <div class="drawer-head">
+      <div class="tabs" role="tablist">
+        <button role="tab" type="button" data-tab="chats" aria-selected="true">Chat</button>
+        <button role="tab" type="button" data-tab="memories" aria-selected="false">Memoria</button>
+        <button role="tab" type="button" data-tab="reminders" aria-selected="false">Promemoria</button>
+        <button role="tab" type="button" data-tab="notes" aria-selected="false">Note</button>
+        <button role="tab" type="button" data-tab="settings" aria-selected="false">Impostazioni</button>
+      </div>
+      <button class="icon-btn" id="closeDrawer" type="button" aria-label="Chiudi il pannello">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <section class="panel" data-panel="chats">
+      <ul class="list" id="chatList"></ul>
+    </section>
+    <section class="panel" data-panel="memories" hidden>
+      <p class="hint">Quello che Jarvis ricorda di te. Digli «ricorda che…» per aggiungere, oppure elimina da qui. Le modifiche valgono dalla prossima conversazione.</p>
+      <ul class="list" id="memoryList"></ul>
+    </section>
+    <section class="panel" data-panel="reminders" hidden>
+      <p class="hint">Chiedi a Jarvis «ricordami di…». Il promemoria arriva qui quando l'app è aperta.</p>
+      <button class="btn" id="notifyBtn" type="button">Attiva le notifiche</button>
+      <ul class="list" id="reminderList"></ul>
+    </section>
+    <section class="panel" data-panel="notes" hidden>
+      <ul class="list" id="noteList"></ul>
+    </section>
+    <section class="panel" data-panel="settings" hidden>
+      <label class="field">
+        <span>Risposte a voce</span>
+        <select id="ttsMode">
+          <option value="auto">Quando parlo io</option>
+          <option value="always">Sempre</option>
+          <option value="never">Mai</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Voce</span>
+        <select id="voiceSelect"></select>
+      </label>
+      <label class="field">
+        <span>Velocità <output id="rateOut">1.0</output></span>
+        <input type="range" id="rate" min="0.7" max="1.5" step="0.05" value="1.05">
+      </label>
+      <button class="btn" id="testVoice" type="button">Prova la voce</button>
+      <button class="btn ghost" id="logoutBtn" type="button" hidden>Esci</button>
+      <p class="hint" id="supportHint"></p>
+    </section>
+  </aside>
+
+  <dialog class="login" id="loginDialog">
+    <form method="dialog" id="loginForm">
+      <h2>Accesso a Jarvis</h2>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" id="passwordInput" autocomplete="current-password" required>
+      </label>
+      <p class="error" id="loginError" hidden>Password errata.</p>
+      <button class="btn" type="submit">Entra</button>
+    </form>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="assertive"></div>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
