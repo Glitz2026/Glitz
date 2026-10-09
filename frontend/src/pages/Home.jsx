@@ -10,6 +10,7 @@ import Seo from "../components/Seo";
 import SafeImage from "../components/SafeImage";
 import InstagramFeed from "../components/InstagramFeed";
 import BookingModal from "../components/BookingModal";
+import ClubTour3D from "../components/ClubTour3D";
 
 const HERO_IMG_FALLBACK = "https://images.unsplash.com/photo-1705807672710-ee0d72e84b78?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
 const DRONE_IMG = "https://images.unsplash.com/photo-1692688197926-08d634e6db6f?crop=entropy&cs=srgb&fm=jpg&q=85&w=2000";
@@ -248,6 +249,9 @@ export default function Home() {
                     <div className="hidden lg:block" />
                 </div>
             </section>
+
+            {/* Mappa 3D del club: bar, privé, palco e servizi */}
+            <ClubTour3D />
 
             {/* Il Club — anteprima ambienti */}
             {(settings?.about_zones?.length || 0) > 0 && (
