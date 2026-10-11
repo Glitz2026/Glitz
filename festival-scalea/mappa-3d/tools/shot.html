@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#000">
+<canvas id="c" style="width:1600px;height:900px;display:block"></canvas>
+<script src="../dist/scena.js"></script>
+<script>
+  window.boot = (lite) => { window.S = GlitzScene.init(document.getElementById('c'), { preserve: true, reduced: true, dpr: 1, lite: !!lite }); return S.stats; };
+  window.shot = (view, mood, w, h, dpr) => {
+    const c = document.getElementById('c'); c.style.width = w + 'px'; c.style.height = h + 'px';
+    S.resize(w * (dpr || 1), h * (dpr || 1)); S.goView(view, true); S.setMood(mood); S.render(0);
+    const labels = S.labels.map((l) => ({ name: l.name, key: l.key, p: S.project(l.pos) }));
+    return { img: c.toDataURL('image/png'), labels, stats: S.stats };
+  };
+</script></body></html>

@@ -1,0 +1,48 @@
+# GLITZ Festival · Campo sportivo di Scalea
+
+Materiali per la proposta al Comune di Scalea (ottobre 2026): il festival di 8 ore nel campo sportivo di via Gaetano Scirea.
+
+## Contenuto
+
+- **Presentazione al Comune** (12 slide, pitch senza dati economici): [artifact](https://claude.ai/artifact/6yxNPChHqLCWi899TWu2Ux). Dalla pagina si scarica in PDF o PowerPoint. I sorgenti delle slide sono in `presentazione-comune/`; le immagini sono archiviate nell'artifact.
+- **Mappa 3D** del sito: `glitz-mappa-3d.html`, file autonomo da aprire nel browser (WebGL 2, nessuna libreria esterna). Pubblicata anche come [artifact](https://claude.ai/artifact/TKsZHS6uXCKQk82fhs2Urv).
+- `render/`: viste ricavate dal modello 3D (pianta di giorno e di notte, arena, drone, entroterra, ingresso, arco, privé).
+- `mappa-3d/`: sorgenti della scena e strumenti di build e render.
+
+Gli artifact sono privati finché non vengono condivisi dal menu Condividi della pagina.
+
+## La mappa 3D
+
+Ricostruisce il layout del PDF di progetto del 9 ottobre 2026 con il motore WebGL del modello del Campovolo (ombre, bloom, fari e laser):
+
+- arena nell'ovale del campo, palco ad arco a nord rivolto a sud, passerella e B-stage, privé A e B open air;
+- quattro torri audio con schermi LED, regia FOH, food street di 20 postazioni sulla pista, 120 bagni a pieno regime;
+- ingresso controllato a sud con code dentro il perimetro, presidio sanitario 118, corsia di soccorso separata, uscite di emergenza, torri faro;
+- sosta P1 nella fascia nord, P2 negli spazi residui (con posti accessibili vicino all'ingresso), P3 su un lato di via Scirea, punto navette sulla strada sud;
+- intorno: SS18, pineta, spiaggia con i lidi, mare, campi e case a est, via del Mare e via Po.
+
+Assi della scena: +x est, +z sud, unità in metri, fronte palco a z = 0. La pista è modellata come un ovale di 172 × 104 m: le dimensioni dell'area, i posti auto e le capienze sono indicativi e vanno verificati sul rilievo.
+
+Comandi: trascinare per ruotare, rotella o pizzico per lo zoom, Maiusc + trascina (o tasto destro) per spostarsi. Viste dall'alto e a terra, luce di giorno, al tramonto e di notte, legenda filtrabile. Un indirizzo che termina con `#pianta`, `#arena`, `#drone` o un'altra vista apre direttamente quella vista. Su telefono si avvia una versione più leggera.
+
+### Ricostruire
+
+```sh
+cd festival-scalea/mappa-3d
+node tools/build-page.mjs        # crea ../glitz-mappa-3d.html e dist/artifact.html
+```
+
+Render con Chromium headless (serve `playwright-core`, non incluso):
+
+```sh
+PLAYWRIGHT=/percorso/node_modules/playwright-core/index.mjs CHROMIUM=/percorso/chrome \
+  node tools/render.mjs /tmp/render pianta:giorno:1920:1080 drone:tramonto:1920:1080
+```
+
+Sorgenti in `src/`, concatenati in quest'ordine: `01-base.js` (matematica e geometria), `02-sito.js` (territorio, strade, arena, servizi, sosta), `03-palco.js` (palco ad arco e privé), `03b-pubblico.js` (pubblico, fari, laser), `04-render.js` (shader, ombre, bloom, viste, comandi).
+
+## Fonti dei dati della presentazione
+
+- PDF *Glitz Festival · Progetto Scalea* (proposta al Comune, 9 ottobre 2026): area, capienze, sosta, mobilità, enti, cronoprogramma, richieste.
+- Business plan del 20 settembre 2026: personale e servizi per scenario (addetti, antincendio, biglietteria, accoglienza, bagni, postazioni food), programma delle 8 ore, enti competenti.
+- Le quantità di personale sono stime del piano operativo, da validare nel piano di sicurezza.
