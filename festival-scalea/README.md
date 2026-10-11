@@ -4,7 +4,7 @@ Materiali per la proposta al Comune di Scalea (ottobre 2026): il festival di 8 o
 
 ## Contenuto
 
-- **Presentazione al Comune** (12 slide, pitch senza dati economici): [artifact](https://claude.ai/artifact/6yxNPChHqLCWi899TWu2Ux). Dalla pagina si scarica in PDF o PowerPoint. I sorgenti delle slide sono in `presentazione-comune/`; le immagini sono archiviate nell'artifact.
+- **Presentazione al Comune** (16 slide, pitch senza dati economici): [artifact](https://claude.ai/artifact/6yxNPChHqLCWi899TWu2Ux). Dalla pagina si scarica in PDF o PowerPoint. I sorgenti delle slide sono in `presentazione-comune/`; le immagini sono archiviate nell'artifact.
 - **Mappa 3D** del sito: `glitz-mappa-3d.html`, file autonomo da aprire nel browser (WebGL 2, nessuna libreria esterna). Pubblicata anche come [artifact](https://claude.ai/artifact/TKsZHS6uXCKQk82fhs2Urv).
 - `render/`: viste ricavate dal modello 3D (pianta di giorno e di notte, arena, drone, entroterra, ingresso, arco, privé).
 - `mappa-3d/`: sorgenti della scena e strumenti di build e render.
@@ -46,3 +46,10 @@ Sorgenti in `src/`, concatenati in quest'ordine: `01-base.js` (matematica e geom
 - PDF *Glitz Festival · Progetto Scalea* (proposta al Comune, 9 ottobre 2026): area, capienze, sosta, mobilità, enti, cronoprogramma, richieste.
 - Business plan del 20 settembre 2026: personale e servizi per scenario (addetti, antincendio, biglietteria, accoglienza, bagni, postazioni food), programma delle 8 ore, enti competenti.
 - Le quantità di personale sono stime del piano operativo, da validare nel piano di sicurezza.
+- Sezione «Le intenzioni» (slide 03–07), dati pubblici citati a piè di slide:
+  - Università di Pisa per AssoConcerti (2025): pubblico da fuori regione e permanenza media a La Prima Estate, Lucca Summer Festival e Taylor Swift a San Siro (2024).
+  - Federturismo Confindustria (2026): pernottamenti generati dalla musica dal vivo nel 2025, prime stime.
+  - ISTAT: abitanti di Scalea e residenti di Calabria, Campania, Basilicata e Puglia; posti letto e utilizzo medio a Scalea (elaborazione DatiTuristici, 2025).
+  - Eurostat (2024): stagionalità delle notti turistiche in Calabria.
+  - SACAL e Assaeroporti (2025): passeggeri di Lamezia Terme e Napoli; Trainline e Rome2Rio (2026): tempi di viaggio.
+  - Sky TG24 (2025), Billboard (2010), EXIT Festival e TIM Centar (2024): Ypsigrock a Castelbuono, FIB a Benicàssim, EXIT a Novi Sad.

@@ -1,1 +1,66 @@
-{"v":4,"createdOnFiles":{"v":1,"at":"2026-10-11T18:20:00Z"},"lists":"css","title":"GLITZ Festival · Comune di Scalea","order":["cover","numeri","ricadute","sito","giornata","personale","enti","sicurezza","mobilita","citta","cronoprogramma","richieste"],"sections":{"s1":{"description":"La proposta e cosa porta a Scalea","start":"cover"},"s2":{"description":"Il sito dall'alto e lo svolgimento della giornata","start":"sito"},"s3":{"description":"Personale, enti coinvolti e sicurezza","start":"personale"},"s4":{"description":"Mobilità, residenti e restituzione dell'area","start":"mobilita"},"s5":{"description":"Tempi e richieste al Comune","start":"cronoprogramma"}},"faces":{"bodoni-moda":{"family":"Bodoni Moda","href":"https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&display=swap"},"archivo":{"family":"Archivo","href":"https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"}},"designSystems":[]}
+{
+  "v": 4,
+  "attachments": {},
+  "createdOnFiles": {
+    "at": "2026-10-11T18:20:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "faces": {
+    "archivo": {
+      "family": "Archivo",
+      "href": "https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"
+    },
+    "bodoni-moda": {
+      "family": "Bodoni Moda",
+      "href": "https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&display=swap"
+    }
+  },
+  "lists": "css",
+  "order": [
+    "cover",
+    "numeri",
+    "intenzione",
+    "richiamo",
+    "flusso",
+    "stagione",
+    "mete",
+    "sito",
+    "giornata",
+    "personale",
+    "enti",
+    "sicurezza",
+    "citta",
+    "ricadute",
+    "cronoprogramma",
+    "richieste"
+  ],
+  "sections": {
+    "s1": {
+      "description": "La proposta e cosa porta a Scalea",
+      "start": "cover"
+    },
+    "s1b": {
+      "description": "Le intenzioni: artisti internazionali, un grande flusso di persone e un turismo nuovo",
+      "start": "intenzione"
+    },
+    "s2": {
+      "description": "Il sito dall'alto e lo svolgimento della giornata",
+      "start": "sito"
+    },
+    "s3": {
+      "description": "Personale, enti coinvolti e sicurezza",
+      "start": "personale"
+    },
+    "s4": {
+      "before": null,
+      "description": "Mobilità, residenti e restituzione dell'area",
+      "start": "citta"
+    },
+    "s5": {
+      "description": "Tempi e richieste al Comune",
+      "start": "cronoprogramma"
+    }
+  },
+  "title": "GLITZ Festival · Comune di Scalea"
+}
