@@ -1,0 +1,18 @@
+{
+ "v": 4,
+ "createdOnFiles": {"v": 1, "at": "2026-10-14T23:30:00Z"},
+ "lists": "css",
+ "title": "GLITZ Festival × Birra Cala · Proposta a C.d. Gest",
+ "order": ["cover", "proposta", "festival", "artisti", "media", "filiera", "listino", "fasce", "volumi", "ordini", "lattina", "tempi", "chiusura"],
+ "sections": {
+  "s1": {"description": "La proposta: Birra Cala birra ufficiale, C.d. Gest fornitore unico", "start": "cover"},
+  "s2": {"description": "Il festival e la visibilità che portano gli artisti internazionali", "start": "festival"},
+  "s3": {"description": "Consumi del pubblico e ordini per C.d. Gest nei tre scenari", "start": "filiera"},
+  "s4": {"description": "Birra Cala protagonista: la lattina del festival e i punti vendita", "start": "lattina"}
+ },
+ "faces": {
+  "archivo": {"family": "Archivo", "href": "https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"},
+  "bodoni-moda": {"family": "Bodoni Moda", "href": "https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&display=swap"}
+ },
+ "designSystems": []
+}

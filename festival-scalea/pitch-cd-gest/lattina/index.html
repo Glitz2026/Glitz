@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"Bodoni Moda";font-style:normal;font-weight:400;src:url(node_modules/@fontsource/bodoni-moda/files/bodoni-moda-latin-400-normal.woff2)}
+@font-face{font-family:"Bodoni Moda";font-style:italic;font-weight:400;src:url(node_modules/@fontsource/bodoni-moda/files/bodoni-moda-latin-400-italic.woff2)}
+@font-face{font-family:"Bodoni Moda";font-style:italic;font-weight:500;src:url(node_modules/@fontsource/bodoni-moda/files/bodoni-moda-latin-500-italic.woff2)}
+@font-face{font-family:"Archivo";font-weight:400;src:url(node_modules/@fontsource/archivo/files/archivo-latin-400-normal.woff2)}
+@font-face{font-family:"Archivo";font-weight:600;src:url(node_modules/@fontsource/archivo/files/archivo-latin-600-normal.woff2)}
+html,body{margin:0;background:#000}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><canvas id="c"></canvas>
+<script type="module">
+import { setup } from './scene.js'
+window.ready = (async () => {
+  await Promise.all([
+    document.fonts.load('400 60px "Bodoni Moda"'), document.fonts.load('italic 400 60px "Bodoni Moda"'),
+    document.fonts.load('italic 500 60px "Bodoni Moda"'), document.fonts.load('400 60px Archivo'), document.fonts.load('600 60px Archivo'),
+  ])
+  return true
+})()
+window.shoot = async (opts) => {
+  await window.ready
+  const cv = await setup(opts)
+  return cv.toDataURL('image/png')
+}
+window.labelPng = () => window.__label.toDataURL('image/png')
+</script></body></html>

@@ -1,0 +1,11 @@
+{
+  "name": "glitz-lattina-birra-cala",
+  "private": true,
+  "type": "module",
+  "description": "Mockup 3D della lattina Birra Cala × GLITZ Festival (three.js, render headless)",
+  "dependencies": {
+    "three": "0.186.1",
+    "@fontsource/bodoni-moda": "5.2.5",
+    "@fontsource/archivo": "5.2.5"
+  }
+}

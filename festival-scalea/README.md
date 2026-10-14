@@ -8,6 +8,10 @@ Materiali per la proposta al Comune di Scalea (ottobre 2026): il festival di 8 o
 - **Mappa 3D** del sito: `glitz-mappa-3d.html`, file autonomo da aprire nel browser (WebGL 2, nessuna libreria esterna). Pubblicata anche come [artifact](https://claude.ai/artifact/TKsZHS6uXCKQk82fhs2Urv).
 - `render/`: viste ricavate dal modello 3D (pianta di giorno e di notte, arena, drone, entroterra, ingresso, arco, privé).
 - `mappa-3d/`: sorgenti della scena e strumenti di build e render.
+- **Pitch per C.d. Gest Srl** (13 slide, Birra Cala birra ufficiale e C.d. Gest fornitore unico): [artifact](https://claude.ai/artifact/HHdudrtrbMT7REdEEyiq9t). Sorgenti in `pitch-cd-gest/`:
+  - `pitch-cd-gest/slides/` e `deck.json`: le slide;
+  - `pitch-cd-gest/lattina/`: mockup 3D della lattina Birra Cala × GLITZ (three.js), con i render in `lattina/render/`;
+  - `pitch-cd-gest/modello/`: modello dei consumi e degli ordini (20.000, 25.000 e 30.000 paganti, 6 e 8 ore).
 
 Gli artifact sono privati finché non vengono condivisi dal menu Condividi della pagina.
 
@@ -53,3 +57,14 @@ Sorgenti in `src/`, concatenati in quest'ordine: `01-base.js` (matematica e geom
   - Eurostat (2024): stagionalità delle notti turistiche in Calabria.
   - SACAL e Assaeroporti (2025): passeggeri di Lamezia Terme e Napoli; Trainline e Rome2Rio (2026): tempi di viaggio.
   - Sky TG24 (2025), Billboard (2010), EXIT Festival e TIM Centar (2024): Ypsigrock a Castelbuono, FIB a Benicàssim, EXIT a Novi Sad.
+
+## Pitch per C.d. Gest: ipotesi e fonti
+
+- Listino del festival indicato da GLITZ: Birra Cala 8 €, cocktail 10 €, premium 15 €, Coca-Cola 5 €, acqua 3 €, panino 8 €, completo 10 €.
+- Consumi a testa in 8 ore per tre fasce di pubblico (leggeri 40%, regolari 45%, forti consumatori 15%); con 6 ore le bevande scalano di un quarto. Riferimento interno: circa 2 cocktail a testa nelle serate GLITZ di 2–3 ore.
+- Ordini a C.d. Gest stimati al 32% delle vendite al netto dell'IVA al 10% (ipotesi del piano economico GLITZ). Giornata media calcolata sul fatturato 2024 di C.d. Gest (58,9 milioni di euro, fatturatoitalia.it).
+- Artisti (esempio di line-up da confermare): Chartmetric e kworb (settembre–ottobre 2026), DJ Mag, FIMI, Il Giorno.
+- Visibilità: Live Nation Living for Live (2025), The Brand Fans (Irlanda, 2026), EventTrack (2025), report Kappa FuturFestival 2024.
+- Concentrazione dei consumi: National Alcohol Survey USA (pubblicato nel 2007).
+- Birra Cala: Passione Lager, oro e Country Winner Italia ai World Beer Awards 2025.
+- Partnership di lungo periodo: Tuborg e Roskilde Festival, Heineken e Nameless Festival.
