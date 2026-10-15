@@ -4,14 +4,14 @@ Listino del festival indicato da GLITZ (prezzi al pubblico, IVA inclusa).
 Paniere per fasce di pubblico su 8 ore di permanenza; a 6 ore le bevande
 scalano in proporzione, il cibo resta uguale. Una fascia non beve alcol
 (minorenni, astemi, chi guida).
-Ordini a C.D. Gest = pezzi venduti × costo d'acquisto indicativo per prodotto
+Ordini a C.D. Gest = pezzi venduti × prezzo indicativo pagato a C.D. Gest per prodotto
 (IVA esclusa), da sostituire con i listini reali di C.D. Gest.
 """
 import json, sys
 
 PREZZI = {"birra": 8, "coca": 5, "acqua": 3, "panino": 8, "panino_completo": 10, "cocktail": 10, "premium": 15}
 
-# costo d'acquisto indicativo per pezzo, IVA esclusa
+# prezzo indicativo pagato a C.D. Gest da chioschi e bar, per pezzo, IVA esclusa
 COSTI = {
     "birra": 2.00,            # Birra Cala 33 cl
     "cocktail": 1.60,         # 4 cl di distillato, mixer, ghiaccio e guarnizione

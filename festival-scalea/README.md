@@ -62,9 +62,9 @@ Sorgenti in `src/`, concatenati in quest'ordine: `01-base.js` (matematica e geom
 
 - Listino del festival indicato da GLITZ: Birra Cala 8 €, cocktail 10 €, premium 15 €, Coca-Cola 5 €, acqua 3 €, panino 8 €, completo 10 €.
 - Consumi a testa in 8 ore di permanenza per quattro fasce di pubblico (senza alcol 15%, leggeri 30%, regolari 40%, alto spendenti 15%); con 6 ore le bevande scalano di un quarto. Riferimento interno: circa 2 cocktail a testa nelle serate GLITZ di 2–3 ore.
-- Ordini a C.D. Gest = pezzi venduti × costo d'acquisto indicativo per prodotto, IVA esclusa (birra 2,00 €, cocktail 1,60 €, premium 2,80 €, Coca-Cola 0,60 €, acqua 0,25 €, panino 2,00–2,80 €), da rifare con i listini di C.D. Gest. Giornata media: fatturato 2024 di C.D. Gest (58,9 milioni di euro, fatturatoitalia.it) diviso 365.
+- Ordini a C.D. Gest = pezzi venduti × prezzo indicativo che chioschi e bar pagano a C.D. Gest, IVA esclusa (Birra Cala 2,00 €, ingredienti di un cocktail 1,60 €, premium 2,80 €, Coca-Cola 0,60 €, acqua 0,25 €, panino 2,00–2,80 €), da rifare con i listini di C.D. Gest. Giornata media: fatturato 2024 di C.D. Gest (58,9 milioni di euro, fatturatoitalia.it) diviso 365.
 - Artisti (line-up di esempio, non contrattualizzata): Chartmetric e kworb (settembre–ottobre 2026), DJ Mag, UEFA, FIMI, GQ Italia.
-- Visibilità: Live Nation Living for Live (2025), The Brand Fans (Irlanda, 2026, indicativo), EventTrack (2025), Kappa FuturFestival 2024 (reach media dichiarata dagli organizzatori).
-- Concentrazione dei consumi: National Alcohol Survey USA (dati 2000, pubblicati nel 2007).
+- Visibilità: Live Nation Living for Live (2025), The Brand Fans (Irlanda, 2026, indicativo), EventTrack (2025), Kappa FuturFestival 2024 (reach mediatica dichiarata dagli organizzatori, 80–90 milioni di contatti secondo le fonti).
+- Privé (circa 500 posti) e fasce di spesa: piano operativo GLITZ.
 - Birra Cala: Passione Lager, Country Winner per l'Italia ai World Beer Awards 2025.
 - Partnership di lungo periodo: Tuborg e Roskilde Festival, Heineken e Nameless Festival.
