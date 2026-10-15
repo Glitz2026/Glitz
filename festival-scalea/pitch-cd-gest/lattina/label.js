@@ -185,7 +185,7 @@ function infoSide(ctx, c, cx) {
   spaced(ctx, 'Carattere Calabro', cx, 960, 'italic 400 92px "Bodoni Moda"', c.ivory, 0)
   spaced(ctx, 'PRODOTTA A SCALEA', cx, 1070, '600 54px Archivo', c.gold, 16)
   spaced(ctx, 'Lager · 4,8% vol · 33 cl', cx, 1230, '600 64px Archivo', c.ivory, 4)
-  spaced(ctx, 'Oro ai World Beer Awards 2025', cx, 1340, 'italic 400 64px "Bodoni Moda"', c.gold, 0)
+  spaced(ctx, 'Premiata ai World Beer Awards 2025', cx, 1340, 'italic 400 64px "Bodoni Moda"', c.gold, 0)
   spaced(ctx, 'Vietata la vendita ai minori di 18 anni', cx, 1560, '400 42px Archivo', c.grey, 0)
   spaced(ctx, 'Bevi responsabilmente', cx, 1622, '400 42px Archivo', c.grey, 0)
 }

@@ -3,41 +3,60 @@
   "paganti": 20000,
   "ore": 6,
   "volumi": {
-   "birra": 26250,
+   "birra": 23250,
    "coca": 15000,
    "acqua": 32250,
-   "panino": 8000,
-   "panino_completo": 12000,
-   "cocktail": 24000,
+   "panino": 9000,
+   "panino_completo": 11000,
+   "cocktail": 21000,
    "premium": 4500
   },
-  "birre": 26250,
-  "litri_birra": 8662,
-  "cocktail": 28500,
-  "bottiglie_distillati": 1629,
+  "birre": 23250,
+  "litri_birra": 7672,
+  "cocktail": 25500,
+  "bottiglie_distillati": 1457,
   "bibite": 15000,
   "acqua": 32250,
   "panini": 20000,
-  "spesa_lorda": 873250,
-  "spesa_testa": 43.66,
-  "ordini_cdgest": 254036,
-  "ordini_birra_cala": 61091,
-  "giornate_fatturato": 1.57,
+  "alcolici_testa": 2.438,
+  "spesa_lorda": 817250,
+  "spesa_testa": 40.86,
+  "ordini_cdgest": 158562,
+  "ordini_birra_cala": 46500,
+  "ordini_per_prodotto": {
+   "birra": 46500,
+   "coca": 9000,
+   "acqua": 8062,
+   "panino": 18000,
+   "panino_completo": 30800,
+   "cocktail": 33600,
+   "premium": 12600
+  },
+  "giornate_fatturato": 0.98,
   "fasce": {
+   "senza_alcol": {
+    "persone": 3000,
+    "spesa_testa": 16.25,
+    "quota_spesa": 0.06,
+    "quota_alcolici": 0.0
+   },
    "leggeri": {
-    "persone": 8000,
+    "persone": 6000,
     "spesa_testa": 29.75,
-    "quota_spesa": 0.273
+    "quota_spesa": 0.218,
+    "quota_alcolici": 0.185
    },
    "regolari": {
-    "persone": 9000,
+    "persone": 8000,
     "spesa_testa": 45.25,
-    "quota_spesa": 0.466
+    "quota_spesa": 0.443,
+    "quota_alcolici": 0.492
    },
-   "forti": {
+   "alto_spendenti": {
     "persone": 3000,
     "spesa_testa": 76.0,
-    "quota_spesa": 0.261
+    "quota_spesa": 0.279,
+    "quota_alcolici": 0.323
    }
   }
  },
@@ -45,41 +64,60 @@
   "paganti": 20000,
   "ore": 8,
   "volumi": {
-   "birra": 35000,
+   "birra": 31000,
    "coca": 20000,
    "acqua": 43000,
-   "panino": 8000,
-   "panino_completo": 12000,
-   "cocktail": 32000,
+   "panino": 9000,
+   "panino_completo": 11000,
+   "cocktail": 28000,
    "premium": 6000
   },
-  "birre": 35000,
-  "litri_birra": 11550,
-  "cocktail": 38000,
-  "bottiglie_distillati": 2171,
+  "birre": 31000,
+  "litri_birra": 10230,
+  "cocktail": 34000,
+  "bottiglie_distillati": 1943,
   "bibite": 20000,
   "acqua": 43000,
   "panini": 20000,
-  "spesa_lorda": 1103000,
-  "spesa_testa": 55.15,
-  "ordini_cdgest": 320873,
-  "ordini_birra_cala": 81455,
-  "giornate_fatturato": 1.99,
+  "alcolici_testa": 3.25,
+  "spesa_lorda": 1029000,
+  "spesa_testa": 51.45,
+  "ordini_cdgest": 195150,
+  "ordini_birra_cala": 62000,
+  "ordini_per_prodotto": {
+   "birra": 62000,
+   "coca": 12000,
+   "acqua": 10750,
+   "panino": 18000,
+   "panino_completo": 30800,
+   "cocktail": 44800,
+   "premium": 16800
+  },
+  "giornate_fatturato": 1.21,
   "fasce": {
+   "senza_alcol": {
+    "persone": 3000,
+    "spesa_testa": 19.0,
+    "quota_spesa": 0.055,
+    "quota_alcolici": 0.0
+   },
    "leggeri": {
-    "persone": 8000,
+    "persone": 6000,
     "spesa_testa": 37.0,
-    "quota_spesa": 0.268
+    "quota_spesa": 0.216,
+    "quota_alcolici": 0.185
    },
    "regolari": {
-    "persone": 9000,
+    "persone": 8000,
     "spesa_testa": 57.0,
-    "quota_spesa": 0.465
+    "quota_spesa": 0.443,
+    "quota_alcolici": 0.492
    },
-   "forti": {
+   "alto_spendenti": {
     "persone": 3000,
     "spesa_testa": 98.0,
-    "quota_spesa": 0.267
+    "quota_spesa": 0.286,
+    "quota_alcolici": 0.323
    }
   }
  },
@@ -87,41 +125,60 @@
   "paganti": 25000,
   "ore": 6,
   "volumi": {
-   "birra": 32812,
+   "birra": 29062,
    "coca": 18750,
    "acqua": 40312,
-   "panino": 10000,
-   "panino_completo": 15000,
-   "cocktail": 30000,
+   "panino": 11250,
+   "panino_completo": 13750,
+   "cocktail": 26250,
    "premium": 5625
   },
-  "birre": 32812,
-  "litri_birra": 10828,
-  "cocktail": 35625,
-  "bottiglie_distillati": 2036,
+  "birre": 29062,
+  "litri_birra": 9591,
+  "cocktail": 31875,
+  "bottiglie_distillati": 1821,
   "bibite": 18750,
   "acqua": 40312,
   "panini": 25000,
-  "spesa_lorda": 1091562,
-  "spesa_testa": 43.66,
-  "ordini_cdgest": 317545,
-  "ordini_birra_cala": 76364,
-  "giornate_fatturato": 1.97,
+  "alcolici_testa": 2.438,
+  "spesa_lorda": 1021562,
+  "spesa_testa": 40.86,
+  "ordini_cdgest": 198203,
+  "ordini_birra_cala": 58125,
+  "ordini_per_prodotto": {
+   "birra": 58125,
+   "coca": 11250,
+   "acqua": 10078,
+   "panino": 22500,
+   "panino_completo": 38500,
+   "cocktail": 42000,
+   "premium": 15750
+  },
+  "giornate_fatturato": 1.23,
   "fasce": {
+   "senza_alcol": {
+    "persone": 3750,
+    "spesa_testa": 16.25,
+    "quota_spesa": 0.06,
+    "quota_alcolici": 0.0
+   },
    "leggeri": {
-    "persone": 10000,
+    "persone": 7500,
     "spesa_testa": 29.75,
-    "quota_spesa": 0.273
+    "quota_spesa": 0.218,
+    "quota_alcolici": 0.185
    },
    "regolari": {
-    "persone": 11250,
+    "persone": 10000,
     "spesa_testa": 45.25,
-    "quota_spesa": 0.466
+    "quota_spesa": 0.443,
+    "quota_alcolici": 0.492
    },
-   "forti": {
+   "alto_spendenti": {
     "persone": 3750,
     "spesa_testa": 76.0,
-    "quota_spesa": 0.261
+    "quota_spesa": 0.279,
+    "quota_alcolici": 0.323
    }
   }
  },
@@ -129,41 +186,60 @@
   "paganti": 25000,
   "ore": 8,
   "volumi": {
-   "birra": 43750,
+   "birra": 38750,
    "coca": 25000,
    "acqua": 53750,
-   "panino": 10000,
-   "panino_completo": 15000,
-   "cocktail": 40000,
+   "panino": 11250,
+   "panino_completo": 13750,
+   "cocktail": 35000,
    "premium": 7500
   },
-  "birre": 43750,
-  "litri_birra": 14438,
-  "cocktail": 47500,
-  "bottiglie_distillati": 2714,
+  "birre": 38750,
+  "litri_birra": 12788,
+  "cocktail": 42500,
+  "bottiglie_distillati": 2429,
   "bibite": 25000,
   "acqua": 53750,
   "panini": 25000,
-  "spesa_lorda": 1378750,
-  "spesa_testa": 55.15,
-  "ordini_cdgest": 401091,
-  "ordini_birra_cala": 101818,
-  "giornate_fatturato": 2.48,
+  "alcolici_testa": 3.25,
+  "spesa_lorda": 1286250,
+  "spesa_testa": 51.45,
+  "ordini_cdgest": 243938,
+  "ordini_birra_cala": 77500,
+  "ordini_per_prodotto": {
+   "birra": 77500,
+   "coca": 15000,
+   "acqua": 13438,
+   "panino": 22500,
+   "panino_completo": 38500,
+   "cocktail": 56000,
+   "premium": 21000
+  },
+  "giornate_fatturato": 1.51,
   "fasce": {
+   "senza_alcol": {
+    "persone": 3750,
+    "spesa_testa": 19.0,
+    "quota_spesa": 0.055,
+    "quota_alcolici": 0.0
+   },
    "leggeri": {
-    "persone": 10000,
+    "persone": 7500,
     "spesa_testa": 37.0,
-    "quota_spesa": 0.268
+    "quota_spesa": 0.216,
+    "quota_alcolici": 0.185
    },
    "regolari": {
-    "persone": 11250,
+    "persone": 10000,
     "spesa_testa": 57.0,
-    "quota_spesa": 0.465
+    "quota_spesa": 0.443,
+    "quota_alcolici": 0.492
    },
-   "forti": {
+   "alto_spendenti": {
     "persone": 3750,
     "spesa_testa": 98.0,
-    "quota_spesa": 0.267
+    "quota_spesa": 0.286,
+    "quota_alcolici": 0.323
    }
   }
  },
@@ -171,41 +247,60 @@
   "paganti": 30000,
   "ore": 6,
   "volumi": {
-   "birra": 39375,
+   "birra": 34875,
    "coca": 22500,
    "acqua": 48375,
-   "panino": 12000,
-   "panino_completo": 18000,
-   "cocktail": 36000,
+   "panino": 13500,
+   "panino_completo": 16500,
+   "cocktail": 31500,
    "premium": 6750
   },
-  "birre": 39375,
-  "litri_birra": 12994,
-  "cocktail": 42750,
-  "bottiglie_distillati": 2443,
+  "birre": 34875,
+  "litri_birra": 11509,
+  "cocktail": 38250,
+  "bottiglie_distillati": 2186,
   "bibite": 22500,
   "acqua": 48375,
   "panini": 30000,
-  "spesa_lorda": 1309875,
-  "spesa_testa": 43.66,
-  "ordini_cdgest": 381055,
-  "ordini_birra_cala": 91636,
-  "giornate_fatturato": 2.36,
+  "alcolici_testa": 2.438,
+  "spesa_lorda": 1225875,
+  "spesa_testa": 40.86,
+  "ordini_cdgest": 237844,
+  "ordini_birra_cala": 69750,
+  "ordini_per_prodotto": {
+   "birra": 69750,
+   "coca": 13500,
+   "acqua": 12094,
+   "panino": 27000,
+   "panino_completo": 46200,
+   "cocktail": 50400,
+   "premium": 18900
+  },
+  "giornate_fatturato": 1.47,
   "fasce": {
+   "senza_alcol": {
+    "persone": 4500,
+    "spesa_testa": 16.25,
+    "quota_spesa": 0.06,
+    "quota_alcolici": 0.0
+   },
    "leggeri": {
-    "persone": 12000,
+    "persone": 9000,
     "spesa_testa": 29.75,
-    "quota_spesa": 0.273
+    "quota_spesa": 0.218,
+    "quota_alcolici": 0.185
    },
    "regolari": {
-    "persone": 13500,
+    "persone": 12000,
     "spesa_testa": 45.25,
-    "quota_spesa": 0.466
+    "quota_spesa": 0.443,
+    "quota_alcolici": 0.492
    },
-   "forti": {
+   "alto_spendenti": {
     "persone": 4500,
     "spesa_testa": 76.0,
-    "quota_spesa": 0.261
+    "quota_spesa": 0.279,
+    "quota_alcolici": 0.323
    }
   }
  },
@@ -213,41 +308,60 @@
   "paganti": 30000,
   "ore": 8,
   "volumi": {
-   "birra": 52500,
+   "birra": 46500,
    "coca": 30000,
    "acqua": 64500,
-   "panino": 12000,
-   "panino_completo": 18000,
-   "cocktail": 48000,
+   "panino": 13500,
+   "panino_completo": 16500,
+   "cocktail": 42000,
    "premium": 9000
   },
-  "birre": 52500,
-  "litri_birra": 17325,
-  "cocktail": 57000,
-  "bottiglie_distillati": 3257,
+  "birre": 46500,
+  "litri_birra": 15345,
+  "cocktail": 51000,
+  "bottiglie_distillati": 2914,
   "bibite": 30000,
   "acqua": 64500,
   "panini": 30000,
-  "spesa_lorda": 1654500,
-  "spesa_testa": 55.15,
-  "ordini_cdgest": 481309,
-  "ordini_birra_cala": 122182,
-  "giornate_fatturato": 2.98,
+  "alcolici_testa": 3.25,
+  "spesa_lorda": 1543500,
+  "spesa_testa": 51.45,
+  "ordini_cdgest": 292725,
+  "ordini_birra_cala": 93000,
+  "ordini_per_prodotto": {
+   "birra": 93000,
+   "coca": 18000,
+   "acqua": 16125,
+   "panino": 27000,
+   "panino_completo": 46200,
+   "cocktail": 67200,
+   "premium": 25200
+  },
+  "giornate_fatturato": 1.81,
   "fasce": {
+   "senza_alcol": {
+    "persone": 4500,
+    "spesa_testa": 19.0,
+    "quota_spesa": 0.055,
+    "quota_alcolici": 0.0
+   },
    "leggeri": {
-    "persone": 12000,
+    "persone": 9000,
     "spesa_testa": 37.0,
-    "quota_spesa": 0.268
+    "quota_spesa": 0.216,
+    "quota_alcolici": 0.185
    },
    "regolari": {
-    "persone": 13500,
+    "persone": 12000,
     "spesa_testa": 57.0,
-    "quota_spesa": 0.465
+    "quota_spesa": 0.443,
+    "quota_alcolici": 0.492
    },
-   "forti": {
+   "alto_spendenti": {
     "persone": 4500,
     "spesa_testa": 98.0,
-    "quota_spesa": 0.267
+    "quota_spesa": 0.286,
+    "quota_alcolici": 0.323
    }
   }
  }
