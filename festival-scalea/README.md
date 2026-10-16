@@ -12,6 +12,7 @@ Materiali per la proposta al Comune di Scalea (ottobre 2026): il festival di 8 o
   - `pitch-cd-gest/slides/` e `deck.json`: le slide;
   - `pitch-cd-gest/lattina/`: mockup 3D della lattina Birra Cala × GLITZ (three.js), con i render in `lattina/render/`;
   - `pitch-cd-gest/modello/`: modello dei consumi e degli ordini (20.000, 25.000 e 30.000 paganti, 6 e 8 ore).
+- **Proposta di società a C.D. Gest** (13 slide, società nuova al 50% tra Villa Sandra srl e C.D. Gest Srl, con costi reali e utili): [artifact](https://claude.ai/artifact/QXXJv6nxiNr1Lg5brD5ToX). Sorgenti in `societa-cd-gest/`; il conto economico è `societa-cd-gest/modello/economia.py`.
 
 Gli artifact sono privati finché non vengono condivisi dal menu Condividi della pagina.
 
@@ -68,3 +69,12 @@ Sorgenti in `src/`, concatenati in quest'ordine: `01-base.js` (matematica e geom
 - Privé (circa 500 posti) e fasce di spesa: piano operativo GLITZ.
 - Birra Cala: Passione Lager, Country Winner per l'Italia ai World Beer Awards 2025.
 - Partnership di lungo periodo: Tuborg e Roskilde Festival, Heineken e Nameless Festival.
+
+## Proposta di società: ipotesi del conto economico
+
+- Biglietto medio 69 € solo ingresso; imposte come nel piano GLITZ (IVA 22% e ISI 16% sulla stessa base, 50 € netti), con il confronto concerto (IVA 10%, 62,73 € netti).
+- Artisti 300.000 € tutto compreso (sensibilità a 250.000 €). Sponsor: obiettivo 100.000 € non firmato (sensibilità senza sponsor).
+- Costi del piano GLITZ scalati: produzione e area +10% ogni 5.000 paganti oltre i 20.000; sicurezza e servizi a moduli da 2.500 paganti (18.500 € l'uno); pubblicità 2 € a biglietto più 23.000 € fissi; diritti musicali 10% dei biglietti lordi più 15.000 €; fee di biglietteria 3%; promoter 5 € sul 30% dei biglietti; riserva imprevisti 10%; fondo fiscale 16% su sponsor e quota chioschi.
+- Chioschi: incasso e forniture C.D. Gest dal modello dei consumi (8 ore); costi dei gestori 16% personale, 7% attrezzature, 5% cali sul netto IVA; utile diviso a metà tra società e gestori.
+- Capitale prima dell'evento con il criterio del piano: 80% dei costi, riserva, anticipo diritti, ponte IVA, cauzioni e attivazioni, meno il 75% degli sponsor; nessun anticipo dalla biglietteria.
+- Utili prima delle imposte sul reddito. Costi pubblici (area, ordine pubblico) a zero secondo l'accordo con il Comune, da formalizzare.

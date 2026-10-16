@@ -1,0 +1,18 @@
+{
+ "v": 4,
+ "createdOnFiles": {"v": 1, "at": "2026-10-16T10:00:00Z"},
+ "lists": "css",
+ "title": "GLITZ Festival · Società Villa Sandra e C.D. Gest",
+ "order": ["cover", "societa", "festival", "flussi", "ricavi", "costi", "risultato", "chioschi", "cdgest", "capitale", "rischi", "struttura", "chiusura"],
+ "sections": {
+  "s1": {"description": "La proposta: una società nuova al 50% tra Villa Sandra e C.D. Gest", "start": "cover"},
+  "s2": {"description": "Ricavi, costi reali e utile del festival a 20.000, 25.000 e 30.000 paganti", "start": "flussi"},
+  "s3": {"description": "Cosa porta a C.D. Gest, il capitale da mettere e i rischi", "start": "cdgest"},
+  "s4": {"description": "La struttura della società e i prossimi passi", "start": "struttura"}
+ },
+ "faces": {
+  "archivo": {"family": "Archivo", "href": "https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap"},
+  "bodoni-moda": {"family": "Bodoni Moda", "href": "https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&display=swap"}
+ },
+ "designSystems": []
+}
