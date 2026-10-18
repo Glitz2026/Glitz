@@ -222,18 +222,19 @@ function pickBase(s, motif) { // colore di fondo di una fantasia: il più chiaro
 }
 function shade(hex, k) { const c = new THREE.Color(hex); const hsl = {}; c.getHSL(hsl); c.setHSL(hsl.h, hsl.s, Math.max(0, Math.min(1, hsl.l + k))); return '#' + c.getHexString(); }
 
-function envelope(block) {
+function envelope(block, brand = true) {
   const g = new THREE.Group();
   const [c, x] = cnv(30 * PX, 48 * PX); paperFill(x, c.width, c.height, KRAFT_P, { grain: 14, fibers: 1400 });
   x.fillStyle = 'rgba(0,0,0,0.12)'; x.fillRect(0, 8 * PX, c.width, 3); x.fillStyle = '#e9e1d2'; x.fillRect(0, 3 * PX, c.width, 1.6 * PX);
-  lockup(x, c.width / 2, c.height * 0.55, c.width * 0.5, NAVY, NAVY);
+  if (brand) lockup(x, c.width / 2, c.height * 0.55, c.width * 0.5, NAVY, NAVY);
   const m = new THREE.Mesh(new THREE.BoxGeometry(30, 48, 2.2), [plainMat(KRAFT_P), plainMat(KRAFT_P), plainMat(KRAFT_P), plainMat(KRAFT_P), paperMat(tex(c), { kind: 'crumple' }), plainMat(KRAFT_P)]);
   m.rotation.x = -0.18; m.position.set(0, 23.7, 0); g.add(m);
   return shadowAll(g);
 }
-export function bagScene(block) {
-  if (/e-commerce/i.test(block.title)) return envelope(block);
-  const specs = bagsFor(block);
+// brand: false mostra lo shopper come viene venduto (senza marchio stampato)
+export function bagScene(block, { brand = true } = {}) {
+  if (/e-commerce/i.test(block.title)) return envelope(block, brand);
+  const specs = bagsFor(block).map(s => ({ ...s, brand }));
   const g = new THREE.Group();
   // disposizione: la più grande dietro a sinistra, le altre davanti
   const order = specs.map((s, i) => [s, i]).sort((a, b) => b[0].w * b[0].h - a[0].w * a[0].h);

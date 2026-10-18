@@ -22,6 +22,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import * as L from './lib.js';
 import { PRODUCTS, EXTRA } from './products.js';
 import { bag, bagScene } from './bags.js';
+import { ITEMS as ITEMS1, IDENTITIES, napkinPrinted } from './items.js';
+import { ITEMS2 } from './items2.js';
+const ITEMS = { ...ITEMS1, ...ITEMS2 };
 
 await L.init();
 const q = new URLSearchParams(location.search);
@@ -50,6 +53,7 @@ ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground)
 
 // ombra di contatto (occlusione morbida sotto gli oggetti)
 function contact(obj) {
+  if (obj.userData.noContact) return;
   const [c, x] = L.cnv(256, 256); const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
   g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(0.55, 'rgba(0,0,0,0.22)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
   const t = new THREE.CanvasTexture(c);
@@ -72,10 +76,34 @@ const SEL_BAGS = {
   'shopper-white': () => bag({ w: 32, h: 29, d: 22, body: '#f3f1ea', inner: '#f3f1ea', handle: 'flat', handleColor: '#ece9e1', style: 'takeaway', seedN: 5 }),
   'shopper-green': () => bag({ w: 22, h: 29, d: 10, body: '#7fb596', inner: '#f3f1ea', handle: 'rope', handleColor: L.NAVY, seedN: 6 }),
 };
+// coordinato: bicchiere, tovagliolo, shopper e confezione con la stessa identità
+function coordinated(id) {
+  const I = IDENTITIES[id] || IDENTITIES.waste, g = new THREE.Group();
+  const cupPrint = (x, W, H) => { L.paperFill(x, W, H, I.paper, { grain: 4 }); x.fillStyle = I.ink; x.fillRect(0, H * 0.66, W, H * 0.34); for (const q of [0.25, 0.75]) I.mark(x, W * q, H * 0.36, H * 0.26); };
+  const b = bag({ w: 26, h: 32, d: 12, body: id === 'mint' ? '#e3efe8' : '#f3f1ea', inner: '#f3f1ea', handle: 'rope', handleColor: id === 'mint' ? L.NAVY : '#d9d3c4', seedN: 9 });
+  g.add(at(b, -14, -6, 0.32));
+  g.add(at(PRODUCTS[id === 'mint' ? 'PP03' : 'PP01'][0](), 12, -4, -0.35));
+  g.add(at(L.cup({ print: cupPrint, lidColor: id === 'mint' ? '#f2f2ef' : '#0f3140' }), 6, 13, 0));
+  g.add(at(napkinPrinted(I), -6, 14, 0.25));
+  return g;
+}
+// dettagli ravvicinati (manici, chiusure, texture, finiture)
+function detail(id) {
+  if (id === 'rope') return bag({ w: 32, h: 41, d: 13, body: '#b99a78', inner: '#b99a78', kraft: true, handle: 'rope', handleColor: '#c9a57a', seedN: 3 });
+  if (id === 'flat') return bag({ w: 32, h: 29, d: 22, body: '#f3f1ea', inner: '#f3f1ea', handle: 'flat', handleColor: '#ece9e1', style: 'takeaway', seedN: 5 });
+  if (id === 'cotton') return bag({ w: 27, h: 37, d: 12, fold: 6, body: L.NAVY, inner: '#f3f1ea', handle: 'cotton', handleColor: '#eef3ef', seedN: 4 });
+  if (id === 'closure') return PRODUCTS.PP03[0]();
+  if (id === 'lid') return L.cup({ print: (x, W, H) => { L.paperFill(x, W, H, '#f6f5f0', { grain: 4 }); }, lidColor: '#0f3140' });
+  if (id === 'diffuse') return PRODUCTS.PA04[0]();
+  return new THREE.Group();
+}
 async function build(name) {
   const [kind, id] = name.split(':');
   if (kind === 'pack') return PRODUCTS[id][0]();
-  if (kind === 'bag') { const data = await (await fetch('../build/data/shopper.json')).json(); return bagScene(data[+id]); }
+  if (kind === 'bag') { const data = await (await fetch('../build/data/shopper.json')).json(); return bagScene(data[+id], { brand: !q.has('plain') }); }
+  if (kind === 'item') return ITEMS[id][0]();
+  if (kind === 'coord') return coordinated(id);
+  if (kind === 'detail') return detail(id);
   if (kind === 'sel') return SEL_BAGS[id] ? SEL_BAGS[id]() : (EXTRA[id] || PRODUCTS[id])[0]();
   const P = (i) => PRODUCTS[i][0]();
   const g = new THREE.Group();
@@ -88,7 +116,7 @@ async function build(name) {
 }
 const obj = await build(SCENE); scene.add(obj); contact(obj);
 // camera predefinita del prodotto (se non indicata nell'URL)
-{ const [kind, id] = SCENE.split(':'); const reg = kind === 'pack' ? PRODUCTS[id] : kind === 'sel' ? (EXTRA[id] || PRODUCTS[id]) : null;
+{ const [kind, id] = SCENE.split(':'); const reg = kind === 'pack' ? PRODUCTS[id] : kind === 'item' ? ITEMS[id] : kind === 'sel' ? (EXTRA[id] || PRODUCTS[id]) : null;
   if (reg && !q.has('az')) for (const [k, v] of new URLSearchParams(reg[1])) q.set(k, v);
   if (kind === 'bag' && !q.has('az')) { q.set('az', '22'); q.set('el', '14'); } }
 
@@ -98,7 +126,8 @@ const camera = new THREE.PerspectiveCamera(+(q.get('fov') || 22), ASPECT, 1, 300
 const az = +(q.get('az') || 28) * Math.PI / 180, el = +(q.get('el') || 22) * Math.PI / 180;
 const dist = sphere.radius / Math.sin(camera.fov * Math.PI / 360) * 1.02;
 const dir = new THREE.Vector3(Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az));
-camera.position.copy(sphere.center).addScaledVector(dir, dist); camera.lookAt(sphere.center);
+const tgt = q.has('tx') ? new THREE.Vector3(+q.get('tx'), +q.get('ty'), +q.get('tz')) : sphere.center;
+camera.position.copy(tgt).addScaledVector(dir, q.has('dist') ? +q.get('dist') : dist); camera.lookAt(tgt);
 const R = sphere.radius;
 key.position.copy(sphere.center).add(new THREE.Vector3(-1.1 * R, 2.4 * R, 1.3 * R)); key.target.position.copy(sphere.center);
 Object.assign(key.shadow.camera, { left: -R * 1.8, right: R * 1.8, top: R * 1.8, bottom: -R * 1.8, near: 0.1, far: R * 8 }); key.shadow.camera.updateProjectionMatrix();
