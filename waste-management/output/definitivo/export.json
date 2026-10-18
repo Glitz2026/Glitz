@@ -1,0 +1,22 @@
+{
+ "digital_mb": 18.4,
+ "print_mb": 18.5,
+ "pages": 131,
+ "parts": [
+  {
+   "file": "Waste-Management-Group-Catalogo-parte-1-di-3.pdf",
+   "pages": "1–40",
+   "mb": 5.3
+  },
+  {
+   "file": "Waste-Management-Group-Catalogo-parte-2-di-3.pdf",
+   "pages": "41–87",
+   "mb": 7.0
+  },
+  {
+   "file": "Waste-Management-Group-Catalogo-parte-3-di-3.pdf",
+   "pages": "88–131",
+   "mb": 7.3
+  }
+ ]
+}

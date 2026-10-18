@@ -1,0 +1,3 @@
+Sorgente dell'impaginato: apri catalogo.html in Chrome o Edge e stampa in PDF (A4, margini nessuno, grafica di sfondo attiva).
+Testi e tabelle sono nel file HTML, lo stile in css/v2.css, le immagini in img/ e il marchio in assets/.
+Per la versione con abbondanza imposta in css/v2.css la variabile --b: 3mm e il formato pagina 216 × 303 mm.
