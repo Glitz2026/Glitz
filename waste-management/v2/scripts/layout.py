@@ -44,14 +44,17 @@ def apply_merges(fams):
         base = dict(srcs[0][0])
         rows, mats, notes = [], [], []
         for F, pre in srcs:
+            gram = re.search(r'\d+\s*g/m²', F.get('material') or '')
+            pre_r = f'{pre} {gram.group(0)}' if pre and gram and target == 'Carte da incarto' else pre
             for r in F['rows']:
                 v = re.sub(r'^Sac à Poche\s+', '', r['variant'] or '')
-                rows.append(dict(r, variant=(f'{pre} · {v}' if pre and v else (pre or v))))
-            if F.get('material') and F['material'] not in mats:
-                mats.append(F['material'])
+                rows.append(dict(r, variant=(f'{pre_r} · {v}' if pre_r and v else (pre_r or v))))
+            for tok in (F.get('material') or '').split(' · '):
+                if tok and tok not in mats and not re.search(r'g/m²', tok):
+                    mats.append(tok)
             notes += [n for n in F.get('notes', []) if n not in notes]
             MERGED_INTO[F['name']] = target
-        base.update(name=target, function=fn, rows=rows, material=' · '.join(mats[:3]), notes=notes,
+        base.update(name=target, function=fn, rows=rows, material='Carta' if target == 'Carte da incarto' else ' · '.join(mats[:3]), notes=notes,
                     custom=any(F.get('custom') for F, _ in srcs), images=[], representative=True,
                     id=slug(target), source_pages=sorted({p for F, _ in srcs for p in F.get('source_pages', [])}))
         first = fams.index(srcs[0][0])

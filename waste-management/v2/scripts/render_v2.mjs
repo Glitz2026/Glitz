@@ -7,7 +7,7 @@ import { serve } from '../../scripts/render-mockups.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const OUT = join(ROOT, 'v2', 'build', 'renders');
 export const JOBS = {
-  ...Object.fromEntries(Array.from({ length: 59 }, (_, i) => [`bag-${String(i).padStart(2, '0')}`, `scene=bag:${i}&plain=1`])),
+  ...Object.fromEntries(Array.from({ length: 59 }, (_, i) => [`bag-${String(i).padStart(2, '0')}`, `scene=bag:${i}&plain=1&size=1300`])),
   'item-napkin-softtouch': 'scene=item:napkin-softtouch', 'item-tnt-tablecloths': 'scene=item:tnt-tablecloths', 'item-tnt-runner': 'scene=item:tnt-runner',
   'item-tnt-placemat': 'scene=item:tnt-placemat', 'item-softtouch-set': 'scene=item:softtouch-set', 'item-paper-ashtray': 'scene=item:paper-ashtray',
   'item-rpet-cups': 'scene=item:rpet-cups', 'item-paper-stack': 'scene=item:paper-stack', 'item-piping-bag': 'scene=item:piping-bag',

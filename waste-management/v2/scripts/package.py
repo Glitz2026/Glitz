@@ -60,6 +60,46 @@ def data():
     return len(rows)
 
 
+
+
+def readme():
+    """Guida ai file consegnati (output/definitivo/LEGGIMI.md)."""
+    ex = json.load(open(OUT.parent / 'export.json'))
+    rep = json.load(open(B / 'layout_report.json'))
+    parts = '\n'.join(f"- `{p['file']}` — pagine {p['pages']}, {p['mb']} MB" for p in ex['parts'])
+    rows = json.load(open(B / 'products.json'))
+    reps = sorted({r['famiglia'] for r in rows if r['immagine']})
+    low = [f'{u} ({d} dpi)' for f, u, d in rep['low_dpi'] if d < 200]
+    text = f"""# Waste Management Group · Catalogo prodotti
+
+## File
+- `Waste-Management-Group-Catalogo-digitale.pdf` — {ex['pages']} pagine A4, indice e collegamenti cliccabili, segnalibri. {ex['digital_mb']} MB.
+- `Waste-Management-Group-Catalogo-stampa-A4-abbondanza-3mm.pdf` — per stampa e plastificazione: 216 × 303 mm con 3 mm di abbondanza per lato, TrimBox A4 210 × 297 mm. {ex['print_mb']} MB.
+{parts}
+- `modificabile/Waste-Management-Group-Catalogo-modificabile.pptx` — una diapositiva A4 per pagina: testi, immagini e tabelle sono oggetti separati e modificabili.
+- `modificabile/font/` — Inter (Light, Regular, Medium, SemiBold): da installare prima di aprire il file PowerPoint.
+- `modificabile/sorgente-html/` — impaginato originale (HTML + CSS + immagini), da cui si rigenerano i PDF.
+- `modificabile/dati/prodotti-e-codici.xlsx` e `.csv` — {len(rows)} righe: sezione, famiglia, codice originale, variante, materiale, personalizzazione, pagina.
+
+## Carattere
+Helvetica Light non è disponibile in questo ambiente (è un carattere con licenza). È stato sostituito da Inter, un sans-serif dal disegno neutro e analogo, nei pesi Light (testi), Regular, Medium e SemiBold (titoli e codici). Se disponete della licenza Helvetica, nella versione PowerPoint basta sostituire il carattere.
+
+## Immagini
+- Le fotografie dei prodotti sono scontornate e presentate su un fondale uniforme con la stessa ombra.
+- Le illustrazioni schematiche del documento di partenza sono state sostituite da render 3D fedeli a forma, materiale, colore e misure documentati.
+- Le immagini che rappresentano solo la famiglia riportano la nota «Immagine rappresentativa».
+- Le fotografie più deboli sono state migliorate con super-risoluzione (ricostruzione dei dettagli, non semplice ingrandimento) e non sono mai stampate sotto i 180 dpi effettivi.
+- Famiglie con immagine rappresentativa: {len(reps)}.
+- Immagini ancora al limite della risoluzione (da sostituire con foto originali del produttore quando disponibili): {', '.join(low) if low else 'nessuna'}.
+
+## Da verificare prima della stampa
+- Contatti: telefono 334 712 4042 e indirizzo Zona Industriale, C.da La Bruca, Scalea (CS) sono ripresi dal materiale fornito; il profilo Instagram @wastemanagementgroup è stato verificato.
+- Prezzi, anno, quantità di confezione e minimi di personalizzazione non sono riportati.
+"""
+    (OUT.parent / 'LEGGIMI.md').write_text(text)
+
+
 if __name__ == '__main__':
     OUT.mkdir(parents=True, exist_ok=True)
     print('immagini sorgente', html_source(), '· righe prodotto', data())
+    readme()
