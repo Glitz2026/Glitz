@@ -38,6 +38,8 @@ if __name__ == '__main__':
     sr = cv2.dnn_superres.DnnSuperResImpl_create()
     sr.readModel(str(MODEL)); sr.setModel('edsr', 4)
     todo = [(k, r) for k, r in idx.items() if not r.get('exclude') and r['long'] < limit and k not in done and (not only or k[:8] in only)]
+    pri = list(sys.argv[2:])          # ordine di priorità indicato in riga di comando
+    todo.sort(key=lambda kr: pri.index(kr[0][:8]) if kr[0][:8] in pri else len(pri))
     print('da elaborare', len(todo), flush=True)
     for i, (k, r) in enumerate(todo):
         t = time.time()
